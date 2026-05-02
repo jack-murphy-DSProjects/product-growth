@@ -1,0 +1,36 @@
+# Environment
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+.ipynb_checkpoints/
+
+# Local agent controls
+AGENTS.override.md
+.agent/*
+!.agent/*.example
+
+# Local data / generated outputs
+data/generated/
+data/processed/
+data/outputs/
+*.duckdb
+*.db
+*.sqlite
+*.sqlite3
+
+# MLflow / model artefacts
+mlruns/
+artifacts/models/
+artifacts/tmp/
+
+# OS/editor
+.DS_Store
+.vscode/
+.idea/
