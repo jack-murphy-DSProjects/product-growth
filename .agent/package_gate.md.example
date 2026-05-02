@@ -1,0 +1,11 @@
+# Package Gate Example
+
+Before starting work, confirm:
+
+- Active package:
+- Files in scope:
+- Files out of scope:
+- Tests to run:
+- Public safety risks:
+
+For Package -1, do not implement Packages 0-10.

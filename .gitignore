@@ -6,7 +6,12 @@
 # Python
 __pycache__/
 *.py[cod]
+*.egg-info/
 .pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 .venv/
 venv/
 .ipynb_checkpoints/
@@ -16,7 +21,7 @@ AGENTS.override.md
 .agent/*
 !.agent/*.example
 
-# Local data / generated outputs
+# Local data and generated outputs
 data/generated/
 data/processed/
 data/outputs/
@@ -25,7 +30,7 @@ data/outputs/
 *.sqlite
 *.sqlite3
 
-# MLflow / model artefacts
+# MLflow and model artefacts
 mlruns/
 artifacts/models/
 artifacts/tmp/

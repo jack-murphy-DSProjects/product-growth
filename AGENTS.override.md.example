@@ -1,0 +1,19 @@
+# Local Agent Override Example
+
+This file is a template for local-only instructions. Copy it to
+`AGENTS.override.md` if needed.
+
+Do not commit `AGENTS.override.md`.
+
+Allowed local notes:
+
+- Current package under execution.
+- Temporary local paths.
+- Private implementation preferences.
+- Machine-specific setup notes.
+
+Disallowed local notes:
+
+- Secrets, tokens, passwords, or private keys.
+- Real company, customer, user, invoice, CRM, or support data.
+- Private production paths or internal system names.

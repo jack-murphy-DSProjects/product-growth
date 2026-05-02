@@ -1,0 +1,14 @@
+# Current Execution Context Example
+
+Copy this file to a local ignored note only if needed.
+
+Active package:
+Package -1
+
+Allowed scope:
+Agent harness, public/private documentation boundary, project contract, context
+vocabulary, package plan, runbook, security rules, public repo safety check, and
+initial test harness.
+
+Stop conditions:
+Real data, secrets, generated artefacts, or future package implementation.

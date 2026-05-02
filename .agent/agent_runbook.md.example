@@ -1,0 +1,10 @@
+# Agent Runbook Example
+
+1. Read `AGENTS.md`.
+2. Confirm the active package.
+3. Read `docs/project_contract.md`, `docs/context.md`, `docs/packages.md`,
+   `docs/security.md`, and `docs/runbook.md`.
+4. Grill before build.
+5. Use a test-first loop for behavior changes.
+6. Run `make public-safety-check`, `make test`, and `make verify`.
+7. Do not commit; report recommended commit commands.
