@@ -75,6 +75,9 @@ Acceptance criteria:
 
 ## Package 1: Synthetic SaaS data generator
 
+Status:
+Complete.
+
 Goal:
 Generate deterministic synthetic B2B SaaS source tables.
 
@@ -99,7 +102,10 @@ Acceptance criteria:
 - Foreign keys are valid.
 - Dates are valid.
 - Churn and expansion rates are plausible.
-- No real data is used.
+- Source values are synthetic and public-safe.
+- Generated CSVs remain ignored local files.
+- DuckDB, account-month features, labels, models, scores, dashboards,
+  notebooks, APIs, Vercel, and cloud deployment remain out of scope.
 
 ---
 

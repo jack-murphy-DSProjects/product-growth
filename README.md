@@ -120,7 +120,7 @@ Run `make public-safety-check` before committing.
   plan. Complete.
 - Package 0: repo skeleton, public narrative, initial docs, and package smoke
   test. Complete.
-- Package 1: deterministic synthetic SaaS source data generator.
+- Package 1: deterministic synthetic SaaS source data generator. Complete.
 - Package 2: DuckDB warehouse and table contracts.
 - Package 3: account-month features and labels.
 - Package 4: commercial rule baselines.
@@ -135,9 +135,23 @@ Run `make public-safety-check` before committing.
 
 Package -1 and Package 0 are complete. Package 0 defines the public narrative,
 intended architecture, placeholder contracts, model card template, and import
-smoke test. There is currently no synthetic data generation, DuckDB warehouse,
-MLflow tracking, model training, scoring logic, dashboards, notebooks, cloud
-deployment, or generated output.
+smoke test. Package 1 adds deterministic synthetic source-table generation and
+a local CSV-writing CLI. There is currently no DuckDB warehouse, MLflow
+tracking, model training, scoring logic, dashboards, notebooks, cloud
+deployment, or committed generated output.
+
+## Synthetic Source Data
+
+Generate ignored local CSVs with:
+
+```bash
+make generate-synthetic-data
+```
+
+The default run writes `accounts`, `users`, `usage_events`, `subscriptions`,
+`invoices`, `support_tickets`, `crm_touchpoints`, and `renewals` CSVs under
+`data/generated/`. See `docs/synthetic_data.md` and `docs/data_contract.md` for
+Package 1 details.
 
 ## Local Checks
 
