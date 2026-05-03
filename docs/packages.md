@@ -44,25 +44,32 @@ Acceptance criteria:
 Goal:
 Create the project structure and public README narrative.
 
+Status:
+Complete.
+
 Tasks:
 
 - Create Python package structure.
-- Expand Makefile with future pipeline commands.
-- Finalise `pyproject.toml`.
+- Keep Makefile commands limited to checks that actually work.
 - Improve `README.md`.
 - Create `docs/problem_framing.md`.
 - Create `docs/architecture.md`.
 - Create `docs/tradeoffs.md`.
 - Create `docs/data_contract.md` placeholders.
-- Add basic smoke test.
+- Create `docs/feature_contract.md` placeholder.
+- Create `docs/model_card.md` template.
+- Add basic package smoke test.
 
 Acceptance criteria:
 
 - `make test` runs.
+- `make verify` passes.
 - README explains the project clearly.
 - Architecture is documented before implementation.
 - No synthetic data generation yet.
 - No model training yet.
+- No generated output, local database, MLflow run, notebook, dashboard, API, or
+  cloud deployment is added.
 
 ---
 
