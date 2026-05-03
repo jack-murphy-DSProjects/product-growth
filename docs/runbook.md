@@ -25,3 +25,104 @@ make verify
 - Real data or secrets are needed.
 - Generated artefacts would need to be committed.
 - Public safety checks fail outside the current scope.
+
+## Package 2 runbook — DuckDB warehouse
+
+When working on Package 2, agents must preserve the following boundaries.
+
+### Active package
+
+Package 2 is limited to loading Package 1 generated synthetic source CSVs into a local DuckDB warehouse and validating source-table contracts.
+
+Package 2 proves that source CSVs can be safely persisted and validated in DuckDB.
+
+Package 2 does not make the data model-ready.
+
+### Required stance
+
+Before each implementation unit, restate:
+
+- the active Package 2 unit
+- the specific runbook rule that constrains the unit
+- the out-of-scope behaviours that must not be introduced
+
+### Allowed changes
+
+Package 2 may change:
+
+- Warehouse loader code under `src/account_health/warehouse/`
+- Warehouse CLI script under `scripts/`
+- Warehouse tests under `tests/`
+- Warehouse documentation under `docs/`
+- Makefile commands for real, tested warehouse operations
+- `.gitignore` only to strengthen public-repo safety
+
+### Forbidden changes
+
+Package 2 must not add:
+
+- Account-month features
+- Churn labels
+- Expansion labels
+- Model training
+- MLflow logic
+- Champion selection
+- Batch scoring
+- Health bands
+- Recommended actions
+- Monitoring reports
+- Dashboards
+- Notebooks
+- APIs
+- Cloud deployment
+- Vercel
+- Real SaaS integrations
+- Real customer data
+- Incremental loading
+- dbt
+- Orchestration frameworks
+
+### Security checks
+
+Before closing each Package 2 unit, run:
+
+- `make verify`
+- `git diff --check`
+- `git status --short`
+
+Generated or local-only files must not be tracked.
+
+Confirm none of the following are staged or tracked:
+
+- `data/generated/`
+- `data/warehouse/`
+- `*.duckdb`
+- `*.duckdb.wal`
+- `mlruns/`
+- `.env`
+- `AGENTS.override.md`
+- `.agent/current_execution_context.md`
+- `.agent/package_gate.md`
+- `.agent/agent_runbook.md`
+- `__pycache__/`
+- `.pytest_cache/`
+- `*.egg-info/`
+
+### Stop conditions
+
+Stop and request review before:
+
+- Changing the account-month grain.
+- Adding or changing modelling labels.
+- Adding model training.
+- Adding MLflow.
+- Adding scoring.
+- Adding dashboards.
+- Adding cloud deployment.
+- Adding Vercel.
+- Adding real customer data.
+- Weakening public-repo safety.
+- Committing generated artefacts.
+- Adding unapproved production dependencies.
+- Removing tests.
+- Expanding beyond raw/source warehouse loading.

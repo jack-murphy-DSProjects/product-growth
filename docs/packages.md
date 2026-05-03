@@ -109,26 +109,157 @@ Acceptance criteria:
 
 ---
 
-## Package 2: DuckDB warehouse and data contracts
+## Package 2 — DuckDB warehouse and source contract validation
 
-Goal:
-Load generated data into DuckDB and validate table contracts.
+**Status:** Not started
 
-Tasks:
+### Goal
 
-- Create SQL table definitions.
-- Implement DuckDB loader.
-- Implement schema validation.
-- Document table grains.
-- Add contract tests.
+Load generated synthetic SaaS source CSVs into a local DuckDB analytical warehouse and validate the source-table contracts before any modelling, feature engineering, labels, scoring, or RevOps outputs are built.
 
-Acceptance criteria:
+Package 2 establishes the raw/source persistence layer for the project.
 
-- DuckDB database builds locally.
-- Required columns are validated.
-- Invalid schema fails loudly.
-- Local database files are gitignored.
-- Data contract docs are updated.
+### Scope
+
+Package 2 creates a local DuckDB database at:
+
+- `data/warehouse/account_health.duckdb`
+
+The database contains raw source tables:
+
+- `raw.accounts`
+- `raw.users`
+- `raw.usage_events`
+- `raw.subscriptions`
+- `raw.invoices`
+- `raw.support_tickets`
+- `raw.crm_touchpoints`
+- `raw.renewals`
+
+It may also contain minimal load metadata:
+
+- `metadata.load_audit`
+
+The loader reads existing generated CSVs from:
+
+- `data/generated/`
+
+Generation and loading are separate package responsibilities.
+
+The Package 2 loader must fail clearly if required CSVs are missing.
+
+### Required capabilities
+
+Package 2 must:
+
+- Load all Package 1 source CSVs into DuckDB.
+- Use explicit `source_dir` and `database_path` arguments.
+- Default to overwrite/rebuild behaviour rather than append/incremental loading.
+- Create raw/source tables only.
+- Validate required source files are present.
+- Validate required source columns are present.
+- Validate primary-key uniqueness.
+- Validate foreign-key integrity.
+- Validate basic date validity and date-ordering rules.
+- Validate basic non-empty table expectations.
+- Add tests using temporary generated data and temporary DuckDB files.
+- Keep generated CSVs and DuckDB databases out of git.
+- Update documentation to reflect the warehouse contract.
+
+### Out of scope
+
+Package 2 must not:
+
+- Build account-month features.
+- Create churn labels.
+- Create expansion labels.
+- Train models.
+- Add MLflow logic.
+- Score accounts.
+- Create health bands.
+- Create recommended GTT actions.
+- Create monitoring reports.
+- Add dashboards.
+- Add notebooks.
+- Add APIs.
+- Add cloud deployment.
+- Add Vercel.
+- Add real SaaS integrations.
+- Use real customer data.
+- Add incremental loading.
+- Add dbt, orchestration frameworks, or migration tooling.
+- Commit generated CSVs, DuckDB files, MLflow artefacts, cache files, or live local agent files.
+
+### Package 2 units
+
+#### Package 2A — Warehouse contract and documentation
+
+Define the Package 2 warehouse contract, paths, schemas, source table list, validation responsibilities, and exclusions.
+
+Exit gate:
+
+- `docs/warehouse.md` exists.
+- `docs/packages.md` reflects Package 2 scope.
+- `docs/decisions.md` records Package 2 decisions.
+- No implementation beyond documentation and ignore-rule tightening unless strictly necessary.
+- No generated/local files are tracked.
+- `make verify` passes.
+- `git diff --check` passes.
+
+#### Package 2B — Loader happy path
+
+Implement the minimal warehouse loader and CLI.
+
+Exit gate:
+
+- Existing generated source CSVs can be loaded into temporary DuckDB database.
+- All raw tables are created.
+- Row counts match source CSV row counts.
+- Minimal `metadata.load_audit` exists.
+- Happy-path tests pass.
+- `make verify` passes.
+- `git diff --check` passes.
+
+#### Package 2C — Source presence and schema validation
+
+Add required file and required column validation.
+
+Exit gate:
+
+- Missing required source CSV fails clearly.
+- Missing required source column fails clearly.
+- Validation errors are structured or otherwise testable.
+- Tests cover missing file and schema mismatch.
+- `make verify` passes.
+- `git diff --check` passes.
+
+#### Package 2D — Relational and date validation
+
+Add source-table integrity validation.
+
+Exit gate:
+
+- Duplicate primary keys fail validation.
+- Broken foreign keys fail validation.
+- Invalid date ordering fails validation.
+- Validation remains limited to raw source contracts.
+- No account-month, label, feature, model, scoring, health-band, recommendation, or monitoring logic is introduced.
+- `make verify` passes.
+- `git diff --check` passes.
+
+#### Package 2E — Closeout and security review
+
+Close the package.
+
+Exit gate:
+
+- `make verify` passes.
+- `git diff --check` passes.
+- Public repo safety check passes.
+- Documentation is aligned.
+- `.gitignore` protects generated/local artefacts.
+- No generated CSVs, DuckDB files, `.duckdb.wal`, `mlruns`, cache folders, live `.agent` files, or private files are tracked.
+- Package 3 has not started.
 
 ---
 
