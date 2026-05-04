@@ -125,7 +125,7 @@ Run `make public-safety-check` before committing.
 - Package 1: deterministic synthetic SaaS source data generator. Complete.
 - Package 2: DuckDB warehouse and table contracts. Complete.
 - Package 3: account-month features and labels. Complete.
-- Package 4: commercial rule baseline benchmark artefacts.
+- Package 4: commercial rule baseline benchmark artefacts. Complete.
 - Package 5: candidate model training with MLflow.
 - Package 6: layered evaluation and champion selection.
 - Package 7: MLflow registry and model promotion.
@@ -135,15 +135,19 @@ Run `make public-safety-check` before committing.
 
 ## Current Status
 
-Package -1, Package 0, Package 1, Package 2, and Package 3 are complete.
+Package -1, Package 0, Package 1, Package 2, Package 3, and Package 4 are
+complete.
 Package 1 adds deterministic synthetic source-table generation and a local
 CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
 minimal load audit, and source-table contract validation. Package 3 adds
 `mart.account_month`, renewal-based `churn_90d` and `expansion_90d` labels,
-point-in-time MVP features, leakage tests, and local feature build audit. There
-is currently no baseline scoring implementation, MLflow tracking, model
-training, final scoring logic, dashboards, notebooks, cloud deployment, or
-committed generated output.
+point-in-time MVP features, leakage tests, and local feature build audit.
+Package 4 adds `mart.account_month_baselines`, deterministic churn and
+expansion rule baseline scores, component columns, rank and decile helpers, a
+local rebuild command, and minimal baseline build audit. There is currently no
+MLflow tracking, model training, final scoring logic, health-band policy, GTM
+action layer, dashboards, notebooks, cloud deployment, or committed generated
+output.
 
 ## Synthetic Source Data
 
@@ -175,6 +179,16 @@ make build-account-month
 
 The build creates or replaces `mart.account_month` and appends a local audit row
 to `metadata.feature_build_audit`.
+
+Build the ignored local rule baseline benchmark table with:
+
+```bash
+make build-rule-baselines
+```
+
+The build creates or replaces `mart.account_month_baselines` from
+`mart.account_month` and appends a local audit row to
+`metadata.baseline_build_audit`.
 
 ## Local Checks
 

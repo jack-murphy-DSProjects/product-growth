@@ -446,7 +446,7 @@ Exit gate:
 ## Package 4: Rule baselines
 
 Status:
-In progress. Package 4A prepares docs, contracts, and the local harness only.
+Complete.
 
 Goal:
 Create boring, deterministic, interpretable commercial rule baselines from
@@ -505,7 +505,7 @@ Package 4 must not:
 - Labels are not used in score calculation.
 - `synthetic_archetype` is not used in score calculation.
 - Baseline ranks and deciles are prioritisation helpers, not final GTM policy.
-- Minimal audit metadata is local and public-safe if created.
+- Minimal audit metadata is local and public-safe.
 - Documentation records baseline assumptions and exclusions.
 - `make verify`, `git diff --check`, and public repo safety checks pass.
 - No Package 5+ work appears.

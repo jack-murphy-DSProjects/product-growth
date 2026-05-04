@@ -76,8 +76,16 @@ Minimum expected columns:
 - `baseline_expansion_rank`
 - `baseline_churn_decile`
 - `baseline_expansion_decile`
-- churn component columns
-- expansion component columns
+- `baseline_churn_component_usage_risk`
+- `baseline_churn_component_support_risk`
+- `baseline_churn_component_billing_risk`
+- `baseline_churn_component_relationship_risk`
+- `baseline_churn_component_subscription_risk`
+- `baseline_expansion_component_usage_strength`
+- `baseline_expansion_component_commercial_fit`
+- `baseline_expansion_component_gtm_engagement`
+- `baseline_expansion_component_low_friction`
+- `baseline_expansion_component_maturity`
 - `baseline_version`
 - `baseline_created_at_utc`
 
@@ -98,9 +106,24 @@ Column rules:
 - The output must preserve one-row-per-account-month parity with
   `mart.account_month`.
 
+Package 4 approved scoring inputs are limited to the documented Package 3
+point-in-time feature families already present in `mart.account_month`:
+
+- Account and segment fields.
+- Current subscription fields.
+- Trailing usage fields.
+- Support fields.
+- Billing fields.
+- CRM touchpoint fields.
+
+Identifier fields, observation dates, label fields, label eligibility fields,
+generator-only fields, and baseline audit fields are not approved scoring
+inputs. In particular, `churn_90d`, `expansion_90d`, and
+`synthetic_archetype` must not influence either baseline score.
+
 ### `metadata.baseline_build_audit`
 
-Package 4 may create minimal local audit metadata for baseline builds.
+Package 4 creates minimal local audit metadata for baseline builds.
 
 Minimum expected columns if created:
 

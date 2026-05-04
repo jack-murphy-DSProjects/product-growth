@@ -191,3 +191,15 @@ Rationale:
 
 Package 4 must not use `churn_90d`, `expansion_90d`, or
 `synthetic_archetype` as scoring inputs.
+
+### Decision: Local baseline build audit
+
+Package 4 creates `metadata.baseline_build_audit` during local baseline
+rebuilds.
+
+The audit table records build ID, UTC build time, source table, output table,
+baseline version, row counts, observation-month bounds, and status.
+
+It is local build metadata only. It is not model metadata, MLflow tracking, a
+model registry, orchestration state, monitoring output, model evaluation, or
+champion-selection evidence.

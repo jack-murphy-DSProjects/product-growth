@@ -3,16 +3,19 @@
 ## Status
 
 Package 3 implements the account-month modelling contract defined in Package
-3A.
+3A. Package 4 implements deterministic rule baseline benchmark artefacts from
+`mart.account_month`.
 
-The implemented output table is:
+The implemented output tables are:
 
 - `mart.account_month`
+- `mart.account_month_baselines`
 
-The local build command is:
+The local build commands are:
 
 ```bash
 make build-account-month
+make build-rule-baselines
 ```
 
 ## Output Table
@@ -374,8 +377,172 @@ Ranks and deciles are prioritisation helpers for later comparison. They are not
 capacity decisions, account health policy, recommended GTM actions, or champion
 selection outputs.
 
+Package 4E validates that these helper fields remain bounded helpers on the
+baseline output table and do not introduce policy-layer outputs.
+
 Package 4 must not mutate `mart.account_month`. Baselines must be built as a
 separate additive table.
+
+The local Package 4 build command is:
+
+```bash
+make build-rule-baselines
+```
+
+The command creates or replaces `mart.account_month_baselines` and appends one
+minimal local audit row to `metadata.baseline_build_audit`.
+
+### Package 4B Approved Baseline Inputs
+
+Package 4B approves only point-in-time feature columns already present in
+`mart.account_month` as baseline scoring inputs.
+
+Carry-through identifiers and dates:
+
+- `account_id`
+- `observation_month`
+- `observation_month_end`
+
+Approved scoring input columns:
+
+- Account and segment: `account_age_days`, `industry`, `region`, `segment`,
+  `company_size_band`, `acquisition_channel`
+- Subscription: `current_plan`, `current_mrr`, `current_billing_period`,
+  `subscription_age_days`
+- Usage: `usage_event_count_30d`, `usage_event_count_90d`,
+  `usage_event_count_180d`, `active_user_count_30d`,
+  `active_user_count_90d`, `active_user_count_180d`,
+  `usage_event_value_sum_90d`
+- Support: `support_ticket_count_30d`, `support_ticket_count_90d`,
+  `support_ticket_count_180d`, `high_priority_ticket_count_90d`,
+  `open_ticket_count`, `avg_resolution_hours_known`,
+  `days_since_last_ticket`
+- Billing: `invoice_count_90d`, `invoice_count_180d`,
+  `invoice_amount_sum_90d`, `invoice_amount_sum_180d`,
+  `unpaid_invoice_count_90d`, `failed_invoice_count_90d`,
+  `overdue_invoice_count`, `avg_payment_delay_days_known`,
+  `days_since_last_invoice`
+- CRM: `crm_touchpoint_count_30d`, `crm_touchpoint_count_90d`,
+  `crm_touchpoint_count_180d`, `sales_touchpoint_count_90d`,
+  `cs_touchpoint_count_90d`, `days_since_last_crm_touchpoint`
+
+Explicitly excluded from scoring:
+
+- Identifiers and dates: `account_id`, `observation_month`,
+  `observation_month_end`, `account_created_date`
+- Label and eligibility fields: `is_churn_label_eligible`,
+  `is_expansion_label_eligible`, `churn_90d`, `expansion_90d`
+- Generator-only fields: `accounts.synthetic_archetype`,
+  `synthetic_archetype`
+- Baseline audit fields: `baseline_version`, `baseline_created_at_utc`
+
+Null handling for baseline components:
+
+- Count and sum inputs keep the Package 3 `0` defaults when no known records
+  exist.
+- Recency fields that are `NULL` mean no known historical event and must be
+  handled explicitly by any component using that field.
+- Known average fields that are `NULL` mean no qualifying known value and must
+  be handled explicitly by any component using that field.
+- Categorical nulls should score neutrally unless a later Package 4 unit
+  documents a deterministic component rule.
+
+Component naming:
+
+- Churn component columns use the `baseline_churn_component_*` prefix.
+- Expansion component columns use the `baseline_expansion_component_*` prefix.
+- Component values are bounded numeric contributions or explicitly documented
+  helper values.
+
+Score bounds:
+
+- `baseline_churn_score` must be bounded between `0` and `100`.
+- `baseline_expansion_score` must be bounded between `0` and `100`.
+
+### Package 4C Churn Baseline
+
+The deterministic churn baseline is a commercial risk heuristic. It is not a
+calibrated probability.
+
+Churn score field:
+
+- `baseline_churn_score`
+
+Churn component columns:
+
+- `baseline_churn_component_usage_risk`
+- `baseline_churn_component_support_risk`
+- `baseline_churn_component_billing_risk`
+- `baseline_churn_component_relationship_risk`
+- `baseline_churn_component_subscription_risk`
+
+The churn score is the bounded sum of the churn component columns. Components
+use approved Package 4B inputs only. The churn label fields
+`is_churn_label_eligible`, `is_expansion_label_eligible`, `churn_90d`, and
+`expansion_90d` must not be referenced by the churn score calculation.
+
+Churn component assumptions:
+
+- Low recent usage, low active-user coverage, and declining recent activity
+  increase churn benchmark risk.
+- High-priority support load, unresolved support work, and long known
+  resolution times increase churn benchmark risk.
+- Failed, unpaid, overdue, or slow-paid invoices increase churn benchmark risk.
+- Missing or stale CRM/customer-success engagement increases churn benchmark
+  risk.
+- Lower-commitment subscription context, such as starter plans, monthly
+  billing, young subscriptions, and very low MRR, increases churn benchmark
+  risk.
+
+### Package 4D Expansion Baseline
+
+The deterministic expansion baseline is a commercial readiness heuristic. It is
+not a calibrated probability, a sales-qualified lead rule, or a recommended GTM
+action.
+
+Expansion score field:
+
+- `baseline_expansion_score`
+
+Expansion component columns:
+
+- `baseline_expansion_component_usage_strength`
+- `baseline_expansion_component_commercial_fit`
+- `baseline_expansion_component_gtm_engagement`
+- `baseline_expansion_component_low_friction`
+- `baseline_expansion_component_maturity`
+
+The expansion score is the bounded sum of the expansion component columns.
+Components use approved Package 4B inputs only. The label fields
+`is_churn_label_eligible`, `is_expansion_label_eligible`, `churn_90d`, and
+`expansion_90d` must not be referenced by the expansion score calculation.
+
+Expansion component assumptions:
+
+- Strong product usage, active-user depth, usage value, and current-period
+  usage strength increase expansion benchmark readiness.
+- Commercial fit is higher when the account has plan headroom, meaningful MRR,
+  larger segment or company-size context, and annual billing.
+- Recent sales, customer-success, and CRM engagement increase expansion
+  benchmark readiness.
+- Low billing friction and low unresolved support burden increase expansion
+  benchmark readiness.
+- Mature accounts and subscriptions with remaining plan headroom increase
+  expansion benchmark readiness.
+
+### Package 4F Baseline Audit
+
+Package 4 creates:
+
+- `metadata.baseline_build_audit`
+
+This table records one row per local baseline rebuild with build ID, UTC build
+time, source table, output table, baseline version, row counts, observation
+month bounds, and status.
+
+The audit table is local build metadata only. It is not model metadata,
+MLflow, a registry, orchestration state, monitoring output, model evaluation,
+or champion-selection evidence.
 
 ## Later Contract Requirements
 

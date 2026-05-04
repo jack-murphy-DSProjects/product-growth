@@ -67,10 +67,16 @@ Package 4 adds a separate benchmark mart table:
   predictions, MLflow runs, monitoring reports, dashboards, APIs, or cloud
   outputs.
 
-The default local command is:
+The default local account-month command is:
 
 ```bash
 make build-account-month
+```
+
+The default local baseline command is:
+
+```bash
+make build-rule-baselines
 ```
 
 ## Raw source tables
