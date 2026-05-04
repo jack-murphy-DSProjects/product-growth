@@ -125,7 +125,7 @@ Run `make public-safety-check` before committing.
 - Package 1: deterministic synthetic SaaS source data generator. Complete.
 - Package 2: DuckDB warehouse and table contracts. Complete.
 - Package 3: account-month features and labels. Complete.
-- Package 4: commercial rule baselines.
+- Package 4: commercial rule baseline benchmark artefacts.
 - Package 5: candidate model training with MLflow.
 - Package 6: layered evaluation and champion selection.
 - Package 7: MLflow registry and model promotion.
@@ -141,8 +141,9 @@ CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
 minimal load audit, and source-table contract validation. Package 3 adds
 `mart.account_month`, renewal-based `churn_90d` and `expansion_90d` labels,
 point-in-time MVP features, leakage tests, and local feature build audit. There
-is currently no MLflow tracking, model training, scoring logic, dashboards,
-notebooks, cloud deployment, or committed generated output.
+is currently no baseline scoring implementation, MLflow tracking, model
+training, final scoring logic, dashboards, notebooks, cloud deployment, or
+committed generated output.
 
 ## Synthetic Source Data
 

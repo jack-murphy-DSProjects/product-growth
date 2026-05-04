@@ -3,60 +3,62 @@
 Copy this file to `.agent/package_gate.md` only for local runs. The live file is
 ignored and must not be committed.
 
+When a new package starts, refresh the live gate so the active package and unit
+match the current approved work. Stale active-package references are a stop
+condition.
+
 ## Package
 
-Package 3 - Account-month features and labels
+Package 4 - Rule Baselines
 
 ## Active unit
 
-Set this manually for one approved Package 3 unit:
+Set this manually for one approved Package 4 unit:
 
-1. Package 3A - Docs, contract, and harness update
-2. Package 3B - Account-month spine
-3. Package 3C - Labels
-4. Package 3D - Features
-5. Package 3E - Leakage hardening
-6. Package 3F - CLI, audit, docs closeout
+1. Package 4A - Docs, contract, and harness prep
+2. Package 4B - Baseline input contract
+3. Package 4C - Churn baseline
+4. Package 4D - Expansion baseline
+5. Package 4E - Validation and leakage tests
+6. Package 4F - CLI, audit, and docs closeout
 
 ## Package-level exit gate
 
-Package 3 is complete only when:
+Package 4 is complete only when:
 
-- `mart.account_month` exists.
-- The table has one row per active subscribed account x calendar observation
-  month.
+- `mart.account_month_baselines` exists.
+- One output row exists per `mart.account_month` row.
 - Primary grain is `account_id`, `observation_month`.
-- `observation_month` is the first day of the month.
-- `observation_month_end` is the last day of the month.
-- Features use only records known on or before `observation_month_end`.
-- Labels use a 90-day future horizon.
-- `churn_90d` is renewal-based churn from `raw.renewals`.
-- `expansion_90d` is renewal-based paid MRR expansion from `raw.renewals`.
-- Ineligible labels are `NULL`, not `0`.
-- `raw.accounts.synthetic_archetype` is excluded from modelling features.
-- Leakage tests pass.
-- No generated CSVs or DuckDB files are committed.
-- Documentation is aligned.
+- `observation_month_end` is carried through.
+- Scores are deterministic and bounded.
+- Churn and expansion component columns exist.
+- Labels are not used in score calculation.
+- `synthetic_archetype` is not used in score calculation.
+- Ranks and deciles are prioritisation helpers only.
+- Optional `metadata.baseline_build_audit` is minimal local audit metadata.
+- No Package 5+ work appears.
 - `make verify` passes.
 - `git diff --check` passes.
 - Public repo safety check passes.
-- No MLflow runs, model artefacts, scoring outputs, dashboards, APIs, cloud
-  deployments, live `.agent/*.md` files, or private files are tracked.
+- No generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
+  files, private files, dashboards, APIs, cloud deployments, final policy
+  outputs, or model artefacts are tracked.
 
-## Package 3A exit gate
+## Package 4A exit gate
 
-Package 3A is complete only when:
+Package 4A is complete only when:
 
-- Durable docs define the Package 3 account-month contract.
-- `docs/feature_contract.md` is clear enough for Package 3B onward.
-- `docs/data_contract.md`, `docs/warehouse.md`, `docs/packages.md`, and
-  `docs/agentic_execution.md` are aligned.
-- Committed `.agent/*.example` templates reference Package 3 and the approved
-  3A-3F unit structure.
-- Package 3 implementation has not started beyond docs and harness examples.
+- Durable docs define the Package 4 baseline benchmark contract.
+- `docs/feature_contract.md` is clear enough for Package 4B onward.
+- `docs/data_contract.md`, `docs/warehouse.md`, `docs/packages.md`,
+  `docs/decisions.md`, and `docs/agentic_execution.md` are aligned.
+- Committed `.agent/*.example` templates reference Package 4 and include the
+  approved 4A-4F unit structure.
+- Live local `.agent/*.md` files are refreshed for Package 4 but remain ignored
+  and untracked.
+- Package 4 implementation has not started beyond docs and harness context.
 - No code, scripts, Make targets, generated data, DuckDB loads, dependencies,
-  or feature-building tests are added.
-- Live local `.agent/*.md` files are not modified or tracked.
+  or baseline scoring tests are added.
 - `make verify` passes.
 - `git diff --check` passes.
 - Public repo safety check passes.
@@ -65,19 +67,17 @@ Package 3A is complete only when:
 
 Stop before making any change that would:
 
+- Change `mart.account_month` semantics.
 - Change the account-month grain.
-- Change the 90-day label horizon.
-- Change the canonical label source.
-- Change the renewal-based churn definition.
-- Change the renewal-based paid MRR expansion definition.
-- Treat ineligible labels as `0`.
-- Use `synthetic_archetype` as a modelling feature.
+- Change Package 3 label semantics.
+- Use `churn_90d` or `expansion_90d` as scoring inputs.
+- Use `synthetic_archetype` as a scoring input.
 - Add model training.
 - Add MLflow experiments or logic.
 - Add model registry logic.
-- Add rule baselines.
-- Add scoring.
-- Add health bands.
+- Add champion selection.
+- Add full Package 5+ evaluation or baseline-vs-ML comparison.
+- Add final health bands.
 - Add recommended GTM actions.
 - Add monitoring reports.
 - Add dashboards.
@@ -85,10 +85,13 @@ Stop before making any change that would:
 - Add APIs.
 - Add cloud deployment.
 - Add Vercel.
+- Add dbt.
+- Add orchestration.
 - Use real customer data.
 - Add real SaaS integrations.
 - Weaken public-repo security.
 - Commit generated artefacts.
+- Commit live local `.agent/*.md` files.
 - Add unapproved production dependencies.
-- Remove tests.
-- Expand Package 3 beyond the approved 3A-3F slices.
+- Remove or weaken tests.
+- Expand Package 4 beyond the approved 4A-4F slices.

@@ -445,23 +445,178 @@ Exit gate:
 
 ## Package 4: Rule baselines
 
+Status:
+In progress. Package 4A prepares docs, contracts, and the local harness only.
+
 Goal:
-Create commercial rule baselines before ML.
+Create boring, deterministic, interpretable commercial rule baselines from
+`mart.account_month` for future ML models to beat.
 
-Tasks:
+Package 4 creates benchmark artefacts. It does not create final policy outputs.
 
-- Implement churn rule baseline.
-- Implement expansion rule baseline.
-- Score account-month rows using baseline logic.
-- Evaluate baseline using top-K and monthly backtest.
-- Document baseline assumptions.
+### Scope
 
-Acceptance criteria:
+Package 4 may create:
 
-- Baselines are credible, not strawmen.
-- Baselines generate comparable scores or flags.
-- Baseline metrics are saved.
-- Baseline logic is documented.
+- `mart.account_month_baselines`
+- optional minimal `metadata.baseline_build_audit`
+
+Package 4 source table:
+
+- `mart.account_month`
+
+Package 4 must preserve:
+
+- `mart.account_month` semantics.
+- Account-month grain.
+- Package 3 label semantics.
+- Public-repo safety.
+- Synthetic-data-only boundary.
+
+Package 4 must not:
+
+- Train ML models.
+- Add MLflow.
+- Add model registry logic.
+- Perform champion selection.
+- Create final account health bands.
+- Create recommended GTM actions.
+- Create monitoring reports.
+- Add dashboards.
+- Add APIs.
+- Add cloud, Vercel, dbt, orchestration, or real SaaS integrations.
+- Add dependencies.
+- Use labels as scoring inputs.
+- Use `accounts.synthetic_archetype` or `synthetic_archetype` as a scoring
+  input.
+- Mutate `mart.account_month`.
+- Commit generated, local-only, private, or environment-specific files.
+
+### Acceptance criteria
+
+- Output table is `mart.account_month_baselines`.
+- One output row exists per `mart.account_month` row.
+- Primary grain is `account_id`, `observation_month`.
+- `observation_month_end` is carried through for auditability.
+- Baseline scores are deterministic and bounded.
+- Baseline scores are heuristic benchmark scores, not calibrated
+  probabilities.
+- Churn and expansion component columns exist for auditability.
+- Labels are not used in score calculation.
+- `synthetic_archetype` is not used in score calculation.
+- Baseline ranks and deciles are prioritisation helpers, not final GTM policy.
+- Minimal audit metadata is local and public-safe if created.
+- Documentation records baseline assumptions and exclusions.
+- `make verify`, `git diff --check`, and public repo safety checks pass.
+- No Package 5+ work appears.
+- No generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
+  files, private files, dashboards, APIs, cloud deployments, final scoring
+  outputs, or model artefacts are tracked.
+
+### Package 4 units
+
+#### Package 4A - Docs, contract, and harness prep
+
+Prepare durable docs and local harness context for Package 4. Do not implement
+baseline scoring.
+
+Exit gate:
+
+- `docs/packages.md` defines Package 4 scope, exclusions, and 4A-4F units.
+- `docs/feature_contract.md` defines the baseline source table, output table,
+  grain, forbidden scoring inputs, auditability expectations, and rank/decile
+  semantics.
+- `docs/data_contract.md` prepares the `mart.account_month_baselines` and
+  `metadata.baseline_build_audit` contracts.
+- `docs/warehouse.md` documents `mart.account_month_baselines` as an additive
+  mart table built from `mart.account_month`.
+- `docs/decisions.md` records the baseline-as-benchmark decision.
+- `docs/agentic_execution.md` explains live harness refresh requirements and
+  stale active-package stop conditions.
+- Committed `.agent/*.example` templates are aligned for the next active
+  package and include stale-package pre-run checks.
+- Live local `.agent/*.md` files are refreshed for Package 4 but remain
+  ignored and untracked.
+- No baseline implementation code, scripts, Make targets, generated data,
+  DuckDB loads, dependencies, or Package 4 scoring tests are added.
+- `make verify`, `git diff --check`, and public repo safety checks pass.
+
+#### Package 4B - Baseline input contract
+
+Define the exact approved input columns from `mart.account_month`, feature
+families, null handling, component naming, score bounds, and forbidden inputs
+for the baseline builder.
+
+Exit gate:
+
+- The approved Package 4 input list is documented and enforced.
+- `churn_90d` and `expansion_90d` are excluded from scoring inputs.
+- `synthetic_archetype` is excluded from scoring inputs.
+- Identifier, date, audit, label, and generator-only fields are handled
+  explicitly.
+- No churn or expansion scoring logic is implemented beyond contract plumbing
+  needed for the unit.
+
+#### Package 4C - Churn baseline
+
+Implement the deterministic churn rule baseline and its component columns.
+
+Exit gate:
+
+- `baseline_churn_score` is deterministic and bounded.
+- Churn component columns exist and explain the score.
+- The score uses only approved point-in-time inputs from `mart.account_month`.
+- Churn labels are not used in score calculation.
+- No expansion score, final health band, GTM action, ML, MLflow, or champion
+  logic is introduced.
+
+#### Package 4D - Expansion baseline
+
+Implement the deterministic expansion rule baseline and its component columns.
+
+Exit gate:
+
+- `baseline_expansion_score` is deterministic and bounded.
+- Expansion component columns exist and explain the score.
+- The score uses only approved point-in-time inputs from `mart.account_month`.
+- Expansion labels are not used in score calculation.
+- No final health band, GTM action, ML, MLflow, or champion logic is
+  introduced.
+
+#### Package 4E - Validation and leakage tests
+
+Add validation coverage for baseline grain, score bounds, determinism,
+component presence, forbidden inputs, and output parity with
+`mart.account_month`.
+
+Exit gate:
+
+- One output row exists per `mart.account_month` row.
+- Output grain is unique on `account_id`, `observation_month`.
+- Scores are bounded and deterministic.
+- Component columns are present.
+- Label columns are not used in scoring logic.
+- `synthetic_archetype` is not used.
+- No Package 5+ evaluation, ML training, MLflow, champion selection, policy,
+  dashboard, API, monitoring, or cloud work is introduced.
+
+#### Package 4F - CLI, audit, and docs closeout
+
+Add the approved local execution surface, minimal audit metadata if useful, and
+close Package 4 documentation.
+
+Exit gate:
+
+- Package 4 can rebuild `mart.account_month_baselines` through the approved
+  local project command pattern.
+- Optional `metadata.baseline_build_audit` remains minimal local audit
+  metadata, not orchestration, monitoring, registry, or model metadata.
+- Documentation reflects implemented baseline columns, assumptions,
+  exclusions, validations, and commands.
+- `make verify`, `git diff --check`, and public repo safety checks pass.
+- No generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
+  files, private files, dashboards, APIs, cloud deployments, final policy
+  outputs, model artefacts, or Package 5+ work are tracked.
 
 ---
 

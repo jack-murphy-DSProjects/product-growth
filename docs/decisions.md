@@ -162,3 +162,32 @@ builds.
 The audit table records build counts and source coverage for inspectability.
 It is not an orchestration framework, monitoring system, model registry, or
 production metadata store.
+
+## Package 4 decisions
+
+### Decision: Rule baselines are benchmark artefacts, not policy
+
+Package 4 creates deterministic rule baselines in a separate table:
+
+- `mart.account_month_baselines`
+
+The source table is:
+
+- `mart.account_month`
+
+The baselines are heuristic benchmark scores for later ML models to beat. They
+are not calibrated probabilities, final account health bands, recommended GTM
+actions, champion decisions, monitoring reports, or production policy outputs.
+
+Rationale:
+
+- Separating baselines preserves the Package 3 account-month semantics.
+- Keeping baselines outside `mart.account_month` avoids mutating the modelling
+  table and keeps feature/label construction distinct from benchmark scoring.
+- Baseline scores remain separate from future ML predictions, which supports
+  clear baseline-vs-ML comparison in later evaluation packages.
+- Deferring health bands and recommended actions avoids introducing the GTM
+  action layer before scores and models have been evaluated.
+
+Package 4 must not use `churn_90d`, `expansion_90d`, or
+`synthetic_archetype` as scoring inputs.

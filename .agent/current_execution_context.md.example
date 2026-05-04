@@ -3,92 +3,85 @@
 Copy this file to `.agent/current_execution_context.md` only for local runs.
 The live file is ignored and must not be committed.
 
+When a new package starts, refresh the live file so the active package and
+active unit match the current approved work. Stale active-package references
+are a stop condition.
+
 ## Active package
 
-Package 3 - Account-month features and labels
+Package 4 - Rule Baselines
 
 ## Active goal
 
-Build the point-in-time `mart.account_month` analytical modelling table from
-raw DuckDB source tables.
+Build deterministic, interpretable rule baseline benchmark artefacts from
+`mart.account_month` for future ML models to beat.
 
-Package 3 builds the account-month modelling table only. It does not train
-models, create baselines, score accounts, add health bands, create GTM
-recommendations, add dashboards, add APIs, deploy to cloud services, add
-MLflow, add dbt, use real SaaS integrations, use real customer data, or add
-incremental orchestration.
+Package 4 builds baselines only. It does not train ML models, add MLflow, add a
+model registry, perform champion selection, create final account health bands,
+create recommended GTM actions, add dashboards, add APIs, deploy to cloud
+services, add dbt or orchestration, use real SaaS integrations, use real
+customer data, or mutate `mart.account_month`.
 
 ## Current unit
 
-Set this manually for the active Package 3 unit:
+Set this manually for the active Package 4 unit:
 
-1. Package 3A - Docs, contract, and harness update
-2. Package 3B - Account-month spine
-3. Package 3C - Labels
-4. Package 3D - Features
-5. Package 3E - Leakage hardening
-6. Package 3F - CLI, audit, docs closeout
+1. Package 4A - Docs, contract, and harness prep
+2. Package 4B - Baseline input contract
+3. Package 4C - Churn baseline
+4. Package 4D - Expansion baseline
+5. Package 4E - Validation and leakage tests
+6. Package 4F - CLI, audit, and docs closeout
 
-Package 3A is documentation and harness alignment only. It does not create
-`mart.account_month` or implement feature-building code.
-
-## Default source path
-
-`data/generated/`
+Package 4A is documentation, contract, and harness alignment only. It does not
+create `mart.account_month_baselines` or implement baseline scoring code.
 
 ## Default warehouse path
 
 `data/warehouse/account_health.duckdb`
 
-## Warehouse schemas
-
-- `raw`
-- `metadata`
-
-## Raw source tables
-
-- `raw.accounts`
-- `raw.users`
-- `raw.usage_events`
-- `raw.subscriptions`
-- `raw.invoices`
-- `raw.support_tickets`
-- `raw.crm_touchpoints`
-- `raw.renewals`
-
-## Planned mart table
+## Source table
 
 - `mart.account_month`
 
-Package 3A documents this table only. Package 3B onward may implement it
-according to `docs/feature_contract.md`.
+## Planned output table
 
-## Locked Package 3 contract
+- `mart.account_month_baselines`
 
-- Row grain: one active subscribed account x one calendar observation month.
-- Primary grain: `account_id`, `observation_month`.
-- `observation_month` is the first day of the month.
-- `observation_month_end` is the last day of the month.
-- Features use only records known on or before `observation_month_end`.
-- Labels use a 90-day future horizon.
-- `churn_90d` is renewal-based churn from `raw.renewals`.
-- `expansion_90d` is renewal-based paid MRR expansion from `raw.renewals`.
-- Ineligible labels are `NULL`, not `0`.
-- `raw.accounts.synthetic_archetype` is generator/debug metadata and is not a
-  modelling feature.
+Package 4A documents this table only. Package 4B onward may implement it
+according to `docs/feature_contract.md` and `docs/data_contract.md`.
 
-## Package 3 exclusions
+## Planned audit table
+
+- `metadata.baseline_build_audit`
+
+This table is optional and minimal. It is local audit metadata only.
+
+## Locked Package 4 contract
+
+- Baselines are benchmark artefacts, not final policy outputs.
+- Source table is `mart.account_month`.
+- Output grain is one row per `mart.account_month` row.
+- Primary grain is `account_id`, `observation_month`.
+- `observation_month_end` is carried through for auditability.
+- Scores are deterministic and bounded.
+- Scores are heuristic benchmark scores, not calibrated probabilities.
+- Churn and expansion component columns exist for auditability.
+- Ranks and deciles are prioritisation helpers only.
+- `churn_90d` and `expansion_90d` are forbidden as scoring inputs.
+- `synthetic_archetype` is forbidden as a scoring input.
+- `mart.account_month` semantics must not change.
+
+## Package 4 exclusions
 
 Do not add:
 
 - Model training
-- MLflow experiments
-- MLflow logic
+- MLflow experiments or logic
 - Model registry
-- Champion model selection
-- Rule baselines
-- Batch scoring
-- Health bands
+- Champion selection
+- Full model evaluation or baseline-vs-ML comparison
+- Final account health bands
 - Recommended GTM actions
 - Monitoring reports
 - Dashboards
@@ -96,37 +89,40 @@ Do not add:
 - Cloud deployment
 - Vercel
 - dbt
+- Orchestration
 - Real SaaS integrations
 - Real customer data
-- Incremental orchestration
+- New dependencies
+- Direct raw-table baseline inputs unless explicitly approved by the package
+  contract
+- Generated or local artefacts
 
-Package 3A also must not add:
+Package 4A also must not add:
 
-- Package 3 implementation code
-- `mart.account_month`
+- Package 4 implementation code
+- `mart.account_month_baselines`
 - Scripts
 - Make targets
-- Tests unless an existing doc or safety test needs a narrow update
+- Scoring tests
 - Generated synthetic data
 - DuckDB loads
 - Dependencies
 
-## Package 3 stop conditions
+## Package 4 stop conditions
 
 Stop before:
 
-- Changing the row grain
-- Changing the 90-day label horizon
-- Changing the canonical label source
-- Changing the renewal-based churn definition
-- Changing the renewal-based paid MRR expansion definition
-- Treating ineligible labels as `0`
-- Using `synthetic_archetype` as a feature
-- Adding model training, MLflow, baselines, scoring, health bands,
-  recommendations, dashboards, APIs, cloud deployment, or monitoring reports in
-  Package 3
+- Changing `mart.account_month` semantics
+- Changing the account-month grain
+- Changing Package 3 label semantics
+- Using `churn_90d` or `expansion_90d` in score calculation
+- Using `synthetic_archetype` in score calculation
+- Adding model training, MLflow, registry, champion selection, final health
+  bands, recommendations, dashboards, APIs, cloud deployment, monitoring
+  reports, or Package 5+ evaluation work
 - Adding new dependencies
-- Weakening public repo safety
+- Weakening tests or public repo safety
+- Committing generated, local-only, private, or environment-specific files
 
 ## Security reminders
 

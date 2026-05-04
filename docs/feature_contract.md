@@ -318,6 +318,65 @@ The feature table should include stable segment fields needed for robustness
 checks. These fields should support evaluation by account size, lifecycle stage,
 plan tier, region, industry, sales motion, and other synthetic GTM segments.
 
+## Package 4 Baseline Contract
+
+Package 4 creates deterministic, interpretable rule baselines as benchmark
+artefacts for later ML packages.
+
+Package 4 source table:
+
+- `mart.account_month`
+
+Package 4 output table:
+
+- `mart.account_month_baselines`
+
+Primary grain is the same account-month grain as `mart.account_month`:
+
+- `account_id`
+- `observation_month`
+
+`observation_month_end` should be carried through to the output table for
+auditability.
+
+Baseline scores are heuristic benchmark scores. They are not calibrated
+probabilities, production risk scores, final health bands, or GTM actions.
+
+Required baseline score fields:
+
+- `baseline_churn_score`
+- `baseline_expansion_score`
+
+Forbidden scoring inputs:
+
+- `churn_90d`
+- `expansion_90d`
+- `accounts.synthetic_archetype`
+- `synthetic_archetype`
+- any generator-only field, latent control, or future outcome field
+
+Package 4 may carry labels through only for validation or later evaluation
+contracts when explicitly documented. Labels must not influence score
+calculation.
+
+Component columns should exist for auditability. Components should make the
+rule score explainable at row level and should be named so churn and expansion
+components are clearly separated.
+
+Expected prioritisation helper fields:
+
+- `baseline_churn_rank`
+- `baseline_expansion_rank`
+- `baseline_churn_decile`
+- `baseline_expansion_decile`
+
+Ranks and deciles are prioritisation helpers for later comparison. They are not
+capacity decisions, account health policy, recommended GTM actions, or champion
+selection outputs.
+
+Package 4 must not mutate `mart.account_month`. Baselines must be built as a
+separate additive table.
+
 ## Later Contract Requirements
 
 Later packages should define:

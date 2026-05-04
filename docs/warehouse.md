@@ -35,6 +35,10 @@ Package 3 introduces a `mart` schema with:
 
 - `mart.account_month`
 
+Package 4 adds a separate benchmark mart table:
+
+- `mart.account_month_baselines`
+
 `mart.account_month` contract:
 
 - One row per active subscribed account x calendar observation month.
@@ -47,6 +51,21 @@ Package 3 introduces a `mart` schema with:
   `raw.renewals`.
 - Point-in-time MVP features are built from approved raw source families.
 - `raw.accounts.synthetic_archetype` is excluded from modelling features.
+
+`mart.account_month_baselines` contract:
+
+- Built from `mart.account_month`.
+- Additive table; Package 4 does not modify `mart.account_month`.
+- One output row per `mart.account_month` row.
+- Primary grain: `account_id`, `observation_month`.
+- Contains deterministic bounded churn and expansion baseline scores.
+- Contains component columns so rule scores are auditable.
+- Contains ranks and deciles as prioritisation helpers only.
+- Does not use `churn_90d`, `expansion_90d`, or `synthetic_archetype` as
+  scoring inputs.
+- Does not create final account health bands, recommended GTM actions, ML
+  predictions, MLflow runs, monitoring reports, dashboards, APIs, or cloud
+  outputs.
 
 The default local command is:
 
@@ -80,6 +99,10 @@ Package 2 may create:
 Package 3 may create:
 
 - `metadata.feature_build_audit`
+
+Package 4 may create:
+
+- `metadata.baseline_build_audit`
 
 The load audit table records minimal information about each source table load.
 
@@ -116,6 +139,26 @@ Expected fields include:
 - `source_max_date`
 
 This table is local audit metadata only. It is not an orchestration state store.
+
+The baseline build audit table records minimal local metadata about
+`mart.account_month_baselines` builds.
+
+Expected fields may include:
+
+- `build_id`
+- `built_at_utc`
+- `source_table`
+- `output_table`
+- `baseline_version`
+- `row_count`
+- `account_count`
+- `min_observation_month`
+- `max_observation_month`
+- `status`
+
+This table is local audit metadata only. It is not an orchestration framework,
+monitoring system, model registry, MLflow substitute, or production metadata
+store.
 
 ## Loader behaviour
 
@@ -167,8 +210,9 @@ Package 2 validation does not include:
 - Recommended GTM actions.
 - Monitoring reports.
 
-Package 3 owns account-month features, labels, and leakage checks. Later
-packages own models, scoring, health bands, actions, and monitoring.
+Package 3 owns account-month features, labels, and leakage checks. Package 4
+owns separate deterministic rule baseline benchmark artefacts. Later packages
+own ML models, final scoring, health bands, actions, and monitoring.
 
 ## Out-of-scope behaviours
 

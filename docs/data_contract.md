@@ -6,8 +6,9 @@ Package 1 defines deterministic synthetic source-table contracts as CSV and
 DataFrame contracts.
 
 Package 2 persists those source tables into the local DuckDB `raw` schema and
-validates source-level contracts. Account-month feature contracts, labels,
-scores, and model outputs are reserved for later packages.
+validates source-level contracts. Package 3 creates `mart.account_month`.
+Package 4 prepares deterministic rule baseline contracts from
+`mart.account_month`. Model outputs are reserved for later packages.
 
 ## Safety Statement
 
@@ -47,6 +48,76 @@ Package 3-facing source roles:
 - `raw.crm_touchpoints` supports GTM touchpoint features and is not label truth.
 - `raw.accounts.synthetic_archetype` is generator/debug metadata and is excluded
   from modelling features.
+
+## Package 4 Mart Contract
+
+Package 4 builds rule baseline benchmark artefacts from `mart.account_month`.
+It must not change the source `mart.account_month` table.
+
+### `mart.account_month_baselines`
+
+Grain:
+
+- One row per `mart.account_month` row.
+
+Primary grain:
+
+- `account_id`
+- `observation_month`
+
+Minimum expected columns:
+
+- `account_id`
+- `observation_month`
+- `observation_month_end`
+- `baseline_churn_score`
+- `baseline_expansion_score`
+- `baseline_churn_rank`
+- `baseline_expansion_rank`
+- `baseline_churn_decile`
+- `baseline_expansion_decile`
+- churn component columns
+- expansion component columns
+- `baseline_version`
+- `baseline_created_at_utc`
+
+Column rules:
+
+- `baseline_churn_score` and `baseline_expansion_score` are deterministic,
+  bounded heuristic benchmark scores.
+- Scores are not calibrated probabilities and are not final policy outputs.
+- Component columns must be sufficient to audit why the deterministic score
+  moved for a row.
+- Churn component columns should use a clear churn-specific naming convention.
+- Expansion component columns should use a clear expansion-specific naming
+  convention.
+- Ranks and deciles are prioritisation helpers only.
+- `churn_90d` and `expansion_90d` must not be scoring inputs.
+- `accounts.synthetic_archetype` and `synthetic_archetype` must not be scoring
+  inputs.
+- The output must preserve one-row-per-account-month parity with
+  `mart.account_month`.
+
+### `metadata.baseline_build_audit`
+
+Package 4 may create minimal local audit metadata for baseline builds.
+
+Minimum expected columns if created:
+
+- `build_id`
+- `built_at_utc`
+- `source_table`
+- `output_table`
+- `baseline_version`
+- `row_count`
+- `account_count`
+- `min_observation_month`
+- `max_observation_month`
+- `status`
+
+This table is local audit metadata only. It is not model metadata, an MLflow
+replacement, a model registry, an orchestration state store, or a monitoring
+report.
 
 ## Required Columns
 
@@ -204,11 +275,18 @@ Rules:
 | `crm_touchpoints` | `account_id` | `accounts` | `account_id` |
 | `renewals` | `account_id` | `accounts` | `account_id` |
 
-## Out Of Scope After Package 3
+## Out Of Scope For Package 4
 
-- Model training, scores, health bands, or GTM recommendations.
-- Dashboards, notebooks, APIs, Vercel, cloud deployment, and MLflow runs.
+- Model training and ML predictions.
+- MLflow, model registry, and champion selection.
+- Final account health bands or GTM recommendations.
+- Dashboards, notebooks, APIs, Vercel, cloud deployment, monitoring reports,
+  and real integrations.
+- Mutating `mart.account_month`.
+- Using labels, `accounts.synthetic_archetype`, or `synthetic_archetype` as
+  baseline scoring inputs.
 
 Package 3 builds account-month features and renewal-based labels from these
-public synthetic source contracts. Package 3 does not change the Package 1 raw
-source schemas.
+public synthetic source contracts. Package 4 builds separate baseline
+benchmark artefacts from `mart.account_month`. Neither package changes the
+Package 1 raw source schemas.

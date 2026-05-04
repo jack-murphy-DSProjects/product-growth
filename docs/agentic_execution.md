@@ -21,6 +21,15 @@ Live files under `.agent/` are local-only controls. They may guide a local run,
 but they must not be committed. Only `.example` templates are public repo
 artefacts.
 
+Before each package starts, refresh the live local `.agent/*.md` files for the
+active package and unit. If a live harness file still names an older active
+package, that stale reference is a stop condition until the local harness is
+corrected.
+
+Agents should read committed docs plus the live local harness context. Large
+prompts can activate the harness, but they must not replace the durable docs
+and local run controls.
+
 Agents must work only inside the active package and current unit. They must not
 start a later package early.
 
@@ -102,7 +111,8 @@ During the unit, agents must:
 - preserve package boundaries
 - avoid unapproved dependencies
 - avoid generated local artefacts except in temporary test directories
-- avoid modifying ignored live `.agent/*.md` controls
+- avoid modifying ignored live `.agent/*.md` controls except when the active
+  package harness is being intentionally refreshed
 
 For Package 3B onward, agents must also read `docs/feature_contract.md` before
 changing code and restate the relevant Package 3 leakage and eligibility rule
@@ -215,3 +225,38 @@ leakage rules.
 
 Agents may continue from one Package 3 unit to the next only when the current
 unit gate passes and the next unit is one of the approved Package 3 slices.
+
+## Package 4 autonomous loop
+
+Package 4 builds deterministic, interpretable rule baselines from
+`mart.account_month` for later ML packages to beat. It creates benchmark
+artefacts only. It does not train ML models, add MLflow, create model registry
+logic, perform champion selection, create final account health bands, create
+recommended GTM actions, add dashboards, add APIs, deploy to cloud services,
+add dbt or orchestration, use real SaaS integrations, use real customer data,
+or mutate `mart.account_month`.
+
+Package 4 must remain split by the approved slices:
+
+1. Package 4A - Docs, contract, and harness prep
+2. Package 4B - Baseline input contract
+3. Package 4C - Churn baseline
+4. Package 4D - Expansion baseline
+5. Package 4E - Validation and leakage tests
+6. Package 4F - CLI, audit, and docs closeout
+
+Package 4A is documentation, contract, and harness preparation only. It must
+not implement baseline scoring, add scripts, add Make targets, add
+dependencies, generate data, load DuckDB, or create Package 4 scoring tests.
+
+Before Package 4B onward, agents must confirm the live `.agent/*.md` files name
+Package 4 as the active package and do not stale-reference Package 2 or Package
+3 as active. Stale active-package references are a stop condition.
+
+For Package 4B onward, `docs/feature_contract.md` and `docs/data_contract.md`
+are the durable Package 4 source of truth. Prompt memory is not sufficient
+authority for source table, output table, grain, forbidden inputs, component
+columns, or rank/decile semantics.
+
+Agents may continue from one Package 4 unit to the next only when the current
+unit gate passes and the next unit is one of the approved Package 4 slices.
