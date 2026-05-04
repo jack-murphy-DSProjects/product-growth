@@ -82,7 +82,8 @@ synthetic SaaS sources
 Implementation uses the Python package `src/account_health`. Package 2 adds the
 local DuckDB raw/source warehouse. Package 3 adds the point-in-time
 `mart.account_month` table with renewal-based labels and MVP feature families.
-MLflow remains planned for a later package.
+Package 4 adds deterministic rule baselines. Package 5 introduces candidate
+model training with scikit-learn and local MLflow tracking.
 
 ## Evaluation Philosophy
 
@@ -144,10 +145,10 @@ minimal load audit, and source-table contract validation. Package 3 adds
 point-in-time MVP features, leakage tests, and local feature build audit.
 Package 4 adds `mart.account_month_baselines`, deterministic churn and
 expansion rule baseline scores, component columns, rank and decile helpers, a
-local rebuild command, and minimal baseline build audit. There is currently no
-MLflow tracking, model training, final scoring logic, health-band policy, GTM
-action layer, dashboards, notebooks, cloud deployment, or committed generated
-output.
+local rebuild command, and minimal baseline build audit. Package 5 is in the
+candidate model training contract stage. There is currently no implemented
+model training, final scoring logic, health-band policy, GTM action layer,
+dashboards, notebooks, cloud deployment, or committed generated output.
 
 ## Synthetic Source Data
 

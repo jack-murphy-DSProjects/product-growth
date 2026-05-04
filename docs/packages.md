@@ -623,28 +623,167 @@ Exit gate:
 ## Package 5: Candidate model training with MLflow
 
 Goal:
-Train candidate churn and expansion models under a reproducible MLflow experiment setup.
+Train local, reproducible candidate churn and expansion models from
+`mart.account_month` and log candidate runs through MLflow.
 
-Tasks:
+Status:
+Design contract defined by Package 5A. Package 5 implementation is not
+complete.
 
-- Implement fixed time split.
-- Train logistic regression candidate.
-- Train scikit-learn gradient boosting candidate.
-- Optionally prepare XGBoost interface, but do not add unless explicitly approved.
-- Log parameters to MLflow.
-- Log metrics to MLflow.
-- Log model artefacts to MLflow.
-- Log feature list and training metadata.
-- Save local metrics JSON.
+Package 5 trains candidate models only. It does not select a champion, register
+models, promote models, deploy models, batch score accounts, create health
+bands, create recommended GTM actions, create dashboards, or create production
+scoring output tables.
 
-Acceptance criteria:
+Package 5 source table:
 
-- No random split.
-- Models use account-month table only.
-- Churn and expansion models are independent.
-- Runs are logged to MLflow.
-- Model signatures or input examples are logged where practical.
-- Training is reproducible.
+- `mart.account_month`
+
+Package 5 target models:
+
+- Churn model using `churn_90d`.
+- Expansion model using `expansion_90d`.
+
+The two model tasks are independent. Package 5 must not train a combined
+multi-output model.
+
+Package 5 must preserve the Package 3 label contract. Rows with `NULL` labels
+are excluded for the relevant target and must not be converted to zero.
+
+Package 5 uses a fixed temporal train/test split by `observation_month`.
+Random splits are not approved.
+
+Package 5 uses explicit approved feature allowlists from existing
+`mart.account_month` columns. It must not infer features by taking every
+non-target column. Package 4 baseline outputs are benchmarks only and are not
+model features.
+
+Allowed MVP candidate models:
+
+- Logistic regression.
+- Random forest.
+
+Allowed MVP modelling dependencies:
+
+- scikit-learn.
+- MLflow.
+
+Package 5 must not add XGBoost, LightGBM, neural networks, cloud dependencies,
+serving dependencies, dashboards, or hosted services.
+
+Package 5 logs one MLflow run per target and candidate model under the local
+experiment `account-health-candidate-training`. Runs should log parameters,
+row counts, positive rates, split config, feature lists, simple validation
+metrics, and model artefacts. Package 5 must not use MLflow registry APIs.
+
+Package 6 owns layered evaluation and champion selection.
+
+Package 7 owns MLflow registry and promotion.
+
+Package 8 owns batch scoring deployment.
+
+Package 9 owns monitoring.
+
+### Package 5 units
+
+#### Package 5A - Docs and dependency contract
+
+Define the durable model training contract and approved dependencies. Do not
+implement model training logic.
+
+Exit gate:
+
+- `docs/model_training.md` defines Package 5 purpose, source table, grain,
+  targets, label eligibility, temporal split, feature policy, candidate model
+  policy, preprocessing policy, MLflow logging policy, metrics, CLI
+  expectations, implementation units, and non-goals.
+- `docs/feature_contract.md` defines the Package 5 modelling feature policy.
+- `docs/packages.md` makes Package 5 a design-contract package without marking
+  implementation complete.
+- `docs/decisions.md` records durable Package 5 decisions.
+- `docs/runbook.md` records Package 5 prerequisite flow and generated artefact
+  guidance.
+- `README.md` includes Package 5 in the public architecture narrative.
+- `pyproject.toml` includes only approved Package 5 runtime dependencies.
+- `.gitignore` protects generated data, DuckDB files, MLflow runs, and local
+  model artefacts.
+- No model training code, scripts, Make targets, dataset loaders, feature
+  guards, split code, candidate model code, MLflow logging code, model
+  artefacts, DuckDB outputs, generated data, live `.agent/*.md` files, or
+  local-only files are committed.
+- `make verify`, `make public-safety-check`, `git diff --check`, and
+  `git status --short` are run and reported.
+
+#### Package 5B - Dataset and feature guards
+
+Implement modelling dataset loading and feature validation.
+
+Exit gate:
+
+- Reads `mart.account_month` only.
+- Validates required target, grain, and feature columns.
+- Validates duplicate grain absence.
+- Excludes rows with `NULL` labels for the relevant target.
+- Enforces explicit approved feature allowlists.
+- Rejects forbidden and leakage-prone features.
+- Does not train models or log MLflow runs.
+
+#### Package 5C - Temporal split
+
+Implement the fixed time split by `observation_month`.
+
+Exit gate:
+
+- Train rows satisfy `observation_month <= train_end_month`.
+- Test rows satisfy `observation_month > train_end_month`.
+- Explicit `train_end_month` is supported.
+- Default `train_end_month` may be derived from eligible data.
+- Empty train or test splits are rejected.
+- Single-class train or test targets are rejected.
+- Random splitting is not introduced.
+
+#### Package 5D - Candidates and metrics
+
+Implement scikit-learn candidate pipelines and simple validation metrics.
+
+Exit gate:
+
+- Logistic regression candidate exists.
+- Random forest candidate exists.
+- Numeric and categorical preprocessing is explicit.
+- Metrics include ROC AUC, average precision, log loss, Brier score, and
+  accuracy.
+- Precision at top 10% may be added.
+- No champion selection or full Package 6 evaluation is introduced.
+
+#### Package 5E - MLflow orchestration
+
+Implement local MLflow training orchestration.
+
+Exit gate:
+
+- Experiment name is `account-health-candidate-training`.
+- One run is logged per target and candidate model.
+- Runs log parameters, row counts, positive rates, split config, feature lists,
+  metrics, and model artefacts.
+- Registry APIs, model promotion, deployment, and scoring outputs are not
+  introduced.
+
+#### Package 5F - CLI, Make target, and docs closeout
+
+Add the approved local execution surface and close Package 5 documentation.
+
+Exit gate:
+
+- `scripts/train_candidate_models.py` exists.
+- `make train-candidate-models` runs the local training workflow.
+- Documentation reflects implemented commands, dependencies, artefacts, and
+  exclusions.
+- `mlruns/` and model artefacts remain ignored local generated artefacts.
+- `make verify`, `git diff --check`, and public repo safety checks pass.
+- No Package 6+ evaluation, champion selection, registry promotion, batch
+  scoring, health-band, GTM action, dashboard, cloud, real-data, generated, or
+  local-only artefact leakage is introduced.
 
 ---
 

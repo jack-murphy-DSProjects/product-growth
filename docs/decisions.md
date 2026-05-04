@@ -203,3 +203,52 @@ baseline version, row counts, observation-month bounds, and status.
 It is local build metadata only. It is not model metadata, MLflow tracking, a
 model registry, orchestration state, monitoring output, model evaluation, or
 champion-selection evidence.
+
+## Package 5 decisions
+
+### Decision: Independent churn and expansion models
+
+Package 5 trains separate candidate models for `churn_90d` and
+`expansion_90d`.
+
+Package 5 does not train a combined multi-output model.
+
+### Decision: Null target labels are excluded
+
+Package 5 excludes rows with `NULL` labels for the relevant target.
+
+`NULL` target labels are not converted to zero.
+
+### Decision: Fixed temporal split
+
+Package 5 uses a fixed train/test split by `observation_month`.
+
+Random train/test splits are not approved.
+
+### Decision: scikit-learn and MLflow dependencies
+
+Package 5 introduces scikit-learn for local candidate model training and
+MLflow for local experiment tracking.
+
+Package 5 does not introduce XGBoost, LightGBM, neural networks, cloud
+dependencies, serving dependencies, or dashboard dependencies.
+
+### Decision: Baselines are benchmarks only
+
+Package 4 baseline scores, ranks, deciles, and components are benchmark
+outputs only.
+
+Package 5 must not use baseline outputs as model features.
+
+### Decision: MLflow logging without registry or promotion
+
+Package 5 logs candidate model runs and artefacts to local MLflow tracking.
+
+Package 5 does not use MLflow registry APIs, register models, promote models,
+or deploy models.
+
+### Decision: No champion selection or layered evaluation
+
+Package 5 reports simple validation metrics for candidate runs only.
+
+Champion selection and full layered evaluation belong to Package 6.

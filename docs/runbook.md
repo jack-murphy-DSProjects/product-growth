@@ -30,6 +30,52 @@ make verify
 - Generated artefacts would need to be committed.
 - Public safety checks fail outside the current scope.
 
+## Package 5 runbook - Candidate model training
+
+Package 5 trains local candidate churn and expansion models from
+`mart.account_month` and logs candidate runs through local MLflow tracking.
+
+Package 5 does not select, register, promote, deploy, score, monitor, create
+health bands, create recommended GTM actions, or perform full layered
+evaluation.
+
+Prerequisite local flow:
+
+```bash
+make generate-synthetic-data
+make load-warehouse
+make build-account-month
+```
+
+Package 5 training must not require Package 4 baselines. Baseline outputs are
+benchmarks for later comparison, not training prerequisites and not model
+features.
+
+The later Package 5 command should be:
+
+```bash
+make train-candidate-models
+```
+
+MLflow writes generated local tracking artefacts under:
+
+- `mlruns/`
+
+Model-training scratch or model artefact paths such as `artifacts/models/` and
+`artifacts/tmp/` are generated local artefacts.
+
+These paths must not be committed.
+
+Before closing a Package 5 unit, run:
+
+- `make verify`
+- `make public-safety-check`
+- `git diff --check`
+- `git status --short`
+
+Confirm no generated data, DuckDB files, MLflow runs, model artefacts, caches,
+private files, or live `.agent/*.md` files are tracked.
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

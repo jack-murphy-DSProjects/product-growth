@@ -544,12 +544,72 @@ The audit table is local build metadata only. It is not model metadata,
 MLflow, a registry, orchestration state, monitoring output, model evaluation,
 or champion-selection evidence.
 
+## Package 5 Modelling Feature Policy
+
+Package 5 trains candidate churn and expansion models from `mart.account_month`
+using explicit approved feature allowlists.
+
+Approved feature names must come from existing `mart.account_month` columns.
+Codex must not invent feature names.
+
+Package 5 must not infer modelling features by selecting every non-target
+column.
+
+Broad approved feature groups are limited to existing Package 3 point-in-time
+feature families:
+
+- Static account features.
+- Current subscription features.
+- Usage trailing-window features.
+- Support trailing-window features.
+- Billing trailing-window features.
+- CRM trailing-window features.
+
+Labels are not features.
+
+Eligibility flags are not features.
+
+Identifiers and observation dates are not features:
+
+- `account_id`
+- `observation_month`
+- `observation_month_end`
+
+`synthetic_archetype` is never a modelling feature.
+
+Package 4 baseline scores, ranks, deciles, and components are benchmark
+outputs only. They are not Package 5 model features.
+
+Forbidden exact fields:
+
+- `account_id`
+- `observation_month`
+- `observation_month_end`
+- `churn_90d`
+- `expansion_90d`
+- any eligibility flags
+- `synthetic_archetype`
+- `baseline_*`
+
+Forbidden feature name terms:
+
+- `renewal`
+- `outcome`
+- `future`
+- `label`
+- `target`
+- `score`
+- `rank`
+- `decile`
+
+The forbidden term policy applies to any column containing the term.
+
 ## Later Contract Requirements
 
 Later packages should define:
 
-- Model feature lists selected from `mart.account_month`.
-- Training-time imputation behavior, if any.
+- Exact Package 5 model feature allowlists selected from existing
+  `mart.account_month` columns.
 - Segment columns required for evaluation and reporting.
 - Any model-specific exclusion list for labels, identifiers, or audit fields.
 
