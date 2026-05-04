@@ -1,14 +1,99 @@
 # Current Execution Context Example
 
-Copy this file to a local ignored note only if needed.
+Copy this file to `.agent/current_execution_context.md` only for local runs.
+The live file is ignored and must not be committed.
 
-Active package:
-Package -1
+## Active package
 
-Allowed scope:
-Agent harness, public/private documentation boundary, project contract, context
-vocabulary, package plan, runbook, security rules, public repo safety check, and
-initial test harness.
+Package 2 - DuckDB warehouse and source contract validation
 
-Stop conditions:
-Real data, secrets, generated artefacts, or future package implementation.
+## Active goal
+
+Load generated synthetic SaaS source CSVs into a local DuckDB analytical
+warehouse and validate raw source-table contracts.
+
+Package 2 proves that source CSVs can be safely persisted and validated in
+DuckDB; it does not make the data model-ready.
+
+## Current unit
+
+Set this manually for the active Package 2 unit.
+
+## Default source path
+
+`data/generated/`
+
+## Default warehouse path
+
+`data/warehouse/account_health.duckdb`
+
+## Warehouse schemas
+
+- `raw`
+- `metadata`
+
+## Raw source tables
+
+- `raw.accounts`
+- `raw.users`
+- `raw.usage_events`
+- `raw.subscriptions`
+- `raw.invoices`
+- `raw.support_tickets`
+- `raw.crm_touchpoints`
+- `raw.renewals`
+
+## Optional metadata table
+
+- `metadata.load_audit`
+
+## Package 2 exclusions
+
+Do not add:
+
+- Account-month features
+- Churn labels
+- Expansion labels
+- Feature engineering
+- Model training
+- MLflow logic
+- Champion selection
+- Batch scoring
+- Health bands
+- Recommended GTM actions
+- Monitoring reports
+- Dashboards
+- Notebooks
+- APIs
+- Cloud deployment
+- Vercel
+- Real SaaS integrations
+- Real customer data
+- Incremental loading
+- dbt
+- Orchestration frameworks
+
+## Security reminders
+
+Do not commit:
+
+- `AGENTS.override.md`
+- `.agent/current_execution_context.md`
+- `.agent/package_gate.md`
+- `.agent/agent_runbook.md`
+- `.env`
+- `.pytest_cache/`
+- `scripts/__pycache__/`
+- `tests/__pycache__/`
+- `src/**/__pycache__/`
+- `mlruns/`
+- `*.duckdb`
+- `*.duckdb.wal`
+- `*.db`
+- `data/generated/`
+- `data/warehouse/`
+- `data/processed/`
+- `data/outputs/`
+- `artifacts/models/`
+- `artifacts/tmp/`
+- `*.egg-info/`

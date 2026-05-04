@@ -1,6 +1,6 @@
 PYTHON ?= python3
 
-.PHONY: setup test public-safety-check generate-synthetic-data clean-generated verify
+.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse clean-generated verify
 
 setup:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -13,6 +13,9 @@ public-safety-check:
 
 generate-synthetic-data:
 	$(PYTHON) scripts/generate_synthetic_data.py
+
+load-warehouse:
+	$(PYTHON) scripts/load_warehouse.py
 
 clean-generated:
 	rm -rf data/generated

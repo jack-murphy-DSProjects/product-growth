@@ -1,11 +1,59 @@
 # Package Gate Example
 
-Before starting work, confirm:
+Copy this file to `.agent/package_gate.md` only for local runs. The live file is
+ignored and must not be committed.
 
-- Active package:
-- Files in scope:
-- Files out of scope:
-- Tests to run:
-- Public safety risks:
+## Package
 
-For Package -1, do not implement Packages 0-10.
+Package 2 - DuckDB warehouse and source contract validation
+
+## Package-level exit gate
+
+Package 2 is complete only when:
+
+- Generated Package 1 source CSVs can be loaded into a local DuckDB database.
+- The loader accepts explicit `source_dir` and `database_path` arguments.
+- The loader defaults to deterministic overwrite/rebuild behaviour.
+- The loader fails clearly when required CSVs are missing.
+- Raw source tables are created under `raw`.
+- Minimal load metadata is created under `metadata` if implemented.
+- Required source files are validated.
+- Required source columns are validated.
+- Required source tables are non-empty.
+- Primary-key uniqueness is validated.
+- Foreign-key integrity is validated.
+- Basic date validity and date ordering are validated.
+- Tests use temporary generated data and temporary DuckDB files.
+- No generated CSVs or DuckDB files are committed.
+- Documentation is aligned.
+- `make verify` passes.
+- `git diff --check` passes.
+- Public repo safety check passes.
+- Package 3 has not started.
+
+## Stop conditions
+
+Stop before making any change that would:
+
+- Change the account-month grain.
+- Add or change churn label definitions.
+- Add or change expansion label definitions.
+- Add model training.
+- Add MLflow logic.
+- Add model registry logic.
+- Add scoring.
+- Add health bands.
+- Add recommended GTM actions.
+- Add monitoring reports.
+- Add dashboards.
+- Add notebooks.
+- Add APIs.
+- Add cloud deployment.
+- Add Vercel.
+- Use real customer data.
+- Add real SaaS integrations.
+- Weaken public-repo security.
+- Commit generated artefacts.
+- Add unapproved production dependencies.
+- Remove tests.
+- Expand Package 2 beyond raw/source warehouse loading and validation.

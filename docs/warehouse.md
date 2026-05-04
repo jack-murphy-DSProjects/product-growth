@@ -84,6 +84,12 @@ The loader must not generate synthetic data.
 
 Synthetic data generation belongs to Package 1.
 
+The default local command is:
+
+```bash
+make load-warehouse
+```
+
 ## Validation responsibilities
 
 Package 2 validates source-level integrity only.

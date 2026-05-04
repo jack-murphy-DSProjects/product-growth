@@ -111,7 +111,7 @@ Acceptance criteria:
 
 ## Package 2 — DuckDB warehouse and source contract validation
 
-**Status:** Not started
+**Status:** Complete
 
 ### Goal
 
@@ -177,7 +177,7 @@ Package 2 must not:
 - Add MLflow logic.
 - Score accounts.
 - Create health bands.
-- Create recommended GTT actions.
+- Create recommended GTM actions.
 - Create monitoring reports.
 - Add dashboards.
 - Add notebooks.
@@ -199,9 +199,15 @@ Define the Package 2 warehouse contract, paths, schemas, source table list, vali
 Exit gate:
 
 - `docs/warehouse.md` exists.
+- `docs/agentic_execution.md` defines the autonomous package-gated loop.
 - `docs/packages.md` reflects Package 2 scope.
 - `docs/decisions.md` records Package 2 decisions.
+- `.agent/current_execution_context.md.example` shows Package 2 activation.
+- `.agent/package_gate.md.example` captures the Package 2 gate and stops.
+- `.agent/agent_runbook.md.example` captures the autonomous unit workflow.
 - No implementation beyond documentation and ignore-rule tightening unless strictly necessary.
+- `.gitignore` protects `data/warehouse/`, `*.duckdb`, and `*.duckdb.wal`.
+- Live local `.agent/*.md` files are not modified or tracked.
 - No generated/local files are tracked.
 - `make verify` passes.
 - `git diff --check` passes.

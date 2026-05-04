@@ -9,6 +9,7 @@ description = "Public portfolio repo for SaaS account health, churn risk, and ex
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
+    "duckdb>=1.1",
     "numpy>=1.26",
     "pandas>=2.1",
 ]

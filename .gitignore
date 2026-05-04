@@ -23,9 +23,11 @@ AGENTS.override.md
 
 # Local data and generated outputs
 data/generated/
+data/warehouse/
 data/processed/
 data/outputs/
 *.duckdb
+*.duckdb.wal
 *.db
 *.sqlite
 *.sqlite3

@@ -2,9 +2,12 @@
 
 ## Status
 
-Package 1 defines deterministic synthetic source-table contracts. These are
-CSV/DataFrame contracts only. DuckDB schemas, account-month feature contracts,
-labels, scores, and model outputs are reserved for later packages.
+Package 1 defines deterministic synthetic source-table contracts as CSV and
+DataFrame contracts.
+
+Package 2 persists those source tables into the local DuckDB `raw` schema and
+validates source-level contracts. Account-month feature contracts, labels,
+scores, and model outputs are reserved for later packages.
 
 ## Safety Statement
 
@@ -184,7 +187,6 @@ Rules:
 
 ## Out Of Scope Until Later Packages
 
-- DuckDB table definitions or loaders.
 - Account-month features.
 - Churn or expansion labels.
 - Model training, scores, health bands, or GTM recommendations.

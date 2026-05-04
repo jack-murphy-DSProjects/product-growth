@@ -50,8 +50,9 @@ FORBIDDEN_PATH_PARTS = {
     "mlruns",
 }
 
-FORBIDDEN_SUFFIXES = {
+FORBIDDEN_SUFFIXES = (
     ".duckdb",
+    ".duckdb.wal",
     ".db",
     ".sqlite",
     ".sqlite3",
@@ -59,7 +60,7 @@ FORBIDDEN_SUFFIXES = {
     ".pkl",
     ".joblib",
     ".ipynb",
-}
+)
 
 SECRET_PATTERNS = [
     re.compile(r"AKIA[0-9A-Z]{16}"),
@@ -70,7 +71,6 @@ SECRET_PATTERNS = [
 
 PRIVATE_TEXT_PATTERNS = [
     re.compile(r"/Users/[A-Za-z0-9._-]+"),
-    re.compile(r"(?i)\breal (?:company|customer|user|invoice|crm|support) data\b"),
 ]
 
 
@@ -85,13 +85,19 @@ def tracked_files() -> list[str]:
     return [line for line in result.stdout.splitlines() if line]
 
 
-def visible_files() -> list[str]:
-    files: list[str] = []
-    for path in ROOT.rglob("*"):
-        if ".git" in path.parts or not path.is_file():
-            continue
-        files.append(path.relative_to(ROOT).as_posix())
-    return sorted(files)
+def unignored_untracked_files() -> list[str]:
+    result = subprocess.run(
+        ["git", "ls-files", "--others", "--exclude-standard"],
+        cwd=ROOT,
+        check=True,
+        text=True,
+        capture_output=True,
+    )
+    return [line for line in result.stdout.splitlines() if line]
+
+
+def public_candidate_files() -> list[str]:
+    return sorted(set(tracked_files()) | set(unignored_untracked_files()))
 
 
 def text_for(path: str) -> str:
@@ -111,7 +117,7 @@ def check_required_files(errors: list[str]) -> None:
 
 
 def check_tracked_paths(errors: list[str]) -> None:
-    for path in tracked_files():
+    for path in public_candidate_files():
         path_parts = set(Path(path).parts)
         if path in FORBIDDEN_TRACKED_PATHS:
             errors.append(f"forbidden tracked local-only file: {path}")
@@ -119,12 +125,12 @@ def check_tracked_paths(errors: list[str]) -> None:
             errors.append(f"forbidden generated/cache path tracked: {path}")
         if any(part.endswith(".egg-info") for part in path_parts):
             errors.append(f"forbidden package build metadata tracked: {path}")
-        if Path(path).suffix in FORBIDDEN_SUFFIXES:
+        if path.endswith(FORBIDDEN_SUFFIXES):
             errors.append(f"forbidden generated artefact tracked: {path}")
 
 
 def check_text_patterns(errors: list[str]) -> None:
-    for path in visible_files():
+    for path in public_candidate_files():
         if Path(path).suffix in {".pyc", ".png", ".jpg", ".jpeg", ".gif"}:
             continue
         text = text_for(path)

@@ -1,10 +1,99 @@
 # Agent Runbook Example
 
-1. Read `AGENTS.md`.
-2. Confirm the active package.
-3. Read `docs/project_contract.md`, `docs/context.md`, `docs/packages.md`,
-   `docs/security.md`, and `docs/runbook.md`.
-4. Grill before build.
-5. Use a test-first loop for behavior changes.
-6. Run `make public-safety-check`, `make test`, and `make verify`.
-7. Do not commit; report recommended commit commands.
+Copy this file to `.agent/agent_runbook.md` only for local runs. The live file
+is ignored and must not be committed.
+
+## Operating mode
+
+Work in bounded package units.
+
+Do not work generally on the repo.
+
+Do not skip ahead.
+
+Do not combine unrelated units.
+
+Do not start Package 3 during Package 2.
+
+## Package 2 scope sentence
+
+Package 2 proves that source CSVs can be safely persisted and validated in
+DuckDB; it does not make the data model-ready.
+
+## Before each unit
+
+Before changing files:
+
+1. Restate the active package.
+2. Restate the active unit.
+3. Restate the Package 2 scope sentence.
+4. Restate the runbook rule that constrains the unit.
+5. Run `git status --short`.
+6. Inspect relevant docs, tests, and source files.
+7. Identify intended files to change.
+8. Confirm intended files are within Package 2 scope.
+9. Identify tests or checks to add or update.
+10. Identify stop-condition risk.
+
+## During each unit
+
+While changing files:
+
+1. Keep changes narrow.
+2. Prefer boring, explicit implementation.
+3. Add tests with behavior changes.
+4. Avoid clever abstractions.
+5. Do not add unapproved dependencies.
+6. Do not create generated files outside temporary test directories unless
+   explicitly needed for a local manual check.
+7. Do not commit generated files.
+8. Do not weaken safety checks.
+9. Do not remove existing tests.
+10. Do not silently change Package 1 behaviour.
+11. Do not modify live local `.agent/*.md` controls.
+
+## After each unit
+
+Before summarising:
+
+1. Run `make verify`.
+2. Run `git diff --check`.
+3. Run `git status --short`.
+4. Confirm no generated/local/private artefacts are tracked.
+5. Confirm the unit exit gate is satisfied.
+6. Summarise files changed.
+7. Summarise tests added or updated.
+8. Summarise commands run.
+9. Summarise security checks.
+10. Summarise scope checks.
+11. List any risks or review points.
+
+## Continuation rule
+
+Continue automatically to the next unit only if:
+
+- the current unit gate passes
+- checks pass
+- no stop condition is hit
+- the next unit is part of the active package
+- the next unit scope is documented
+
+Stop only on:
+
+- stop condition
+- failed gate
+- failed required check that cannot be fixed within the active unit
+- completion of the active package
+- request from the human reviewer
+
+Package 2 agents must not start Package 3 without explicit human approval.
+
+## Package 2 unit sequence
+
+Run units in this order:
+
+1. Package 2A - Warehouse contract and documentation
+2. Package 2B - Loader happy path
+3. Package 2C - Source presence and schema validation
+4. Package 2D - Relational and date validation
+5. Package 2E - Closeout and security review

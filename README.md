@@ -79,8 +79,8 @@ synthetic SaaS sources
   -> monitoring reports
 ```
 
-Implementation will use the Python package `src/account_health`. DuckDB and
-MLflow are planned for later packages; they are not implemented in Package 0.
+Implementation uses the Python package `src/account_health`. Package 2 adds the
+local DuckDB raw/source warehouse. MLflow remains planned for a later package.
 
 ## Evaluation Philosophy
 
@@ -121,7 +121,7 @@ Run `make public-safety-check` before committing.
 - Package 0: repo skeleton, public narrative, initial docs, and package smoke
   test. Complete.
 - Package 1: deterministic synthetic SaaS source data generator. Complete.
-- Package 2: DuckDB warehouse and table contracts.
+- Package 2: DuckDB warehouse and table contracts. Complete.
 - Package 3: account-month features and labels.
 - Package 4: commercial rule baselines.
 - Package 5: candidate model training with MLflow.
@@ -133,12 +133,12 @@ Run `make public-safety-check` before committing.
 
 ## Current Status
 
-Package -1 and Package 0 are complete. Package 0 defines the public narrative,
-intended architecture, placeholder contracts, model card template, and import
-smoke test. Package 1 adds deterministic synthetic source-table generation and
-a local CSV-writing CLI. There is currently no DuckDB warehouse, MLflow
-tracking, model training, scoring logic, dashboards, notebooks, cloud
-deployment, or committed generated output.
+Package -1, Package 0, Package 1, and Package 2 are complete. Package 1 adds
+deterministic synthetic source-table generation and a local CSV-writing CLI.
+Package 2 adds a local DuckDB raw/source warehouse loader, minimal load audit,
+and source-table contract validation. There is currently no MLflow tracking,
+model training, scoring logic, dashboards, notebooks, cloud deployment, or
+committed generated output.
 
 ## Synthetic Source Data
 
@@ -152,6 +152,15 @@ The default run writes `accounts`, `users`, `usage_events`, `subscriptions`,
 `invoices`, `support_tickets`, `crm_touchpoints`, and `renewals` CSVs under
 `data/generated/`. See `docs/synthetic_data.md` and `docs/data_contract.md` for
 Package 1 details.
+
+Load ignored local CSVs into the ignored local DuckDB warehouse with:
+
+```bash
+make load-warehouse
+```
+
+The default warehouse path is `data/warehouse/account_health.duckdb`. See
+`docs/warehouse.md` for the Package 2 warehouse contract.
 
 ## Local Checks
 

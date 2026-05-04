@@ -30,7 +30,22 @@ Package 2 writes the local analytical warehouse to:
 
 This path is ignored by git.
 
+DuckDB database files and write-ahead log files are generated local artefacts
+and are also ignored by git:
+
+- `*.duckdb`
+- `*.duckdb.wal`
+
 The DuckDB database is a generated local artefact and must never be committed.
+
+### Decision: DuckDB runtime dependency
+
+Package 2 adds `duckdb` as a runtime dependency because the local analytical
+warehouse is a DuckDB database.
+
+DuckDB remains local-only in this project. Package 2 does not add a cloud
+warehouse, hosted database, API, orchestration framework, or production
+deployment.
 
 ### Decision: Raw and metadata schemas
 
@@ -83,3 +98,23 @@ Package 2 may create a minimal `metadata.load_audit` table containing load metad
 The audit table must remain simple.
 
 It must not become an orchestration framework or job-control system.
+
+### Decision: Package-gated autonomous execution
+
+Package 2 agents may work autonomously unit by unit only when the current unit
+gate is documented and passes.
+
+The durable execution contract lives in:
+
+- `docs/agentic_execution.md`
+- `.agent/current_execution_context.md.example`
+- `.agent/package_gate.md.example`
+- `.agent/agent_runbook.md.example`
+
+Live `.agent/*.md` files are local-only controls and must not be committed.
+
+Agents may continue to the next Package 2 unit only after the current unit gate
+passes.
+
+Agents must stop before Package 3 unless the human reviewer explicitly starts
+Package 3.

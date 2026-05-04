@@ -10,6 +10,10 @@
 6. Run `make verify`.
 7. Summarize files changed, commands run, and remaining risks.
 
+For bounded autonomous runs, use `docs/agentic_execution.md` together with the
+`.agent/*.example` templates. Live `.agent/*.md` files are local-only controls
+and must not be committed.
+
 ## Package -1 Checks
 
 ```bash
@@ -37,6 +41,9 @@ Package 2 is limited to loading Package 1 generated synthetic source CSVs into a
 Package 2 proves that source CSVs can be safely persisted and validated in DuckDB.
 
 Package 2 does not make the data model-ready.
+
+Durable Package 2 autonomous execution guidance lives in
+`docs/agentic_execution.md`.
 
 ### Required stance
 
@@ -107,6 +114,9 @@ Confirm none of the following are staged or tracked:
 - `__pycache__/`
 - `.pytest_cache/`
 - `*.egg-info/`
+
+Only `.agent/*.example` files may be committed. Live `.agent/*.md` files are
+ignored local controls.
 
 ### Stop conditions
 
