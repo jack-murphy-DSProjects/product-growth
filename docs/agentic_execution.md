@@ -42,7 +42,8 @@ A unit gate should define:
 Agents may continue to the next unit only when the current unit gate passes and
 the runbook explicitly allows automatic continuation.
 
-For Package 2, agents must not start Package 3 automatically.
+For Package 2, agents must not start Package 3 automatically. Package 3 may
+start only when the human reviewer explicitly opens a Package 3 unit.
 
 ## When agents may continue
 
@@ -102,6 +103,23 @@ During the unit, agents must:
 - avoid unapproved dependencies
 - avoid generated local artefacts except in temporary test directories
 - avoid modifying ignored live `.agent/*.md` controls
+
+For Package 3B onward, agents must also read `docs/feature_contract.md` before
+changing code and restate the relevant Package 3 leakage and eligibility rule
+for the active unit.
+
+Package 3 agents must stop before changing:
+
+- the `mart.account_month` row grain
+- the 90-day label horizon
+- canonical label source tables
+- the renewal-based churn definition
+- the renewal-based paid MRR expansion definition
+- the retained-active expansion population
+- the policy that ineligible labels are `NULL`, not `0`
+
+Generated data, DuckDB warehouses, MLflow runs, local live `.agent/*.md` files,
+private overrides, cache folders, and generated artefacts must not be committed.
 
 ## After each unit
 
@@ -168,3 +186,32 @@ unit gate passes.
 
 Agents must stop before Package 3 unless the human reviewer explicitly starts
 Package 3.
+
+## Package 3 autonomous loop
+
+Package 3 builds `mart.account_month`, the point-in-time account-month
+analytical modelling table. It does not train models, create baselines, score
+accounts, add health bands, create GTM recommendations, add dashboards, add
+APIs, deploy to cloud services, add MLflow, add dbt, use real SaaS
+integrations, use real customer data, or add incremental orchestration.
+
+Package 3 must remain split by the approved slices:
+
+1. Package 3A - Docs, contract, and harness update
+2. Package 3B - Account-month spine
+3. Package 3C - Labels
+4. Package 3D - Features
+5. Package 3E - Leakage hardening
+6. Package 3F - CLI, audit, docs closeout
+
+Package 3A is documentation and harness alignment only. It must not create
+`mart.account_month`, add scripts, add Make targets, add dependencies, generate
+synthetic data, load DuckDB, or implement Package 3 feature-building code.
+
+For Package 3B onward, `docs/feature_contract.md` is the durable Package 3
+source of truth. Prompt memory is not sufficient authority for row grain,
+eligibility, label definitions, horizon, source roles, null-label policy, or
+leakage rules.
+
+Agents may continue from one Package 3 unit to the next only when the current
+unit gate passes and the next unit is one of the approved Package 3 slices.

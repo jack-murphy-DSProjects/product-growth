@@ -13,12 +13,19 @@ Do not skip ahead.
 
 Do not combine unrelated units.
 
-Do not start Package 3 during Package 2.
+Package 3 must remain split by the approved 3A-3F units.
 
-## Package 2 scope sentence
+## Package 3 scope sentence
 
-Package 2 proves that source CSVs can be safely persisted and validated in
-DuckDB; it does not make the data model-ready.
+Package 3 builds the point-in-time `mart.account_month` analytical modelling
+table only; it does not train models, create baselines, score accounts, add
+health bands, create GTM recommendations, add dashboards, APIs, cloud
+deployment, MLflow, dbt, real SaaS integrations, real customer data, or
+incremental orchestration.
+
+Package 3A is documentation and harness alignment only. It does not create
+`mart.account_month`, add scripts, add Make targets, add dependencies, generate
+synthetic data, load DuckDB, or implement Package 3 feature-building code.
 
 ## Before each unit
 
@@ -26,14 +33,17 @@ Before changing files:
 
 1. Restate the active package.
 2. Restate the active unit.
-3. Restate the Package 2 scope sentence.
+3. Restate the Package 3 scope sentence.
 4. Restate the runbook rule that constrains the unit.
 5. Run `git status --short`.
 6. Inspect relevant docs, tests, and source files.
 7. Identify intended files to change.
-8. Confirm intended files are within Package 2 scope.
+8. Confirm intended files are within Package 3 scope.
 9. Identify tests or checks to add or update.
 10. Identify stop-condition risk.
+
+For Package 3B onward, read `docs/feature_contract.md` before changing code and
+restate the relevant leakage and eligibility rule for the active unit.
 
 ## During each unit
 
@@ -51,6 +61,13 @@ While changing files:
 9. Do not remove existing tests.
 10. Do not silently change Package 1 behaviour.
 11. Do not modify live local `.agent/*.md` controls.
+12. Do not change row grain, label horizon, label sources, churn definition,
+    expansion definition, expansion population, or null-label policy without
+    human review.
+13. Do not use `synthetic_archetype` as a modelling feature.
+14. Do not add model training, MLflow, baselines, scoring, health bands,
+    recommendations, dashboards, APIs, cloud deployment, or monitoring reports
+    in Package 3.
 
 ## After each unit
 
@@ -77,6 +94,7 @@ Continue automatically to the next unit only if:
 - no stop condition is hit
 - the next unit is part of the active package
 - the next unit scope is documented
+- the next unit is one of the approved Package 3 slices
 
 Stop only on:
 
@@ -86,14 +104,15 @@ Stop only on:
 - completion of the active package
 - request from the human reviewer
 
-Package 2 agents must not start Package 3 without explicit human approval.
+Package 3 agents must not start Package 4 without explicit human approval.
 
-## Package 2 unit sequence
+## Package 3 unit sequence
 
 Run units in this order:
 
-1. Package 2A - Warehouse contract and documentation
-2. Package 2B - Loader happy path
-3. Package 2C - Source presence and schema validation
-4. Package 2D - Relational and date validation
-5. Package 2E - Closeout and security review
+1. Package 3A - Docs, contract, and harness update
+2. Package 3B - Account-month spine
+3. Package 3C - Labels
+4. Package 3D - Features
+5. Package 3E - Leakage hardening
+6. Package 3F - CLI, audit, docs closeout

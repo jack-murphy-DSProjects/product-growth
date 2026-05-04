@@ -5,19 +5,32 @@ The live file is ignored and must not be committed.
 
 ## Active package
 
-Package 2 - DuckDB warehouse and source contract validation
+Package 3 - Account-month features and labels
 
 ## Active goal
 
-Load generated synthetic SaaS source CSVs into a local DuckDB analytical
-warehouse and validate raw source-table contracts.
+Build the point-in-time `mart.account_month` analytical modelling table from
+raw DuckDB source tables.
 
-Package 2 proves that source CSVs can be safely persisted and validated in
-DuckDB; it does not make the data model-ready.
+Package 3 builds the account-month modelling table only. It does not train
+models, create baselines, score accounts, add health bands, create GTM
+recommendations, add dashboards, add APIs, deploy to cloud services, add
+MLflow, add dbt, use real SaaS integrations, use real customer data, or add
+incremental orchestration.
 
 ## Current unit
 
-Set this manually for the active Package 2 unit.
+Set this manually for the active Package 3 unit:
+
+1. Package 3A - Docs, contract, and harness update
+2. Package 3B - Account-month spine
+3. Package 3C - Labels
+4. Package 3D - Features
+5. Package 3E - Leakage hardening
+6. Package 3F - CLI, audit, docs closeout
+
+Package 3A is documentation and harness alignment only. It does not create
+`mart.account_month` or implement feature-building code.
 
 ## Default source path
 
@@ -43,35 +56,77 @@ Set this manually for the active Package 2 unit.
 - `raw.crm_touchpoints`
 - `raw.renewals`
 
-## Optional metadata table
+## Planned mart table
 
-- `metadata.load_audit`
+- `mart.account_month`
 
-## Package 2 exclusions
+Package 3A documents this table only. Package 3B onward may implement it
+according to `docs/feature_contract.md`.
+
+## Locked Package 3 contract
+
+- Row grain: one active subscribed account x one calendar observation month.
+- Primary grain: `account_id`, `observation_month`.
+- `observation_month` is the first day of the month.
+- `observation_month_end` is the last day of the month.
+- Features use only records known on or before `observation_month_end`.
+- Labels use a 90-day future horizon.
+- `churn_90d` is renewal-based churn from `raw.renewals`.
+- `expansion_90d` is renewal-based paid MRR expansion from `raw.renewals`.
+- Ineligible labels are `NULL`, not `0`.
+- `raw.accounts.synthetic_archetype` is generator/debug metadata and is not a
+  modelling feature.
+
+## Package 3 exclusions
 
 Do not add:
 
-- Account-month features
-- Churn labels
-- Expansion labels
-- Feature engineering
 - Model training
+- MLflow experiments
 - MLflow logic
-- Champion selection
+- Model registry
+- Champion model selection
+- Rule baselines
 - Batch scoring
 - Health bands
 - Recommended GTM actions
 - Monitoring reports
 - Dashboards
-- Notebooks
 - APIs
 - Cloud deployment
 - Vercel
+- dbt
 - Real SaaS integrations
 - Real customer data
-- Incremental loading
-- dbt
-- Orchestration frameworks
+- Incremental orchestration
+
+Package 3A also must not add:
+
+- Package 3 implementation code
+- `mart.account_month`
+- Scripts
+- Make targets
+- Tests unless an existing doc or safety test needs a narrow update
+- Generated synthetic data
+- DuckDB loads
+- Dependencies
+
+## Package 3 stop conditions
+
+Stop before:
+
+- Changing the row grain
+- Changing the 90-day label horizon
+- Changing the canonical label source
+- Changing the renewal-based churn definition
+- Changing the renewal-based paid MRR expansion definition
+- Treating ineligible labels as `0`
+- Using `synthetic_archetype` as a feature
+- Adding model training, MLflow, baselines, scoring, health bands,
+  recommendations, dashboards, APIs, cloud deployment, or monitoring reports in
+  Package 3
+- Adding new dependencies
+- Weakening public repo safety
 
 ## Security reminders
 

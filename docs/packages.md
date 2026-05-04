@@ -272,11 +272,26 @@ Exit gate:
 ## Package 3: Account-month features and labels
 
 Goal:
-Build point-in-time account-month modelling table.
+Build the point-in-time `mart.account_month` modelling table from raw DuckDB
+source tables.
+
+Status:
+Package 3A is the docs-first contract and harness alignment unit. Package 3
+feature-building implementation has not started beyond Package 3A
+documentation.
+
+Package 3 scope sentence:
+Package 3 builds the account-month analytical modelling table only; it does not
+train models, create baselines, score accounts, add health bands, create GTM
+recommendations, or add dashboards, APIs, cloud deployment, MLflow, dbt, real
+SaaS integrations, real customer data, or incremental orchestration.
 
 Tasks:
 
+- Define the durable `mart.account_month` contract.
 - Define snapshot months.
+- Build the account-month spine.
+- Build renewal-based `churn_90d` and `expansion_90d` labels.
 - Build account lifecycle features.
 - Build usage features.
 - Build adoption features.
@@ -284,18 +299,147 @@ Tasks:
 - Build support features.
 - Build CRM touchpoint features.
 - Build renewal proximity features.
-- Build `churn_90d` label.
-- Build `expansion_90d` label.
 - Add leakage tests.
 
 Acceptance criteria:
 
-- One row per account-month.
-- Features use only data available as of snapshot month.
-- Labels use future 90-day outcomes.
-- No duplicate account-month rows.
+- Planned output table is `mart.account_month`.
+- One row represents one active subscribed account x one calendar observation
+  month.
+- Primary grain is `account_id`, `observation_month`.
+- `observation_month` is the first day of the calendar month.
+- `observation_month_end` is the last day of that month.
+- Features use only data available on or before `observation_month_end`.
+- Labels use future 90-day outcomes after `observation_month_end`.
+- `raw.renewals` is the canonical source for `churn_90d` and `expansion_90d`.
+- Ineligible labels are `NULL`, not `0`.
+- `raw.accounts.synthetic_archetype` is excluded from modelling features.
+- No duplicate account-month rows exist.
 - Leakage tests pass.
 - Data contract docs are updated.
+- Generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
+  files, and private files remain untracked.
+
+### Package 3 locked contract
+
+Package 3 units must preserve:
+
+- Account-month grain: one active subscribed account x one calendar observation
+  month.
+- Label horizon: 90 days after `observation_month_end`.
+- Churn definition: renewal-based churn from `raw.renewals`.
+- Expansion definition: renewal-based paid MRR expansion from `raw.renewals`.
+- Expansion population: retained active accounts only.
+- Label null policy: ineligible labels are `NULL`, not `0`.
+- Feature leakage policy: future source records and generator-only fields are
+  excluded from features.
+
+### Package 3 units
+
+#### Package 3A - Docs, contract, and harness update
+
+Update durable docs and committed `.agent/*.example` templates so Package 3B
+onward can be implemented without relying on prompt memory.
+
+Exit gate:
+
+- `docs/feature_contract.md` defines `mart.account_month`, row grain,
+  observation month semantics, feature cutoff, label horizon, eligibility
+  rules, labels, null-label policy, source roles, leakage rules, Package 3
+  exclusions, and expected validation categories.
+- `docs/data_contract.md` includes Package 3-facing source-role clarifications.
+- `docs/warehouse.md` documents planned `mart.account_month` without implying
+  it exists.
+- `docs/packages.md` lists Package 3 slices and confirms implementation has not
+  started beyond docs in Package 3A.
+- `docs/agentic_execution.md` defines Package 3 autonomous execution rules.
+- Committed `.agent/*.example` templates point to Package 3 and the 3A-3F unit
+  structure.
+- Live local `.agent/*.md` files are not modified or tracked.
+- No code, scripts, Make targets, generated data, DuckDB loads, dependencies,
+  or Package 3 feature-building tests are added.
+- `make verify` passes.
+- `git diff --check` passes.
+- Public repo safety check passes.
+
+#### Package 3B - Account-month spine
+
+Implement the `mart.account_month` spine only.
+
+Exit gate:
+
+- `mart.account_month` exists.
+- The table has one row per eligible `account_id`, `observation_month`.
+- `observation_month` and `observation_month_end` have correct calendar
+  semantics.
+- Rows represent active subscribed accounts as of `observation_month_end`.
+- Accounts churned before or on `observation_month_end` are excluded.
+- Observation months have complete 90-day future label horizon available.
+- Minimum account age is 30 days for the MVP.
+- No labels, features, models, baselines, scores, dashboards, MLflow logic, or
+  out-of-scope outputs are added.
+
+#### Package 3C - Labels
+
+Add renewal-based label eligibility and label columns only.
+
+Exit gate:
+
+- `is_churn_label_eligible`, `is_expansion_label_eligible`, `churn_90d`, and
+  `expansion_90d` exist.
+- `churn_90d` is positive only for `raw.renewals.outcome = 'churned'` inside
+  the 90-day future horizon.
+- `expansion_90d` is positive only for `raw.renewals.outcome =
+  'renewed_expanded'` inside the 90-day future horizon where `new_mrr >
+  previous_mrr`.
+- Ineligible labels are `NULL`, not `0`.
+- If an account churns inside the horizon, `churn_90d = 1`,
+  `is_expansion_label_eligible = false`, and `expansion_90d = NULL`.
+- No feature families, models, baselines, scores, dashboards, MLflow logic, or
+  out-of-scope outputs are added.
+
+#### Package 3D - Features
+
+Add point-in-time feature families from approved source tables.
+
+Exit gate:
+
+- Features use only records known on or before `observation_month_end`.
+- Source roles from `docs/feature_contract.md` are preserved.
+- `raw.accounts.synthetic_archetype` is not exposed as a modelling feature.
+- Feature null semantics are documented.
+- No label definitions, row grain, horizon, models, baselines, scores,
+  dashboards, MLflow logic, or out-of-scope outputs are changed.
+
+#### Package 3E - Leakage hardening
+
+Add explicit leakage checks and harden edge cases.
+
+Exit gate:
+
+- Leakage tests cover future renewals, subscriptions, invoices, support,
+  CRM touchpoints, usage, and generator-only fields.
+- Support resolution-time features exclude resolutions after
+  `observation_month_end`.
+- Ineligible label null policy is tested.
+- Account-month uniqueness and cutoff checks pass.
+- No Package 3 scope expansion is introduced.
+
+#### Package 3F - CLI, audit, docs closeout
+
+Add the approved Package 3 execution surface and close documentation.
+
+Exit gate:
+
+- Package 3 can rebuild `mart.account_month` through the approved local CLI or
+  existing project command pattern.
+- Any audit metadata remains local and public-safe.
+- Documentation reflects the implemented table, features, labels, validations,
+  and exclusions.
+- `make verify`, `git diff --check`, and public repo safety checks pass.
+- No generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
+  files, private files, dashboards, APIs, cloud deployments, baselines, scoring
+  outputs, or model artefacts are tracked.
 
 ---
 

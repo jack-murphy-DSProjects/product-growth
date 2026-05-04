@@ -2,15 +2,165 @@
 
 ## Status
 
-This is an initial Package 0 placeholder. The final feature list, data types,
-transformation logic, and validation tests will be added after synthetic source
-data and DuckDB contracts exist.
+Package 3A defines the account-month modelling contract for Package 3.
+
+Package 3A is documentation and agent-harness alignment only. It does not create
+`mart.account_month`, add scripts, add Make targets, load DuckDB, generate data,
+or implement feature-building code.
+
+Package 3B onward may implement this contract in the approved Package 3 slices.
+
+## Planned Output Table
+
+Package 3 will eventually create:
+
+- `mart.account_month`
+
+The table is the analytical modelling table for churn risk and expansion
+propensity. It is not created by Package 3A.
 
 ## Modeling Grain
 
-Features will be built at the account-month grain: one row per account per
-snapshot month. Each feature must represent information available as of that
-snapshot month.
+Primary grain:
+
+- `account_id`
+- `observation_month`
+
+One row represents one active subscribed account x one calendar observation
+month.
+
+`observation_month` must be the first day of the calendar month.
+
+`observation_month_end` must be the last day of that calendar month.
+
+The row means:
+
+> What was known about this account as of `observation_month_end`.
+
+No Package 3 unit may change this row grain without human review.
+
+## Feature Cutoff
+
+Features may use only source records known on or before
+`observation_month_end`.
+
+General rule:
+
+```text
+feature source date <= observation_month_end
+```
+
+Labels may use future windows, but those future windows must be excluded from
+all feature inputs.
+
+## Label Horizon
+
+Package 3 labels use a 90-day future horizon.
+
+General rule:
+
+```text
+event_date > observation_month_end
+event_date <= observation_month_end + 90 days
+```
+
+No Package 3 unit may change the horizon without human review.
+
+## Eligible Population
+
+Account-month rows should represent active subscribed accounts as of
+`observation_month_end`.
+
+Eligibility rules:
+
+- Accounts already churned before or on `observation_month_end` are not
+  eligible for account-month rows.
+- Observation months must have a complete 90-day future label horizon available.
+- Minimum account age is 30 days for the MVP.
+- Churn labels apply to eligible active subscribed account-month rows.
+- Expansion labels apply only to retained active accounts.
+- If an account churns inside the 90-day horizon, then `churn_90d = 1`,
+  `expansion_90d = NULL`, and `is_expansion_label_eligible = false`.
+
+Expected label eligibility fields:
+
+- `is_churn_label_eligible`
+- `is_expansion_label_eligible`
+
+## Labels
+
+### `churn_90d`
+
+Canonical source:
+
+- `raw.renewals`
+
+Positive label when all of the following are true:
+
+```text
+renewals.renewal_date > observation_month_end
+renewals.renewal_date <= observation_month_end + 90 days
+renewals.outcome = 'churned'
+```
+
+Churn is renewal-based churn. It is not same-month subscription status and not
+usage inactivity.
+
+### `expansion_90d`
+
+Canonical source:
+
+- `raw.renewals`
+
+Positive label when all of the following are true:
+
+```text
+renewals.renewal_date > observation_month_end
+renewals.renewal_date <= observation_month_end + 90 days
+renewals.outcome = 'renewed_expanded'
+renewals.new_mrr > renewals.previous_mrr
+```
+
+Expansion is renewal-based paid MRR expansion. It is not seat expansion, usage
+growth, CRM opportunity creation, plan movement, or generic upsell intent.
+
+## Null Label Policy
+
+Expected label fields:
+
+- `churn_90d`
+- `expansion_90d`
+
+Ineligible label rows must use `NULL` labels, not `0`.
+
+Eligible label rows must have binary labels.
+
+For retained active accounts with no expansion event in the 90-day horizon,
+`expansion_90d` should be `0` only when
+`is_expansion_label_eligible = true`.
+
+For churn-in-horizon rows:
+
+- `churn_90d = 1`
+- `is_expansion_label_eligible = false`
+- `expansion_90d = NULL`
+
+## Source Table Roles
+
+Package 3 source roles are:
+
+- `raw.renewals` is canonical for `churn_90d` and `expansion_90d`.
+- `raw.subscriptions` is a current and historical subscription-state feature
+  source.
+- `raw.invoices` is a billing feature source, not the canonical expansion label
+  source.
+- `raw.crm_touchpoints` is a GTM activity feature source, not label truth.
+- `raw.support_tickets` is a support feature source.
+- `raw.usage_events` is a product usage feature source.
+- `raw.users` may support user, admin, and adoption feature families.
+- `raw.accounts` may support account lifecycle and segment feature families.
+- `raw.accounts.synthetic_archetype` is generator/debug metadata and must be
+  excluded from modelling features.
 
 ## Expected Feature Families
 
@@ -31,11 +181,45 @@ snapshot month.
 - Historical outcomes: prior churn, contraction, expansion, or renewal outcomes
   when they are known before the snapshot month.
 
-## Point-In-Time Safety
+## Leakage Doctrine
 
-Feature generation must prevent leakage. No feature may use events, outcomes,
-or derived values that occur after the snapshot date. Labels may use future
-windows, but those label windows must be excluded from feature inputs.
+Forbidden as Package 3 features:
+
+- `raw.accounts.synthetic_archetype`.
+- Future `raw.renewals.outcome`, `previous_mrr`, or `new_mrr`.
+- Future subscription status, end-state, MRR, or plan values before their
+  effective date.
+- Future invoices, invoice amounts, payment statuses, paid dates, or failed
+  payments.
+- Future support tickets or support resolutions.
+- Support resolution time where `resolved_at > observation_month_end`.
+- Future CRM touchpoints or outcomes.
+- Any latent or generator-only controls if they ever surface.
+
+All Package 3B onward units must restate the relevant leakage and eligibility
+rules before changing code.
+
+## Package 3 Exclusions
+
+Package 3 must not add:
+
+- Model training.
+- MLflow experiments.
+- Model registry.
+- Champion model selection.
+- Rule baselines.
+- Health bands.
+- Recommended GTM actions.
+- Batch scoring.
+- Monitoring reports.
+- Dashboards.
+- APIs.
+- Cloud deployment.
+- Vercel.
+- dbt.
+- Real SaaS integrations.
+- Real customer data.
+- Incremental orchestration.
 
 ## Deterministic Transformations
 
@@ -67,3 +251,23 @@ Later packages should define:
 - Leakage tests.
 - Contract tests for duplicate account-month rows.
 - Segment columns required for evaluation and reporting.
+
+## Expected Package 3 Validation Categories
+
+Later Package 3 units should add focused validations for:
+
+- `mart.account_month` existence once implemented.
+- One row per `account_id`, `observation_month`.
+- `observation_month` and `observation_month_end` calendar semantics.
+- Active subscribed account eligibility as of `observation_month_end`.
+- Complete 90-day future label horizon.
+- Minimum 30-day account age.
+- Churn and expansion label definitions from `raw.renewals`.
+- Ineligible labels stored as `NULL`, not `0`.
+- Expansion label ineligibility when churn occurs inside the horizon.
+- Feature cutoff enforcement by source date.
+- Exclusion of `synthetic_archetype` and other generator-only fields.
+- Source-role boundaries for renewals, invoices, CRM touchpoints, support,
+  usage, subscriptions, users, and accounts.
+- Absence of Package 3 out-of-scope outputs such as models, scores, MLflow
+  runs, baselines, dashboards, or monitoring reports.

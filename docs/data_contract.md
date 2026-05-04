@@ -29,6 +29,25 @@ outputs.
 | `crm_touchpoints` | One row per CRM interaction | `touchpoint_id` |
 | `renewals` | One row per renewal event or opportunity | `renewal_id` |
 
+## Package 3 Source-Role Clarification
+
+Package 3 will build `mart.account_month` from the persisted `raw` source
+tables. Package 3A documents these roles only; it does not create the mart
+table.
+
+Package 3-facing source roles:
+
+- `raw.renewals` is the canonical label source for `churn_90d` and
+  `expansion_90d`.
+- `raw.subscriptions` supports point-in-time subscription features, but future
+  status, end-state, MRR, and plan values must not leak before their effective
+  dates.
+- `raw.invoices` supports billing features and is not the canonical expansion
+  label source.
+- `raw.crm_touchpoints` supports GTM touchpoint features and is not label truth.
+- `raw.accounts.synthetic_archetype` is generator/debug metadata and is excluded
+  from modelling features.
+
 ## Required Columns
 
 ### accounts

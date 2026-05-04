@@ -29,6 +29,26 @@ The `raw` schema contains source-faithful tables loaded from Package 1 generated
 
 The `metadata` schema contains minimal load metadata.
 
+## Planned mart roadmap
+
+Package 3 will eventually introduce a `mart` schema with:
+
+- `mart.account_month`
+
+Package 3A documents the planned mart contract only. It does not create the
+`mart` schema or `mart.account_month` table.
+
+Planned `mart.account_month` contract:
+
+- One row per active subscribed account x calendar observation month.
+- Primary grain: `account_id`, `observation_month`.
+- `observation_month` is the first day of the month.
+- `observation_month_end` is the last day of the month.
+- Features represent what was known on or before `observation_month_end`.
+- Labels use a future 90-day horizon after `observation_month_end`.
+- `churn_90d` and `expansion_90d` are renewal-based labels from
+  `raw.renewals`.
+
 ## Raw source tables
 
 Package 2 loads the following source tables:
