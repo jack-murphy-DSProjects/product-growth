@@ -80,7 +80,9 @@ synthetic SaaS sources
 ```
 
 Implementation uses the Python package `src/account_health`. Package 2 adds the
-local DuckDB raw/source warehouse. MLflow remains planned for a later package.
+local DuckDB raw/source warehouse. Package 3 adds the point-in-time
+`mart.account_month` table with renewal-based labels and MVP feature families.
+MLflow remains planned for a later package.
 
 ## Evaluation Philosophy
 
@@ -122,7 +124,7 @@ Run `make public-safety-check` before committing.
   test. Complete.
 - Package 1: deterministic synthetic SaaS source data generator. Complete.
 - Package 2: DuckDB warehouse and table contracts. Complete.
-- Package 3: account-month features and labels.
+- Package 3: account-month features and labels. Complete.
 - Package 4: commercial rule baselines.
 - Package 5: candidate model training with MLflow.
 - Package 6: layered evaluation and champion selection.
@@ -133,12 +135,14 @@ Run `make public-safety-check` before committing.
 
 ## Current Status
 
-Package -1, Package 0, Package 1, and Package 2 are complete. Package 1 adds
-deterministic synthetic source-table generation and a local CSV-writing CLI.
-Package 2 adds a local DuckDB raw/source warehouse loader, minimal load audit,
-and source-table contract validation. There is currently no MLflow tracking,
-model training, scoring logic, dashboards, notebooks, cloud deployment, or
-committed generated output.
+Package -1, Package 0, Package 1, Package 2, and Package 3 are complete.
+Package 1 adds deterministic synthetic source-table generation and a local
+CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
+minimal load audit, and source-table contract validation. Package 3 adds
+`mart.account_month`, renewal-based `churn_90d` and `expansion_90d` labels,
+point-in-time MVP features, leakage tests, and local feature build audit. There
+is currently no MLflow tracking, model training, scoring logic, dashboards,
+notebooks, cloud deployment, or committed generated output.
 
 ## Synthetic Source Data
 
@@ -161,6 +165,15 @@ make load-warehouse
 
 The default warehouse path is `data/warehouse/account_health.duckdb`. See
 `docs/warehouse.md` for the Package 2 warehouse contract.
+
+Build the ignored local account-month modelling table with:
+
+```bash
+make build-account-month
+```
+
+The build creates or replaces `mart.account_month` and appends a local audit row
+to `metadata.feature_build_audit`.
 
 ## Local Checks
 

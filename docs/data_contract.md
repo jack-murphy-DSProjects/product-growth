@@ -204,9 +204,11 @@ Rules:
 | `crm_touchpoints` | `account_id` | `accounts` | `account_id` |
 | `renewals` | `account_id` | `accounts` | `account_id` |
 
-## Out Of Scope Until Later Packages
+## Out Of Scope After Package 3
 
-- Account-month features.
-- Churn or expansion labels.
 - Model training, scores, health bands, or GTM recommendations.
 - Dashboards, notebooks, APIs, Vercel, cloud deployment, and MLflow runs.
+
+Package 3 builds account-month features and renewal-based labels from these
+public synthetic source contracts. Package 3 does not change the Package 1 raw
+source schemas.

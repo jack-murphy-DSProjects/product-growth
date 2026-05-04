@@ -118,3 +118,47 @@ passes.
 
 Agents must stop before Package 3 unless the human reviewer explicitly starts
 Package 3.
+
+## Package 3 decisions
+
+### Decision: Account-month grain
+
+Package 3 creates `mart.account_month` at one active subscribed account x one
+calendar observation month.
+
+The primary grain is:
+
+- `account_id`
+- `observation_month`
+
+`observation_month` is the first day of the month. `observation_month_end` is
+the last day of that month.
+
+### Decision: Renewal labels
+
+Package 3 uses `raw.renewals` as the canonical source for both labels:
+
+- `churn_90d`
+- `expansion_90d`
+
+Both labels use the approved 90-day future horizon after
+`observation_month_end`. Ineligible labels are stored as `NULL`, not `0`.
+
+### Decision: MVP feature set
+
+Package 3 implements a small, explicit feature set across static account,
+current subscription, usage, support, billing, and CRM source families.
+
+All feature inputs must be known on or before `observation_month_end`.
+
+`raw.accounts.synthetic_archetype` remains generator metadata and is excluded
+from `mart.account_month`.
+
+### Decision: Local feature build audit
+
+Package 3 creates `metadata.feature_build_audit` during local account-month
+builds.
+
+The audit table records build counts and source coverage for inspectability.
+It is not an orchestration framework, monitoring system, model registry, or
+production metadata store.

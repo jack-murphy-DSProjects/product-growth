@@ -2,22 +2,27 @@
 
 ## Status
 
-Package 3A defines the account-month modelling contract for Package 3.
+Package 3 implements the account-month modelling contract defined in Package
+3A.
 
-Package 3A is documentation and agent-harness alignment only. It does not create
-`mart.account_month`, add scripts, add Make targets, load DuckDB, generate data,
-or implement feature-building code.
+The implemented output table is:
 
-Package 3B onward may implement this contract in the approved Package 3 slices.
+- `mart.account_month`
 
-## Planned Output Table
+The local build command is:
 
-Package 3 will eventually create:
+```bash
+make build-account-month
+```
+
+## Output Table
+
+Package 3 creates:
 
 - `mart.account_month`
 
 The table is the analytical modelling table for churn risk and expansion
-propensity. It is not created by Package 3A.
+propensity.
 
 ## Modeling Grain
 
@@ -229,10 +234,83 @@ mappings, and default values should be documented and tested.
 
 ## Null Handling
 
-Null handling must be explicit. Later packages should document whether missing
-values mean not applicable, no observed activity, unknown source value, or
-synthetic generation gap. Any imputation used for modeling should be recorded in
-the feature contract.
+Null handling must be explicit. Package 3 records whether missing values mean
+not applicable, no observed activity, unknown source value, or synthetic
+generation gap. Any later imputation used for modeling should be recorded in
+the feature contract before model training begins.
+
+## Package 3D MVP Feature Columns
+
+Package 3D implements a deliberately small point-in-time feature set on
+`mart.account_month`.
+
+Static account fields:
+
+- `industry`
+- `region`
+- `segment`
+- `company_size_band`
+- `acquisition_channel`
+- `account_age_days`
+
+Current subscription fields as of `observation_month_end`:
+
+- `current_plan`
+- `current_mrr`
+- `current_billing_period`
+- `subscription_age_days`
+
+Trailing usage fields:
+
+- `usage_event_count_30d`
+- `usage_event_count_90d`
+- `usage_event_count_180d`
+- `active_user_count_30d`
+- `active_user_count_90d`
+- `active_user_count_180d`
+- `usage_event_value_sum_90d`
+
+Support fields:
+
+- `support_ticket_count_30d`
+- `support_ticket_count_90d`
+- `support_ticket_count_180d`
+- `high_priority_ticket_count_90d`
+- `open_ticket_count`
+- `avg_resolution_hours_known`
+- `days_since_last_ticket`
+
+Billing fields:
+
+- `invoice_count_90d`
+- `invoice_count_180d`
+- `invoice_amount_sum_90d`
+- `invoice_amount_sum_180d`
+- `unpaid_invoice_count_90d`
+- `failed_invoice_count_90d`
+- `overdue_invoice_count`
+- `avg_payment_delay_days_known`
+- `days_since_last_invoice`
+
+CRM fields:
+
+- `crm_touchpoint_count_30d`
+- `crm_touchpoint_count_90d`
+- `crm_touchpoint_count_180d`
+- `sales_touchpoint_count_90d`
+- `cs_touchpoint_count_90d`
+- `days_since_last_crm_touchpoint`
+
+Null semantics:
+
+- Count and sum features default to `0` when no qualifying records are known by
+  `observation_month_end`.
+- Recency fields are `NULL` when no qualifying historical record exists.
+- Average resolution hours uses only support tickets resolved on or before
+  `observation_month_end`; it is `NULL` when no such ticket exists.
+- Average payment delay uses only invoices paid on or before
+  `observation_month_end`; it is `NULL` when no such invoice exists.
+- `synthetic_archetype` remains excluded from `mart.account_month`.
 
 ## Segment Evaluation Readiness
 
@@ -240,23 +318,20 @@ The feature table should include stable segment fields needed for robustness
 checks. These fields should support evaluation by account size, lifecycle stage,
 plan tier, region, industry, sales motion, and other synthetic GTM segments.
 
-## Future Contract Requirements
+## Later Contract Requirements
 
 Later packages should define:
 
-- Feature names, types, and descriptions.
-- Source tables used for each feature.
-- Snapshot cutoffs and aggregation windows.
-- Null semantics and imputation behavior.
-- Leakage tests.
-- Contract tests for duplicate account-month rows.
+- Model feature lists selected from `mart.account_month`.
+- Training-time imputation behavior, if any.
 - Segment columns required for evaluation and reporting.
+- Any model-specific exclusion list for labels, identifiers, or audit fields.
 
-## Expected Package 3 Validation Categories
+## Package 3 Validation Categories
 
-Later Package 3 units should add focused validations for:
+Package 3 includes focused validations for:
 
-- `mart.account_month` existence once implemented.
+- `mart.account_month` existence.
 - One row per `account_id`, `observation_month`.
 - `observation_month` and `observation_month_end` calendar semantics.
 - Active subscribed account eligibility as of `observation_month_end`.

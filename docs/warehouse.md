@@ -29,16 +29,13 @@ The `raw` schema contains source-faithful tables loaded from Package 1 generated
 
 The `metadata` schema contains minimal load metadata.
 
-## Planned mart roadmap
+## Mart schema
 
-Package 3 will eventually introduce a `mart` schema with:
+Package 3 introduces a `mart` schema with:
 
 - `mart.account_month`
 
-Package 3A documents the planned mart contract only. It does not create the
-`mart` schema or `mart.account_month` table.
-
-Planned `mart.account_month` contract:
+`mart.account_month` contract:
 
 - One row per active subscribed account x calendar observation month.
 - Primary grain: `account_id`, `observation_month`.
@@ -48,6 +45,14 @@ Planned `mart.account_month` contract:
 - Labels use a future 90-day horizon after `observation_month_end`.
 - `churn_90d` and `expansion_90d` are renewal-based labels from
   `raw.renewals`.
+- Point-in-time MVP features are built from approved raw source families.
+- `raw.accounts.synthetic_archetype` is excluded from modelling features.
+
+The default local command is:
+
+```bash
+make build-account-month
+```
 
 ## Raw source tables
 
@@ -72,6 +77,10 @@ Package 2 may create:
 
 - `metadata.load_audit`
 
+Package 3 may create:
+
+- `metadata.feature_build_audit`
+
 The load audit table records minimal information about each source table load.
 
 Expected fields may include:
@@ -87,6 +96,26 @@ Expected fields may include:
 This table exists to make local batch runs inspectable.
 
 It is not an orchestration framework.
+
+The feature build audit table records one row per local `mart.account_month`
+build.
+
+Expected fields include:
+
+- `build_id`
+- `built_at_utc`
+- `output_table`
+- `row_count`
+- `account_count`
+- `min_observation_month`
+- `max_observation_month`
+- `churn_eligible_count`
+- `churn_positive_count`
+- `expansion_eligible_count`
+- `expansion_positive_count`
+- `source_max_date`
+
+This table is local audit metadata only. It is not an orchestration state store.
 
 ## Loader behaviour
 
@@ -138,7 +167,8 @@ Package 2 validation does not include:
 - Recommended GTM actions.
 - Monitoring reports.
 
-Those responsibilities belong to later packages.
+Package 3 owns account-month features, labels, and leakage checks. Later
+packages own models, scoring, health bands, actions, and monitoring.
 
 ## Out-of-scope behaviours
 

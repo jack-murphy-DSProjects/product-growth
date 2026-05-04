@@ -276,9 +276,7 @@ Build the point-in-time `mart.account_month` modelling table from raw DuckDB
 source tables.
 
 Status:
-Package 3A is the docs-first contract and harness alignment unit. Package 3
-feature-building implementation has not started beyond Package 3A
-documentation.
+Complete.
 
 Package 3 scope sentence:
 Package 3 builds the account-month analytical modelling table only; it does not
@@ -292,18 +290,18 @@ Tasks:
 - Define snapshot months.
 - Build the account-month spine.
 - Build renewal-based `churn_90d` and `expansion_90d` labels.
-- Build account lifecycle features.
-- Build usage features.
-- Build adoption features.
-- Build billing features.
-- Build support features.
-- Build CRM touchpoint features.
-- Build renewal proximity features.
+- Build MVP account lifecycle and segment features.
+- Build MVP current subscription features.
+- Build MVP usage trailing-window features.
+- Build MVP billing trailing-window features.
+- Build MVP support trailing-window features.
+- Build MVP CRM touchpoint trailing-window features.
 - Add leakage tests.
+- Add a local CLI, Make target, and minimal feature build audit.
 
 Acceptance criteria:
 
-- Planned output table is `mart.account_month`.
+- Output table is `mart.account_month`.
 - One row represents one active subscribed account x one calendar observation
   month.
 - Primary grain is `account_id`, `observation_month`.
@@ -317,6 +315,8 @@ Acceptance criteria:
 - No duplicate account-month rows exist.
 - Leakage tests pass.
 - Data contract docs are updated.
+- A local CLI and Make target can rebuild `mart.account_month`.
+- `metadata.feature_build_audit` records local build metadata.
 - Generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
   files, and private files remain untracked.
 
