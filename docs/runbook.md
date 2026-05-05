@@ -51,7 +51,7 @@ Package 5 training must not require Package 4 baselines. Baseline outputs are
 benchmarks for later comparison, not training prerequisites and not model
 features.
 
-The later Package 5 command should be:
+The Package 5 training command is:
 
 ```bash
 make train-candidate-models

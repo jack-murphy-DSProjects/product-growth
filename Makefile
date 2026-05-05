@@ -1,7 +1,11 @@
 PYTHON ?= python3
 WAREHOUSE_PATH ?= data/warehouse/account_health.duckdb
+TRAIN_END_MONTH ?=
+MLFLOW_TRACKING_URI ?=
+EXPERIMENT_NAME ?= account-health-candidate-training
+RANDOM_STATE ?= 42
 
-.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines clean-generated verify
+.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models clean-generated verify
 
 setup:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -23,6 +27,9 @@ build-account-month:
 
 build-rule-baselines:
 	$(PYTHON) scripts/build_rule_baselines.py --database-path "$(WAREHOUSE_PATH)"
+
+train-candidate-models:
+	$(PYTHON) scripts/train_candidate_models.py --warehouse-path "$(WAREHOUSE_PATH)" --experiment-name "$(EXPERIMENT_NAME)" --random-state "$(RANDOM_STATE)" $(if $(TRAIN_END_MONTH),--train-end-month "$(TRAIN_END_MONTH)",) $(if $(MLFLOW_TRACKING_URI),--mlflow-tracking-uri "$(MLFLOW_TRACKING_URI)",)
 
 clean-generated:
 	rm -rf data/generated

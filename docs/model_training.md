@@ -2,12 +2,12 @@
 
 ## Status
 
-Package 5A defines the Package 5 model training contract and approved runtime
-dependencies.
+Package 5 implements local candidate model training with scikit-learn and
+local MLflow tracking.
 
-Package 5 implementation is not complete. Package 5A does not create model
-training code, MLflow runs, model artefacts, scoring outputs, or new warehouse
-tables.
+Package 5 creates training code, a local CLI, and a Make target. MLflow runs
+and model artefacts are generated local artefacts and must not be committed.
+Package 5 does not create scoring outputs or new warehouse tables.
 
 ## Purpose
 
@@ -87,7 +87,7 @@ The split must be deterministic and must not be random.
 The default `train_end_month` may be derived as the maximum eligible
 `observation_month` for the target minus 3 months.
 
-The later CLI should allow an explicit override:
+The CLI allows an explicit override:
 
 ```bash
 scripts/train_candidate_models.py --train-end-month YYYY-MM-01
@@ -116,6 +116,51 @@ feature families already present in `mart.account_month`:
 - CRM trailing-window features.
 
 Package 4 baseline outputs are benchmarks only. They are not model features.
+
+Approved categorical features:
+
+- `industry`
+- `region`
+- `segment`
+- `company_size_band`
+- `acquisition_channel`
+- `current_plan`
+- `current_billing_period`
+
+Approved numeric features:
+
+- `account_age_days`
+- `current_mrr`
+- `subscription_age_days`
+- `usage_event_count_30d`
+- `usage_event_count_90d`
+- `usage_event_count_180d`
+- `active_user_count_30d`
+- `active_user_count_90d`
+- `active_user_count_180d`
+- `usage_event_value_sum_90d`
+- `support_ticket_count_30d`
+- `support_ticket_count_90d`
+- `support_ticket_count_180d`
+- `high_priority_ticket_count_90d`
+- `open_ticket_count`
+- `avg_resolution_hours_known`
+- `days_since_last_ticket`
+- `invoice_count_90d`
+- `invoice_count_180d`
+- `invoice_amount_sum_90d`
+- `invoice_amount_sum_180d`
+- `unpaid_invoice_count_90d`
+- `failed_invoice_count_90d`
+- `overdue_invoice_count`
+- `avg_payment_delay_days_known`
+- `days_since_last_invoice`
+- `crm_touchpoint_count_30d`
+- `crm_touchpoint_count_90d`
+- `crm_touchpoint_count_180d`
+- `sales_touchpoint_count_90d`
+- `cs_touchpoint_count_90d`
+- `days_since_last_crm_touchpoint`
 
 ## Forbidden Feature Policy
 
@@ -227,7 +272,7 @@ Required metrics:
 - Brier score.
 - Accuracy.
 
-Optional metric:
+Additional metric:
 
 - Precision at top 10%.
 
@@ -235,14 +280,36 @@ Package 5 does not select a champion model.
 
 Package 5 does not perform full layered Package 6 evaluation.
 
-## Expected Later CLI
+## CLI
 
-The later implementation should add:
+Package 5 adds:
 
 - `scripts/train_candidate_models.py`
 - `make train-candidate-models`
 
-Package 5A does not create either implementation surface.
+CLI arguments:
+
+- `--warehouse-path`
+- `--train-end-month`
+- `--experiment-name`
+- `--mlflow-tracking-uri`
+- `--random-state`
+
+Default Make usage:
+
+```bash
+make train-candidate-models
+```
+
+The local prerequisite flow remains:
+
+```bash
+make generate-synthetic-data
+make load-warehouse
+make build-account-month
+```
+
+Package 5 training does not require `make build-rule-baselines`.
 
 ## Package Boundaries And Non-goals
 

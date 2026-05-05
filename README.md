@@ -127,7 +127,7 @@ Run `make public-safety-check` before committing.
 - Package 2: DuckDB warehouse and table contracts. Complete.
 - Package 3: account-month features and labels. Complete.
 - Package 4: commercial rule baseline benchmark artefacts. Complete.
-- Package 5: candidate model training with MLflow.
+- Package 5: candidate model training with MLflow. Complete.
 - Package 6: layered evaluation and champion selection.
 - Package 7: MLflow registry and model promotion.
 - Package 8: local batch scoring deployment.
@@ -136,8 +136,8 @@ Run `make public-safety-check` before committing.
 
 ## Current Status
 
-Package -1, Package 0, Package 1, Package 2, Package 3, and Package 4 are
-complete.
+Package -1, Package 0, Package 1, Package 2, Package 3, Package 4, and
+Package 5 are complete.
 Package 1 adds deterministic synthetic source-table generation and a local
 CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
 minimal load audit, and source-table contract validation. Package 3 adds
@@ -145,10 +145,12 @@ minimal load audit, and source-table contract validation. Package 3 adds
 point-in-time MVP features, leakage tests, and local feature build audit.
 Package 4 adds `mart.account_month_baselines`, deterministic churn and
 expansion rule baseline scores, component columns, rank and decile helpers, a
-local rebuild command, and minimal baseline build audit. Package 5 is in the
-candidate model training contract stage. There is currently no implemented
-model training, final scoring logic, health-band policy, GTM action layer,
-dashboards, notebooks, cloud deployment, or committed generated output.
+local rebuild command, and minimal baseline build audit. Package 5 adds
+candidate churn and expansion model training with logistic regression and
+random forest pipelines, fixed temporal splits, simple validation metrics, and
+local MLflow run logging. There is currently no final scoring logic,
+health-band policy, GTM action layer, dashboards, notebooks, cloud deployment,
+or committed generated output.
 
 ## Synthetic Source Data
 
@@ -190,6 +192,17 @@ make build-rule-baselines
 The build creates or replaces `mart.account_month_baselines` from
 `mart.account_month` and appends a local audit row to
 `metadata.baseline_build_audit`.
+
+Train ignored local candidate model runs with:
+
+```bash
+make train-candidate-models
+```
+
+The training workflow reads `mart.account_month`, trains churn and expansion
+candidate models, and logs local MLflow runs and model artefacts under ignored
+tracking/artifact paths. It does not require Package 4 baselines and does not
+write scoring output tables.
 
 ## Local Checks
 

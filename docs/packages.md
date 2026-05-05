@@ -627,8 +627,7 @@ Train local, reproducible candidate churn and expansion models from
 `mart.account_month` and log candidate runs through MLflow.
 
 Status:
-Design contract defined by Package 5A. Package 5 implementation is not
-complete.
+Complete.
 
 Package 5 trains candidate models only. It does not select a champion, register
 models, promote models, deploy models, batch score accounts, create health

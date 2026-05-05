@@ -604,12 +604,59 @@ Forbidden feature name terms:
 
 The forbidden term policy applies to any column containing the term.
 
+### Package 5 Approved Model Features
+
+Approved categorical features:
+
+- `industry`
+- `region`
+- `segment`
+- `company_size_band`
+- `acquisition_channel`
+- `current_plan`
+- `current_billing_period`
+
+Approved numeric features:
+
+- `account_age_days`
+- `current_mrr`
+- `subscription_age_days`
+- `usage_event_count_30d`
+- `usage_event_count_90d`
+- `usage_event_count_180d`
+- `active_user_count_30d`
+- `active_user_count_90d`
+- `active_user_count_180d`
+- `usage_event_value_sum_90d`
+- `support_ticket_count_30d`
+- `support_ticket_count_90d`
+- `support_ticket_count_180d`
+- `high_priority_ticket_count_90d`
+- `open_ticket_count`
+- `avg_resolution_hours_known`
+- `days_since_last_ticket`
+- `invoice_count_90d`
+- `invoice_count_180d`
+- `invoice_amount_sum_90d`
+- `invoice_amount_sum_180d`
+- `unpaid_invoice_count_90d`
+- `failed_invoice_count_90d`
+- `overdue_invoice_count`
+- `avg_payment_delay_days_known`
+- `days_since_last_invoice`
+- `crm_touchpoint_count_30d`
+- `crm_touchpoint_count_90d`
+- `crm_touchpoint_count_180d`
+- `sales_touchpoint_count_90d`
+- `cs_touchpoint_count_90d`
+- `days_since_last_crm_touchpoint`
+
+These allowlists are shared by the churn and expansion candidate models.
+
 ## Later Contract Requirements
 
 Later packages should define:
 
-- Exact Package 5 model feature allowlists selected from existing
-  `mart.account_month` columns.
 - Segment columns required for evaluation and reporting.
 - Any model-specific exclusion list for labels, identifiers, or audit fields.
 
