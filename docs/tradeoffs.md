@@ -62,10 +62,10 @@ Decision: champion selection should depend on operating metrics, not ROC AUC
 alone.
 
 ROC AUC can summarize ranking quality, but GTM teams need capacity-aware
-decisions. The project will emphasize top-K capture, monthly backtests,
-baseline-versus-ML lift, economic utility sensitivity, calibration, and segment
-robustness. A model that looks strong by AUC but fails these checks should not
-be promoted.
+decisions. The project will emphasize top-K capture, fixed holdout evaluation,
+holdout-month robustness, baseline-versus-ML lift, economic utility
+sensitivity, calibration, and segment robustness. A model that looks strong by
+AUC but fails these checks should not be promoted.
 
 ## Deterministic Policy Layer For Health Bands And Actions
 

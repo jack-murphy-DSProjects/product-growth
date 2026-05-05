@@ -38,9 +38,11 @@ sets, preprocessing steps, and selected champion versions.
 
 ## Evaluation
 
-Report baseline-versus-ML comparisons, fixed time split results, rolling monthly
-backtests, top-K capacity metrics, economic utility sensitivity, precision and
-recall at operating thresholds, and any standard classifier metrics.
+Report baseline-versus-ML comparisons, fixed holdout results, holdout-month
+robustness slices, top-K capacity metrics, economic utility sensitivity,
+precision and recall at operating thresholds, and any standard classifier
+metrics. Do not describe holdout-month slices as a rolling backtest unless
+actual rolling retraining is implemented.
 
 ## Calibration
 

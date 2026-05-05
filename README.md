@@ -38,7 +38,8 @@ contracts, baselines, evaluation, monitoring, and deterministic policy rules.
 - `account_health_band`: deterministic policy output such as healthy, watch,
   or at-risk.
 - `recommended_gtm_action`: deterministic action recommendation for GTM teams.
-- Model, baseline, calibration, segment, and backtest metrics.
+- Model, baseline, calibration, segment, fixed-holdout, and temporal robustness
+  metrics.
 - Local monitoring reports for data, feature, prediction, and recommendation
   drift.
 - RevOps-readable account score and recommendation tables.
@@ -51,8 +52,8 @@ workflow, not sit in isolation. The project separates:
 - Source data contracts and account-month feature construction.
 - Independent churn and expansion modeling.
 - Credible rule baselines before ML.
-- Layered evaluation using capacity, monthly backtests, economic utility,
-  calibration, and segment robustness.
+- Layered evaluation using capacity, fixed holdouts, holdout-month robustness,
+  economic utility, calibration, and segment robustness.
 - Champion selection based on operating metrics, not ROC AUC alone.
 - Deterministic policy rules that map scores into health bands and GTM actions.
 - Batch outputs and monitoring reports that RevOps could review.
@@ -87,10 +88,11 @@ model training with scikit-learn and local MLflow tracking.
 
 ## Evaluation Philosophy
 
-The project will use fixed time splits and rolling monthly backtests instead of
-random splits. Churn and expansion will be modeled independently with global
-models, then evaluated across segments. Evaluation will emphasize GTM operating
-questions:
+The project will use fixed time splits and holdout-month robustness checks
+instead of random splits. Full rolling retraining backtests are outside the
+Package 6 MVP unless actual rolling retraining is implemented later. Churn and
+expansion will be modeled independently with global models, then evaluated
+across segments. Evaluation will emphasize GTM operating questions:
 
 - Does ML beat credible commercial rule baselines?
 - Which accounts should fit within limited weekly CS or Sales capacity?

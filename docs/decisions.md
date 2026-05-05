@@ -252,3 +252,76 @@ or deploy models.
 Package 5 reports simple validation metrics for candidate runs only.
 
 Champion selection and full layered evaluation belong to Package 6.
+
+## Package 6 decisions
+
+### Decision: Fixed holdout plus holdout-month robustness
+
+Package 6 evaluates candidates on the fixed temporal holdout created by the
+Package 5 split semantics.
+
+Package 6 may slice that fixed holdout by `observation_month` to check temporal
+robustness.
+
+Package 6 does not implement a full rolling retraining backtest in the MVP. A
+rolling backtest would require actual repeated retraining across multiple
+cutoffs and must be separately approved.
+
+### Decision: Consume local MLflow runs without silent retraining
+
+Package 6 consumes local Package 5 MLflow candidate runs, feature metadata,
+split metadata, and model artefacts.
+
+If required local runs or artefacts are missing, Package 6 should fail clearly.
+It must not silently retrain candidates as a fallback.
+
+Package 6 does not use MLflow registry APIs, aliases, promotion, deployment, or
+remote tracking requirements.
+
+### Decision: Baselines are ranking benchmarks in evaluation
+
+Package 4 baseline scores may be compared with ML candidates using ranking and
+capacity metrics such as ROC AUC, average precision, top-K precision, top-K
+recall, lift, and capture rate.
+
+Package 4 baseline scores are not calibrated probabilities. Package 6 must not
+use them for log loss, Brier score, or calibration bins in the MVP.
+
+### Decision: Champion selection follows GTM operating metrics
+
+Package 6 selects churn and expansion champions separately.
+
+Primary evidence is top-K GTM operating performance, especially precision,
+lift, and capture at top 10%. ROC AUC and average precision are supporting
+evidence only.
+
+Package 6 may conclude that no ML candidate sufficiently beats the rule
+baseline for a target.
+
+### Decision: Evaluation outputs are local artefacts
+
+Package 6 writes generated evaluation files under:
+
+- `data/outputs/model_evaluation/`
+
+The default generated files are:
+
+- `evaluation_summary.json`
+- `champion_selection_manifest.json`
+- `evaluation_report.md`
+
+These files are generated local artefacts and must not be committed.
+
+### Decision: Minimal evaluation tables
+
+Package 6 may create a minimal local DuckDB table set:
+
+- `metadata.model_evaluation_audit`
+- `mart.model_evaluation_summary`
+- `mart.model_champion_selection`
+
+Optional detail tables should be added only when implementation needs them.
+
+These tables are local evaluation summaries. They are not production scoring
+outputs, model registry metadata, monitoring outputs, health bands, or
+recommended GTM actions.

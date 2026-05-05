@@ -8,7 +8,8 @@ DataFrame contracts.
 Package 2 persists those source tables into the local DuckDB `raw` schema and
 validates source-level contracts. Package 3 creates `mart.account_month`.
 Package 4 prepares deterministic rule baseline contracts from
-`mart.account_month`. Model outputs are reserved for later packages.
+`mart.account_month`. Package 6 may create local model evaluation summary
+tables. Production model scoring outputs are reserved for later packages.
 
 ## Safety Statement
 
@@ -141,6 +142,128 @@ Minimum expected columns if created:
 This table is local audit metadata only. It is not model metadata, an MLflow
 replacement, a model registry, an orchestration state store, or a monitoring
 report.
+
+## Package 6 Evaluation Contract
+
+Package 6 evaluates Package 5 candidate models and Package 4 rule baselines.
+It must not change `mart.account_month` or `mart.account_month_baselines`.
+
+Package 6 may create these minimal local tables:
+
+- `metadata.model_evaluation_audit`
+- `mart.model_evaluation_summary`
+- `mart.model_champion_selection`
+
+Optional detail tables require implementation justification:
+
+- `mart.model_topk_evaluation`
+- `mart.model_segment_evaluation`
+- `mart.model_calibration_summary`
+- `mart.model_utility_sensitivity`
+
+These tables are local evaluation outputs only. They are not production scoring
+outputs, health-band tables, recommended-action tables, model registry tables,
+deployment records, monitoring reports, or real customer data.
+
+### `metadata.model_evaluation_audit`
+
+Grain:
+
+- One row per local Package 6 evaluation run.
+
+Minimum expected columns if created:
+
+- `evaluation_id`
+- `evaluated_at_utc`
+- `evaluation_version`
+- `warehouse_path`
+- `experiment_name`
+- `train_end_month`
+- `target_count`
+- `candidate_count`
+- `status`
+
+### `mart.model_evaluation_summary`
+
+Grain:
+
+- One row per evaluation run x target x candidate or baseline x metric slice.
+
+Minimum expected columns if created:
+
+- `evaluation_id`
+- `target`
+- `model_family`
+- `candidate_type`
+- `mlflow_run_id`
+- `score_source`
+- `metric_name`
+- `metric_value`
+- `slice_type`
+- `slice_value`
+- `row_count`
+- `positive_count`
+- `base_positive_rate`
+- `k_value`
+- `k_type`
+- `evaluation_version`
+- `created_at_utc`
+
+Column rules:
+
+- `candidate_type` should distinguish ML candidates from rule baselines.
+- `score_source` should identify whether the row uses ML probabilities or
+  baseline ranking scores.
+- Baseline rows must not use log loss, Brier score, or calibration-bin metric
+  names in the MVP.
+
+### `mart.model_champion_selection`
+
+Grain:
+
+- One row per evaluation run x target.
+
+Minimum expected columns if created:
+
+- `evaluation_id`
+- `target`
+- `selected_champion_model_family`
+- `mlflow_run_id`
+- `model_artifact_uri`
+- `selection_status`
+- `primary_metric`
+- `key_topk_metrics`
+- `comparison_versus_baseline`
+- `calibration_caveats`
+- `segment_caveats`
+- `temporal_caveats`
+- `utility_caveats`
+- `synthetic_data_caveat`
+- `evaluation_version`
+- `created_at_utc`
+
+Column rules:
+
+- `selection_status` must support baseline-retained, insufficient-evidence, and
+  no-ML-candidate-sufficiently-beats-baseline outcomes.
+- `mlflow_run_id` and `model_artifact_uri` may be null when the selected
+  champion is not an ML candidate.
+- Champion rows do not create MLflow registry aliases or production scoring
+  configuration.
+
+### Optional detail tables
+
+Optional detail tables may break out top-K, segment, calibration, and utility
+records if `mart.model_evaluation_summary` becomes too dense.
+
+They must preserve the same Package 6 restrictions:
+
+- local evaluation only
+- no production scoring
+- no health bands
+- no recommended GTM actions
+- no registry or promotion metadata
+- no real customer data
 
 ## Required Columns
 

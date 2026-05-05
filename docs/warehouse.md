@@ -39,6 +39,18 @@ Package 4 adds a separate benchmark mart table:
 
 - `mart.account_month_baselines`
 
+Package 6 may add local evaluation summary mart tables:
+
+- `mart.model_evaluation_summary`
+- `mart.model_champion_selection`
+
+Optional Package 6 detail tables, if implementation justifies them, are:
+
+- `mart.model_topk_evaluation`
+- `mart.model_segment_evaluation`
+- `mart.model_calibration_summary`
+- `mart.model_utility_sensitivity`
+
 `mart.account_month` contract:
 
 - One row per active subscribed account x calendar observation month.
@@ -66,6 +78,19 @@ Package 4 adds a separate benchmark mart table:
 - Does not create final account health bands, recommended GTM actions, ML
   predictions, MLflow runs, monitoring reports, dashboards, APIs, or cloud
   outputs.
+
+Package 6 evaluation table contract:
+
+- Built from the Package 5 fixed holdout, local Package 5 MLflow candidate
+  runs, and `mart.account_month_baselines`.
+- Contains evaluation summaries and champion selection evidence only.
+- Does not modify `mart.account_month`.
+- Does not create production scoring outputs, account health bands,
+  recommended GTM actions, model registry metadata, monitoring reports,
+  dashboards, APIs, or cloud outputs.
+- Baseline rows are evaluated as ranking benchmarks, not calibrated
+  probabilities.
+- Generated DuckDB tables remain local and must not be committed.
 
 The default local account-month command is:
 
@@ -109,6 +134,10 @@ Package 3 may create:
 Package 4 may create:
 
 - `metadata.baseline_build_audit`
+
+Package 6 may create:
+
+- `metadata.model_evaluation_audit`
 
 The load audit table records minimal information about each source table load.
 
@@ -165,6 +194,25 @@ Expected fields may include:
 This table is local audit metadata only. It is not an orchestration framework,
 monitoring system, model registry, MLflow substitute, or production metadata
 store.
+
+The model evaluation audit table records minimal local metadata about
+evaluation runs.
+
+Expected fields may include:
+
+- `evaluation_id`
+- `evaluated_at_utc`
+- `evaluation_version`
+- `warehouse_path`
+- `experiment_name`
+- `train_end_month`
+- `target_count`
+- `candidate_count`
+- `status`
+
+This table is local evaluation audit metadata only. It is not an MLflow
+registry, model promotion log, deployment record, monitoring report, or
+production scoring audit.
 
 ## Loader behaviour
 

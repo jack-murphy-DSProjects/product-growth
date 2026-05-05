@@ -80,7 +80,8 @@ Generic classifier metrics are useful but incomplete. Success means the system
 helps GTM teams make better operating decisions.
 
 The project will evaluate whether candidate models beat credible rule baselines,
-perform well under top-K capacity constraints, remain stable across rolling
-monthly backtests, calibrate well enough for thresholding, behave robustly across
-segments, and create positive economic utility under plausible business
-assumptions.
+perform well under top-K capacity constraints, remain stable across holdout
+months inside the fixed holdout, calibrate well enough for thresholding, behave
+robustly across segments, and create positive economic utility under plausible
+business assumptions. Full rolling retraining backtests require actual rolling
+retraining and are outside the Package 6 MVP.

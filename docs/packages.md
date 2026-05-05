@@ -789,28 +789,188 @@ Exit gate:
 ## Package 6: Layered evaluation and champion selection
 
 Goal:
-Evaluate candidate models through commercial operating metrics and select champions.
+Evaluate Package 5 candidate ML models and Package 4 rule baselines through
+commercial operating metrics, then select one champion for churn and one
+champion for expansion when the evidence supports it.
+
+Package 6 source inputs:
+
+- `mart.account_month`
+- `mart.account_month_baselines`
+- local Package 5 MLflow candidate runs and model artefacts
+- Package 5 feature and split metadata
+
+Package 6 must preserve the Package 3 account-month grain, Package 3 label
+semantics, Package 4 baseline-as-ranking-benchmark semantics, and Package 5
+local candidate training semantics.
+
+Package 6 must not add MLflow registry use, model registration, model
+promotion, deployment, production scoring outputs, account health bands,
+recommended GTM actions, monitoring dashboards, hosted APIs, cloud
+infrastructure, real customer data, segment-specific models, full rolling
+retraining backtests, default candidate retraining, mutation of
+`mart.account_month`, or baselines as ML features.
+
+Package 6 uses Package 5 fixed holdout evaluation plus holdout-month temporal
+robustness slices within the fixed holdout. It must not claim or implement a
+full rolling retraining backtest in the MVP.
 
 Tasks:
 
+- Create the durable Package 6 evaluation contract.
+- Load existing local MLflow candidate runs and fail clearly if required runs
+  or artefacts are missing.
+- Score Package 5 fixed holdout rows for each target and candidate.
 - Implement top-K capacity evaluation.
-- Implement rolling monthly backtest.
+- Implement Package 5 fixed holdout evaluation.
+- Implement holdout-month temporal robustness slices within the fixed holdout.
 - Implement baseline versus ML comparison.
 - Implement economic utility sensitivity.
 - Implement calibration checks.
 - Implement segment robustness checks.
 - Implement champion selection report.
+- Keep full rolling retraining backtests out of the Package 6 MVP unless actual
+  rolling retraining is explicitly implemented and approved.
+- Write local generated evaluation artefacts under
+  `data/outputs/model_evaluation/`.
+- Create minimal local evaluation summary tables if implemented:
+  `metadata.model_evaluation_audit`, `mart.model_evaluation_summary`, and
+  `mart.model_champion_selection`.
 
 Acceptance criteria:
 
+- `docs/model_evaluation.md` defines the Package 6 contract.
+- Package 6 consumes existing local Package 5 MLflow runs and does not silently
+  retrain candidates.
+- Missing expected MLflow runs, feature metadata, split metadata, or model
+  artefacts fail clearly.
 - Top-K / capacity evaluation is implemented.
-- Rolling monthly backtest is implemented.
+- Percent K values include top 5%, top 10%, and top 20%.
+- Count K values include top 25, top 50, and top 100 only when enough rows
+  exist.
+- Fixed holdout evaluation using Package 5 split semantics is implemented.
+- Holdout-month temporal robustness slices are implemented within the fixed
+  holdout.
+- Package 6 does not claim or implement a full rolling retraining backtest in
+  the MVP.
 - Economic utility sensitivity is implemented.
 - Baseline versus ML comparison is implemented.
+- Baselines are evaluated as ranking scores, not calibrated probabilities.
+- Baselines are not included in log loss, Brier score, or calibration bins.
+- Segment robustness covers segment, region, plan tier, company size band, and
+  industry where present.
+- One-class segments and sparse holdout months produce caveats instead of
+  misleading metrics.
 - Champion is not selected by ROC AUC alone.
-- Candidate must beat baseline on operating metric.
-- Evaluation outputs are saved.
-- Training and evaluation strategy docs are updated.
+- Candidate selection primarily uses GTM operating metrics such as precision,
+  lift, and capture at top 10%.
+- It is possible to retain the baseline or declare insufficient evidence if no
+  ML candidate sufficiently beats the rule baseline.
+- Evaluation outputs are saved as ignored local artefacts.
+- Training, warehouse, data contract, runbook, decisions, and evaluation docs
+  are updated.
+- No Package 7 registry/promotion, Package 8 scoring/policy, Package 9
+  monitoring, dashboards, APIs, cloud services, real data, or generated
+  artefacts are committed.
+
+### Package 6 units
+
+#### Package 6A - Docs-first evaluation contract
+
+Define the durable Package 6 evaluation contract. Do not implement evaluation
+code.
+
+Exit gate:
+
+- `docs/model_evaluation.md` exists and defines purpose, inputs, non-goals,
+  MLflow stance, fixed holdout stance, baseline stance, metrics, top-K design,
+  calibration, segment robustness, holdout-month robustness, economic utility
+  sensitivity, champion selection, local outputs, DuckDB table contracts,
+  champion manifest fields, unit plan, and later test expectations.
+- `docs/packages.md`, `docs/decisions.md`, `docs/runbook.md`,
+  `docs/model_training.md`, `docs/warehouse.md`, and `docs/data_contract.md`
+  align with the Package 6 contract.
+- Public narrative docs do not claim the Package 6 MVP implements a rolling
+  monthly retraining backtest.
+- No code, scripts, tests, Make targets, live `.agent/*.md` files, generated
+  outputs, MLflow runs, DuckDB files, or model artefacts are modified or
+  created.
+- `make verify`, `make public-safety-check`, `git diff --check`, and
+  `git status --short` are run and reported.
+
+#### Package 6B - Evaluation input and MLflow candidate loading
+
+Implement evaluation input loading only.
+
+Exit gate:
+
+- `mart.account_month` is loaded for evaluation without mutation.
+- `mart.account_month_baselines` is loaded for baseline comparison.
+- Local Package 5 MLflow runs are discovered for each expected target and
+  candidate family.
+- Candidate model artefacts, `features.json`, and `split_config.json` are
+  loaded and validated.
+- Remote MLflow tracking, registry APIs, aliases, promotion, deployment, and
+  silent retraining are rejected.
+
+#### Package 6C - Fixed holdout scoring, metrics, and baseline comparison
+
+Score fixed holdout rows and compute candidate-versus-baseline metrics.
+
+Exit gate:
+
+- Evaluation uses Package 5 fixed holdout rows only.
+- ML candidates produce bounded probabilities for the relevant target.
+- Baselines are joined by `account_id`, `observation_month`.
+- ROC AUC and average precision are reported where valid.
+- Top-K operating metrics are reported for ML candidates and baselines.
+- Baselines are not evaluated with log loss, Brier score, or calibration bins.
+- Deterministic tie-breaking is tested.
+
+#### Package 6D - Calibration, segment robustness, and holdout-month robustness
+
+Add layered robustness checks.
+
+Exit gate:
+
+- ML candidate calibration metrics and bins are reported.
+- Segment robustness covers approved segment fields where present.
+- One-class and low-support slices produce caveats.
+- Holdout-month slices are evaluated inside the fixed holdout.
+- No rolling retraining backtest is claimed or implemented.
+
+#### Package 6E - Economic utility sensitivity and champion manifest
+
+Add simple utility sensitivity and target-specific champion selection.
+
+Exit gate:
+
+- Utility sensitivity uses illustrative assumptions only and does not claim real
+  ROI from synthetic data.
+- Churn and expansion champions are selected separately.
+- Champion selection primarily uses top 10% operating metrics.
+- The manifest supports ML champion, baseline retained, no ML candidate
+  sufficiently beats baseline, and insufficient evidence outcomes.
+- Registry, promotion, deployment, scoring outputs, health bands, and
+  recommended GTM actions remain out of scope.
+
+#### Package 6F - CLI, Make target, tests, docs closeout
+
+Add the approved local Package 6 execution surface and close the package.
+
+Exit gate:
+
+- A local evaluation CLI and Make target exist.
+- Focused Package 6 tests cover loading, missing artefacts, remote MLflow
+  rejection, metric correctness, caveats, champion selection, and artefact
+  safety.
+- Documentation reflects implemented commands, outputs, tables, caveats, and
+  exclusions.
+- `make verify`, `make public-safety-check`, `git diff --check`, and
+  `git status --short` pass.
+- Generated outputs, DuckDB files, MLflow runs, live `.agent/*.md` files,
+  model artefacts, private files, dashboards, APIs, cloud deployments, and
+  policy-layer outputs remain untracked.
 
 ---
 

@@ -76,6 +76,55 @@ Before closing a Package 5 unit, run:
 Confirm no generated data, DuckDB files, MLflow runs, model artefacts, caches,
 private files, or live `.agent/*.md` files are tracked.
 
+## Package 6 runbook - Layered evaluation and champion selection
+
+Package 6 evaluates local Package 5 candidate ML runs and Package 4 rule
+baselines, then selects separate churn and expansion champions when justified.
+
+Package 6 does not register, promote, deploy, batch score, create account
+health bands, create recommended GTM actions, add dashboards, add hosted APIs,
+add cloud infrastructure, use real data, mutate `mart.account_month`, retrain
+candidates by default, or use baselines as ML features.
+
+Package 6 uses the Package 5 fixed holdout plus holdout-month temporal
+robustness slices. Do not call this a rolling backtest unless actual rolling
+retraining is implemented and approved.
+
+Prerequisite local flow for Package 6 implementation units:
+
+```bash
+make generate-synthetic-data
+make load-warehouse
+make build-account-month
+make build-rule-baselines
+make train-candidate-models
+```
+
+Package 6A is docs-first only. It must not add evaluation code, scripts, tests,
+Make targets, generated outputs, MLflow runs, DuckDB files, or model artefacts.
+
+Before each Package 6 unit:
+
+- Restate the active Package 6 unit.
+- Restate the relevant gate from `docs/model_evaluation.md`.
+- Run `git status --short`.
+- Confirm no live `.agent/*.md` file will be modified or committed.
+- Identify intended files to change.
+- Identify tests to add or update when behavior changes.
+- Identify stop-condition risk.
+
+Before closing a Package 6 unit, run:
+
+- focused tests for implementation units
+- `make verify`
+- `make public-safety-check`
+- `git diff --check`
+- `git status --short`
+
+Confirm no generated evaluation files, DuckDB files, MLflow runs, model
+artefacts, caches, private files, or live `.agent/*.md` files are staged or
+tracked.
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

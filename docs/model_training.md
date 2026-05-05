@@ -280,6 +280,11 @@ Package 5 does not select a champion model.
 
 Package 5 does not perform full layered Package 6 evaluation.
 
+Package 5 logs the local candidate runs, feature metadata, split metadata, and
+model artefacts that Package 6 later consumes for fixed holdout evaluation.
+Package 6 should fail clearly when required runs or artefacts are missing
+rather than silently retraining candidates.
+
 ## CLI
 
 Package 5 adds:
@@ -325,8 +330,9 @@ Package 5 must not:
 - Create final account scores.
 - Create account health bands.
 - Create recommended GTM actions.
-- Perform full layered Package 6 evaluation.
-- Perform rolling backtests.
+- Perform fixed holdout layered Package 6 evaluation.
+- Perform holdout-month robustness checks.
+- Perform full rolling retraining backtests.
 - Perform economic utility sensitivity.
 - Perform segment robustness checks.
 - Use Package 4 baseline scores as model features.

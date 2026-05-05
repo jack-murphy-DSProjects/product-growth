@@ -68,9 +68,11 @@ than separate models per segment.
 
 ### Layered Evaluation
 
-Evaluation will include fixed time splits, rolling monthly backtests,
-baseline-versus-ML comparisons, top-K capacity metrics, economic utility
-sensitivity, calibration checks, and segment robustness checks.
+Evaluation will include fixed time splits, holdout-month temporal robustness
+slices, baseline-versus-ML comparisons, top-K capacity metrics, economic utility
+sensitivity, calibration checks, and segment robustness checks. Full rolling
+retraining backtests are outside the Package 6 MVP unless actual rolling
+retraining is implemented.
 
 ### MLflow Champion Registry
 
