@@ -2,9 +2,9 @@
 
 ## Status
 
-Package 6 is the next active package. This document defines the durable
-evaluation and champion-selection contract for the local SaaS account health
-workflow.
+Package 6 implements the local layered evaluation and champion-selection
+workflow for the SaaS account health project. This document defines the durable
+evaluation and champion-selection contract.
 
 Package 6 consumes Package 5 candidate ML models and Package 4 rule baselines.
 It does not train new candidates by default, create production scores, register
@@ -282,6 +282,18 @@ Example assumptions may vary:
 Utility sensitivity must be labelled as illustrative. Synthetic data cannot
 support real ROI claims.
 
+For each target, model, and scenario at the same top-K slice, the MVP utility
+formula is:
+
+```text
+illustrative_net_utility =
+    positives_captured * value_per_positive * intervention_success_rate
+    - accounts_selected * cost_per_account
+```
+
+The same assumption grid and formula must be applied to ML candidates and rule
+baselines. These assumptions are sensitivity inputs only, not real ROI claims.
+
 ## Champion Selection
 
 Champion selection is separate for churn and expansion.
@@ -319,6 +331,37 @@ Optional local CSV summaries may also be written under:
 - `data/outputs/model_evaluation/`
 
 Generated evaluation files must not be committed.
+
+## Local Execution
+
+The approved local evaluation command is:
+
+```bash
+make evaluate-candidate-models
+```
+
+The command expects the Package 6 prerequisite flow to have already produced
+the local warehouse, rule baselines, and Package 5 MLflow candidate runs:
+
+```bash
+make generate-synthetic-data
+make load-warehouse
+make build-account-month
+make build-rule-baselines
+make train-candidate-models
+make evaluate-candidate-models
+```
+
+The CLI is:
+
+```bash
+scripts/evaluate_candidate_models.py
+```
+
+It accepts explicit local paths for the warehouse, MLflow tracking URI,
+experiment name, train-end month, and generated output directory. It must fail
+clearly if the expected local Package 5 candidate runs or model artefacts are
+missing. It must not retrain candidates as a fallback.
 
 ## DuckDB Output Tables
 

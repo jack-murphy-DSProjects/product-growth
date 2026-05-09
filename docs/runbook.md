@@ -98,10 +98,28 @@ make load-warehouse
 make build-account-month
 make build-rule-baselines
 make train-candidate-models
+make evaluate-candidate-models
 ```
 
 Package 6A is docs-first only. It must not add evaluation code, scripts, tests,
 Make targets, generated outputs, MLflow runs, DuckDB files, or model artefacts.
+
+The Package 6 evaluation command is:
+
+```bash
+make evaluate-candidate-models
+```
+
+It writes ignored local artefacts under `data/outputs/model_evaluation/` and
+local DuckDB evaluation tables only:
+
+- `metadata.model_evaluation_audit`
+- `mart.model_evaluation_summary`
+- `mart.model_champion_selection`
+
+These are evaluation summaries, not production scoring outputs, registry
+metadata, health bands, recommended GTM actions, dashboards, hosted APIs, or
+monitoring reports.
 
 Before each Package 6 unit:
 

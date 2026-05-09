@@ -788,6 +788,9 @@ Exit gate:
 
 ## Package 6: Layered evaluation and champion selection
 
+Status:
+Complete.
+
 Goal:
 Evaluate Package 5 candidate ML models and Package 4 rule baselines through
 commercial operating metrics, then select one champion for churn and one

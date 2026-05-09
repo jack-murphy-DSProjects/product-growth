@@ -325,3 +325,19 @@ Optional detail tables should be added only when implementation needs them.
 These tables are local evaluation summaries. They are not production scoring
 outputs, model registry metadata, monitoring outputs, health bands, or
 recommended GTM actions.
+
+### Decision: Local evaluation CLI and generated artefacts
+
+Package 6 adds the local command:
+
+- `make evaluate-candidate-models`
+
+The command consumes existing local Package 5 MLflow runs and Package 4
+baselines, writes generated evaluation files under
+`data/outputs/model_evaluation/`, and writes only the minimal local evaluation
+tables.
+
+It does not retrain missing candidates, use the MLflow registry, promote
+models, deploy models, create production scoring outputs, create account health
+bands, recommend GTM actions, add dashboards, add hosted APIs, or add cloud
+infrastructure.

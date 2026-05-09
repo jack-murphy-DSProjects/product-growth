@@ -84,7 +84,8 @@ Implementation uses the Python package `src/account_health`. Package 2 adds the
 local DuckDB raw/source warehouse. Package 3 adds the point-in-time
 `mart.account_month` table with renewal-based labels and MVP feature families.
 Package 4 adds deterministic rule baselines. Package 5 introduces candidate
-model training with scikit-learn and local MLflow tracking.
+model training with scikit-learn and local MLflow tracking. Package 6 adds
+local layered evaluation and target-specific champion selection.
 
 ## Evaluation Philosophy
 
@@ -130,7 +131,7 @@ Run `make public-safety-check` before committing.
 - Package 3: account-month features and labels. Complete.
 - Package 4: commercial rule baseline benchmark artefacts. Complete.
 - Package 5: candidate model training with MLflow. Complete.
-- Package 6: layered evaluation and champion selection.
+- Package 6: layered evaluation and champion selection. Complete.
 - Package 7: MLflow registry and model promotion.
 - Package 8: local batch scoring deployment.
 - Package 9: local monitoring and observability reports.
@@ -138,8 +139,8 @@ Run `make public-safety-check` before committing.
 
 ## Current Status
 
-Package -1, Package 0, Package 1, Package 2, Package 3, Package 4, and
-Package 5 are complete.
+Package -1, Package 0, Package 1, Package 2, Package 3, Package 4, Package 5,
+and Package 6 are complete.
 Package 1 adds deterministic synthetic source-table generation and a local
 CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
 minimal load audit, and source-table contract validation. Package 3 adds
@@ -150,9 +151,12 @@ expansion rule baseline scores, component columns, rank and decile helpers, a
 local rebuild command, and minimal baseline build audit. Package 5 adds
 candidate churn and expansion model training with logistic regression and
 random forest pipelines, fixed temporal splits, simple validation metrics, and
-local MLflow run logging. There is currently no final scoring logic,
-health-band policy, GTM action layer, dashboards, notebooks, cloud deployment,
-or committed generated output.
+local MLflow run logging. Package 6 adds fixed-holdout evaluation, top-K
+operating metrics, baseline comparison, ML-only calibration checks, segment and
+holdout-month robustness slices, illustrative utility sensitivity, local
+evaluation tables, and a generated champion selection manifest. There is
+currently no production scoring logic, health-band policy, GTM action layer,
+dashboards, notebooks, cloud deployment, or committed generated output.
 
 ## Synthetic Source Data
 
@@ -205,6 +209,20 @@ The training workflow reads `mart.account_month`, trains churn and expansion
 candidate models, and logs local MLflow runs and model artefacts under ignored
 tracking/artifact paths. It does not require Package 4 baselines and does not
 write scoring output tables.
+
+Evaluate ignored local Package 5 candidate runs against Package 4 rule
+baselines with:
+
+```bash
+make evaluate-candidate-models
+```
+
+The evaluation workflow reads existing local MLflow runs and model artefacts,
+scores only the fixed Package 5 holdout, writes ignored local files under
+`data/outputs/model_evaluation/`, and creates local evaluation summary tables
+in DuckDB. It does not retrain missing candidates, use the MLflow registry,
+promote models, deploy models, create production scoring outputs, create health
+bands, or recommend GTM actions.
 
 ## Local Checks
 
