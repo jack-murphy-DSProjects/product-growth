@@ -48,8 +48,9 @@ Package 6 must not add:
 - Mutation of `mart.account_month`.
 - Baseline scores, ranks, deciles, or components as ML features.
 
-Package 7 owns registry and promotion. Package 8 owns production-style batch
-scoring and policy outputs. Package 9 owns monitoring.
+Package 7 owns registry and promotion. Package 8 owns raw local batch scoring.
+Later policy/public-polish work owns health bands, GTM actions, and
+recommendations. Package 9 owns monitoring.
 
 ## Inputs
 

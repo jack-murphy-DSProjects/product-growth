@@ -872,9 +872,9 @@ Acceptance criteria:
 - Evaluation outputs are saved as ignored local artefacts.
 - Training, warehouse, data contract, runbook, decisions, and evaluation docs
   are updated.
-- No Package 7 registry/promotion, Package 8 scoring/policy, Package 9
-  monitoring, dashboards, APIs, cloud services, real data, or generated
-  artefacts are committed.
+- No Package 7 registry/promotion, Package 8 raw scoring, later policy work,
+  Package 9 monitoring, dashboards, APIs, cloud services, real data, or
+  generated artefacts are committed.
 
 ### Package 6 units
 
@@ -1044,29 +1044,41 @@ Acceptance criteria:
 ## Package 8: Batch scoring deployment
 
 Goal:
-Create a production-style local batch scoring job.
+Create a raw local account-month batch scoring job.
 
 Tasks:
 
-- Load latest account-month scoring snapshot.
-- Load champion models from MLflow.
-- Validate scoring schema.
-- Generate churn and expansion scores.
-- Apply thresholds.
-- Generate health bands.
-- Generate GTM recommendations.
-- Write `account_scores.csv`.
-- Write `account_recommendations.csv`.
-- Log scoring run metadata.
+- Load Package 7-promoted MLflow champion models for churn and expansion.
+- Read selected `observation_month` rows from `mart.account_month`.
+- Require an explicit scoring population such as
+  `--scoring-month YYYY-MM-01` or explicit `--latest` once implemented.
+- Validate scoring schema and feature contract before inference.
+- Generate raw churn and expansion model scores only.
+- Write raw score rows to a local scoring table.
+- Write append-only scoring audit metadata.
+- Optionally write ignored local raw scoring exports.
 
 Acceptance criteria:
 
-- Every eligible account receives scores.
+- Scoring never defaults to all history silently.
+- Every selected account-month row receives raw model scores when both
+  required champions and features are valid.
 - Scores are bounded between 0 and 1.
-- Every account receives one health band.
-- Every account receives one recommended action.
-- Output tables are GTM-readable.
-- Scoring run is reproducible.
+- Output grain is one row per scored account x scoring month.
+- Labels, identifiers, date fields, eligibility flags, baseline columns,
+  `synthetic_archetype`, and future-looking fields are never model inputs.
+- Package 8 uses the trained sklearn pipeline for preprocessing and does not
+  recreate Package 5 preprocessing manually.
+- Reruns replace score rows for the selected scoring month and append audit
+  metadata.
+- Local raw scoring exports, if produced, are ignored generated artefacts.
+- Scoring runs are reproducible from the selected month, promoted champions,
+  recorded feature metadata, and audit metadata.
+
+Package 8 explicitly does not monitor, evaluate, promote, retrain, or deploy a
+hosted service. Health bands, GTM actions, recommendations, policy thresholds,
+monitoring, dashboards, APIs, and cloud or cloud-like deployment are deferred
+to later policy, monitoring, or public-polish packages.
 
 ---
 

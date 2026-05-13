@@ -10,7 +10,7 @@ validates source-level contracts. Package 3 creates `mart.account_month`.
 Package 4 prepares deterministic rule baseline contracts from
 `mart.account_month`. Package 6 may create local model evaluation summary
 tables. Package 7 may create minimal local model-promotion audit metadata.
-Production model scoring outputs are reserved for later packages.
+Package 8 plans raw local batch scoring outputs only.
 
 ## Safety Statement
 
@@ -321,6 +321,66 @@ Column rules:
 This table is local promotion audit metadata only. It is not an MLflow
 replacement, production scoring table, deployment record, monitoring report,
 health-band table, recommended-action table, or real customer data.
+
+## Planned Package 8 Raw Batch Scoring Contract
+
+Package 8 plans raw local scoring outputs from Package 7-promoted MLflow
+champion models. This section documents expected grain and purpose only. It
+does not imply these tables already exist.
+
+Package 8 planned tables:
+
+- `mart.account_month_scores`
+- `metadata.batch_scoring_audit`
+
+Package 8 scoring outputs are raw score outputs only. They are not health-band
+tables, recommended-action tables, monitoring reports, dashboards, hosted API
+state, cloud deployment records, model evaluation summaries, or model registry
+metadata.
+
+### `mart.account_month_scores`
+
+Expected grain:
+
+- One row per scored account x scoring month for a scoring run.
+
+Purpose:
+
+- Store raw churn and expansion model scores for selected
+  `mart.account_month` rows.
+- Preserve the scored `account_id` and `observation_month` grain.
+- Link score rows to the local scoring run and model versions used.
+
+Column rules:
+
+- Scores are raw model outputs bounded between 0 and 1.
+- Score rows are not health bands, GTM actions, recommendations, monitoring
+  alerts, or approved customer-facing outputs.
+- Reruns are expected to replace rows for the selected scoring month, not
+  append duplicate rows for the same account-month output.
+
+### `metadata.batch_scoring_audit`
+
+Expected grain:
+
+- Append-only local audit metadata for each Package 8 scoring run, with
+  target-specific model evidence recorded either per target or as structured
+  run metadata.
+
+Purpose:
+
+- Record the selected scoring month, resolved model aliases and versions,
+  source MLflow run evidence, feature metadata evidence, row counts, run
+  status, and failure reason when applicable.
+- Preserve rerun history even when score rows for a selected month are
+  replaced.
+
+Column rules:
+
+- This table is audit metadata only.
+- It is not a model registry replacement, orchestration framework, monitoring
+  table, dashboard source, health-band table, recommended-action table, or real
+  customer data.
 
 ## Required Columns
 

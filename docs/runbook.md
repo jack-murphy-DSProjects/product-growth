@@ -221,6 +221,65 @@ Confirm no generated promotion files, DuckDB files, MLflow runs, model
 artefacts, caches, private files, or live `.agent/*.md` files are staged or
 tracked.
 
+## Planned Package 8 runbook - Raw local batch scoring
+
+Package 8 is planned to score explicit account-month populations from
+`mart.account_month` with Package 7-promoted MLflow `champion` models.
+
+Package 8 is raw local batch scoring only. It must not train, retrain,
+evaluate, promote, monitor, deploy a hosted service, create health bands,
+recommend GTM actions, add dashboards, add APIs, add cloud infrastructure, use
+real data, or mutate Package 5/6/7 source evidence.
+
+Preconditions for future Package 8 implementation units:
+
+- Package 3 has built `mart.account_month`.
+- Package 5 has logged trained sklearn pipelines and `features.json`.
+- Package 6 has selected eligible ML champions.
+- Package 7 has promoted churn and expansion champions to local MLflow
+  registered model aliases named `champion`.
+- The scoring month is explicit as `YYYY-MM-01`, or an explicit `latest`
+  selector is requested once implemented.
+
+The intended future command shape is illustrative only and is not currently
+available:
+
+```bash
+python scripts/score_account_month.py --warehouse-path "data/warehouse/account_health.duckdb" --scoring-month "YYYY-MM-01"
+```
+
+An eventual Make target may wrap that command only after Package 8
+implementation exists. Until then, no Package 8 scoring command should be
+presented as runnable.
+
+Future Package 8 output paths and tables should remain local generated
+artefacts:
+
+- `mart.account_month_scores`
+- `metadata.batch_scoring_audit`
+- optional ignored exports under `data/outputs/batch_scoring/`
+
+Before each Package 8 implementation unit:
+
+- Restate that Package 8 is raw local batch scoring only.
+- Confirm no Package 5 or Package 6 labelled loader will be reused for scoring.
+- Confirm scoring will require explicit `--scoring-month YYYY-MM-01` or
+  explicit `--latest`.
+- Identify intended files to change and tests to add or update.
+- Identify stop-condition risk.
+
+Before closing a Package 8 implementation unit, run:
+
+- focused tests for implemented scoring behaviour
+- `make verify`
+- `make public-safety-check`
+- `git diff --check`
+- `git status --short`
+
+For docs-only Package 8A, document skipped implementation tests explicitly.
+Confirm no generated scoring files, DuckDB files, MLflow runs, model artefacts,
+caches, private files, or live `.agent/*.md` files are staged or tracked.
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

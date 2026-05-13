@@ -404,3 +404,79 @@ Both are local promotion artefacts for inspectability and future Package 8
 consumption. They are not committed outputs, deployment records, production
 scoring tables, monitoring reports, health-band tables, or recommended-action
 tables.
+
+## Package 8 decisions
+
+### Decision: Package 8 is raw local batch scoring only
+
+Package 8 will load Package 7-promoted local MLflow champions, score selected
+`mart.account_month` rows, write raw churn and expansion model scores, and
+record scoring audit metadata.
+
+Package 8 does not monitor, evaluate, compare, select, promote, retrain,
+register, or deploy models. It does not add hosted serving, APIs, dashboards,
+cloud infrastructure, notebooks, or real SaaS integrations.
+
+### Decision: Health bands and GTM actions are deferred
+
+Package 8 does not create health bands, GTM actions, recommendations,
+suppression rules, policy thresholds, capacity rules, or customer-facing
+account-health outputs.
+
+Those belong to a later policy or public-polish package after raw scores exist
+and their semantics can be reviewed separately.
+
+### Decision: MLflow `champion` aliases are the loading authority
+
+Package 8 uses Package 7 MLflow `champion` aliases as the model loading
+authority:
+
+- `account_health_churn_model` at alias `champion`
+- `account_health_expansion_model` at alias `champion`
+
+The Package 7 promotion manifest and `metadata.model_promotion_audit` are
+cross-check evidence for the handoff. They do not replace loading the promoted
+MLflow aliases.
+
+### Decision: Scoring reads `mart.account_month` without labels
+
+Package 8 scoring uses a label-free reader over `mart.account_month`.
+
+It must not reuse Package 5 or Package 6 loaders that filter to non-null target
+labels. Labels may exist in the source table, but they are not required for
+scoring and are never model inputs.
+
+Package 8 must score selected `observation_month` rows and must require an
+explicit `--scoring-month YYYY-MM-01` or explicit `--latest` once implemented.
+It must not silently score all history by default.
+
+### Decision: Package 5 feature metadata controls scoring feature order
+
+Package 8 uses Package 5 MLflow `features.json` as the ordered feature-list
+source for scoring.
+
+Committed feature-contract constants remain the source for forbidden-column
+validation. `synthetic_archetype`, labels, identifiers, date fields,
+eligibility flags, baseline outputs, target-like fields, and future-looking
+fields must never be passed as model features.
+
+No MLflow model signature exists yet, so Package 8 must not require one. The
+trained sklearn pipeline owns preprocessing; Package 8 must not recreate
+training preprocessing manually.
+
+### Decision: Reruns replace score rows and append audit
+
+Package 8 score output reruns replace `mart.account_month_scores` rows for the
+selected scoring month.
+
+The replacement boundary is the selected scoring month, not full history.
+`metadata.batch_scoring_audit` remains append-only so rerun history is
+inspectable.
+
+### Decision: Ranks and deciles are score-layer fields only
+
+Package 8 may include score ranks or score deciles only as raw scoring-layer
+prioritization fields for the selected scoring month.
+
+Ranks and deciles are not health bands, GTM actions, recommendations,
+suppression rules, capacity policy, or business approval.
