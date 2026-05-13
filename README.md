@@ -85,7 +85,9 @@ local DuckDB raw/source warehouse. Package 3 adds the point-in-time
 `mart.account_month` table with renewal-based labels and MVP feature families.
 Package 4 adds deterministic rule baselines. Package 5 introduces candidate
 model training with scikit-learn and local MLflow tracking. Package 6 adds
-local layered evaluation and target-specific champion selection.
+local layered evaluation and target-specific champion selection. Package 7
+defines local MLflow registry promotion for eligible Package 6-selected ML
+champions.
 
 ## Evaluation Philosophy
 
@@ -132,7 +134,7 @@ Run `make public-safety-check` before committing.
 - Package 4: commercial rule baseline benchmark artefacts. Complete.
 - Package 5: candidate model training with MLflow. Complete.
 - Package 6: layered evaluation and champion selection. Complete.
-- Package 7: MLflow registry and model promotion.
+- Package 7: local MLflow registry and model promotion.
 - Package 8: local batch scoring deployment.
 - Package 9: local monitoring and observability reports.
 - Package 10: public repo polish and safe examples.
@@ -154,9 +156,12 @@ random forest pipelines, fixed temporal splits, simple validation metrics, and
 local MLflow run logging. Package 6 adds fixed-holdout evaluation, top-K
 operating metrics, baseline comparison, ML-only calibration checks, segment and
 holdout-month robustness slices, illustrative utility sensitivity, local
-evaluation tables, and a generated champion selection manifest. There is
-currently no production scoring logic, health-band policy, GTM action layer,
-dashboards, notebooks, cloud deployment, or committed generated output.
+evaluation tables, and a generated champion selection manifest. Package 7 adds
+local MLflow registry promotion for eligible Package 6-selected ML champions,
+target-specific registered model names, the `champion` alias, model-version
+lineage tags, a local promotion manifest, and minimal promotion audit metadata.
+There is currently no production scoring logic, health-band policy, GTM action
+layer, dashboards, notebooks, cloud deployment, or committed generated output.
 
 ## Synthetic Source Data
 
@@ -223,6 +228,26 @@ scores only the fixed Package 5 holdout, writes ignored local files under
 in DuckDB. It does not retrain missing candidates, use the MLflow registry,
 promote models, deploy models, create production scoring outputs, create health
 bands, or recommend GTM actions.
+
+Package 7 uses the Package 6 champion-selection manifest to promote eligible
+ML champions into the local MLflow registry. The registry contract is documented
+in `docs/model_registry.md`. Package 7 uses target-specific registered model
+names and a `champion` alias for future Package 8 local batch scoring
+consumption; it does not score accounts, deploy models, create health bands, or
+recommend GTM actions.
+
+Promote eligible local champions with:
+
+```bash
+make promote-model-registry
+```
+
+The promotion workflow reads the ignored Package 6 manifest, validates the
+referenced Package 5 MLflow run and model artefact, writes local MLflow
+registry metadata, writes
+`data/outputs/model_registry/promotion_manifest.json`, and appends
+`metadata.model_promotion_audit` in the local DuckDB warehouse. These are local
+artefacts and must not be committed.
 
 ## Local Checks
 

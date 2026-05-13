@@ -653,6 +653,19 @@ Approved numeric features:
 
 These allowlists are shared by the churn and expansion candidate models.
 
+## Package 7 Registry Feature Metadata
+
+Package 7 does not create, remove, or transform modelling features.
+
+When Package 7 promotes an eligible Package 6-selected ML champion, it should
+carry Package 5 feature metadata onto the local MLflow registered model version
+as lineage metadata. This allows Package 8 to validate future batch scoring
+inputs against the feature set that was used during Package 5 training.
+
+Package 7 must not add new approved features, change the Package 3
+account-month grain, change label semantics, use Package 4 baseline outputs as
+model features, or mutate `mart.account_month`.
+
 ## Later Contract Requirements
 
 Later packages should define:

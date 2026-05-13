@@ -980,24 +980,64 @@ Exit gate:
 ## Package 7: MLflow registry and model promotion
 
 Goal:
-Register selected champion models and define the deployment contract.
+Promote eligible Package 6-selected ML champions into the local MLflow model
+registry and define the Package 8 consumption contract.
+
+Package 7 records model lifecycle state. It does not select champions,
+re-evaluate candidates, retrain models, score accounts, deploy models, create
+health bands, create GTM actions, add dashboards, add hosted APIs, or add cloud
+infrastructure.
+
+Package 7 consumes:
+
+- `data/outputs/model_evaluation/champion_selection_manifest.json`
+- existing local Package 5 MLflow candidate runs and model artefacts
+
+Package 7 must fail clearly if the Package 6 manifest is missing, malformed,
+ambiguous, retains the baseline, reports insufficient evidence, or selects no
+ML champion for a requested target. Package 7 must not scan MLflow and
+independently choose a champion if the manifest is missing.
+
+Expected registered model names:
+
+- `account_health_churn_model`
+- `account_health_expansion_model`
+
+The primary alias is `champion`. The alias means selected by Package 6 and
+promoted by Package 7 for future local batch scoring consumption. It does not
+mean online serving, cloud deployment, hosted API deployment, business approval,
+health-band generation, GTM action generation, or monitoring approval.
+
+Package 7 uses MLflow aliases and tags, not deprecated registry stages.
 
 Tasks:
 
-- Register churn champion model.
-- Register expansion champion model.
-- Assign champion aliases.
-- Store threshold config.
-- Store feature set metadata.
-- Implement model loading by alias.
-- Document registry workflow.
+- Create the durable registry and promotion contract in
+  `docs/model_registry.md`.
+- Validate target-specific Package 6 champion-selection evidence.
+- Validate referenced Package 5 source runs and model artefacts.
+- Register eligible churn and expansion ML champions separately.
+- Assign the `champion` alias to promoted model versions.
+- Store MLflow tags linking model versions to Package 5 source runs, Package 5
+  feature/split metadata, and Package 6 champion-selection evidence.
+- Write a local ignored Package 7 promotion manifest for Package 8.
+- Write minimal local promotion audit metadata.
+- Add the local `make promote-model-registry` command.
 
 Acceptance criteria:
 
-- Scoring can load champion models.
-- Registry metadata links model, features, thresholds and training period.
-- Promotion criteria are documented.
-- No manual hardcoding of local model paths in scoring logic.
+- `docs/model_registry.md` defines the Package 7 semantic contract.
+- Only Package 6-selected eligible ML champions can be promoted.
+- Rule baselines are never registered as MLflow models.
+- Churn and expansion are registered under separate model names.
+- The `champion` alias points to the promoted local model version.
+- Registry metadata links the model version to source run, model artefact,
+  feature metadata, split metadata, training period, and Package 6 evidence.
+- The local promotion manifest is generated under an ignored output path.
+- `make promote-model-registry` runs the local promotion workflow.
+- Package 5 source runs and Package 6 evaluation outputs are not mutated.
+- Package 7 creates no production scoring outputs, account health bands,
+  recommended GTM actions, dashboards, hosted APIs, or cloud infrastructure.
 
 ---
 

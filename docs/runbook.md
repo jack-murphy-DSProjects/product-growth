@@ -143,6 +143,84 @@ Confirm no generated evaluation files, DuckDB files, MLflow runs, model
 artefacts, caches, private files, or live `.agent/*.md` files are staged or
 tracked.
 
+## Package 7 runbook - MLflow registry and model promotion
+
+Package 7 promotes eligible Package 6-selected ML champions into the local
+MLflow model registry. Package 7 records lifecycle state; Package 6 selects the
+champions and Package 8 later owns batch scoring.
+
+Package 7 does not retrain, re-evaluate, override Package 6 champion selection,
+promote baselines as MLflow models, score accounts, create production scoring
+outputs, create account health bands, recommend GTM actions, add dashboards,
+add hosted APIs, add cloud infrastructure, use real data, mutate
+`mart.account_month`, mutate Package 5 source runs, or mutate Package 6
+evaluation outputs.
+
+Prerequisite local flow for Package 7 implementation units:
+
+```bash
+make generate-synthetic-data
+make load-warehouse
+make build-account-month
+make build-rule-baselines
+make train-candidate-models
+make evaluate-candidate-models
+```
+
+Package 7A is docs-first only. It must not add registry code, scripts, tests,
+Make targets, generated outputs, MLflow registry entries, MLflow runs, DuckDB
+files, promotion manifests, model artefacts, scoring outputs, health bands, GTM
+actions, dashboards, hosted APIs, or cloud infrastructure.
+
+The Package 7 source of truth is:
+
+- `docs/model_registry.md`
+
+Package 7 uses local MLflow aliases and tags, not deprecated registry stages.
+The main alias is `champion`. The expected registered model names are:
+
+- `account_health_churn_model`
+- `account_health_expansion_model`
+
+The generated Package 7 promotion manifest should live under:
+
+- `data/outputs/model_registry/promotion_manifest.json`
+
+The Package 7 promotion command is:
+
+```bash
+make promote-model-registry
+```
+
+It consumes the Package 6 champion-selection manifest and existing local
+Package 5 MLflow model artefacts. It writes local MLflow registry aliases/tags,
+the ignored promotion manifest, and `metadata.model_promotion_audit`; it does
+not score accounts, deploy models, create health bands, recommend GTM actions,
+add dashboards, add hosted APIs, or add cloud infrastructure.
+
+Before each Package 7 unit:
+
+- Restate the active Package 7 unit.
+- Restate the relevant gate from `docs/model_registry.md`.
+- Run `git status --short`.
+- Confirm no live `.agent/*.md` file will be modified or committed.
+- Identify intended files to change.
+- Identify tests to add or update when behavior changes.
+- Identify stop-condition risk.
+
+Before closing a Package 7 unit, run:
+
+- focused tests for implementation units
+- `make verify`
+- `make public-safety-check`
+- `git diff --check`
+- `git status --short`
+
+For docs-only Package 7A, document any skipped implementation tests explicitly.
+Confirm no generated promotion files, DuckDB files, MLflow runs, model
+artefacts, caches, private files, or live `.agent/*.md` files are staged or
+tracked.
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

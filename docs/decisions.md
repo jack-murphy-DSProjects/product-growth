@@ -341,3 +341,66 @@ It does not retrain missing candidates, use the MLflow registry, promote
 models, deploy models, create production scoring outputs, create account health
 bands, recommend GTM actions, add dashboards, add hosted APIs, or add cloud
 infrastructure.
+
+## Package 7 decisions
+
+### Decision: Registry promotion follows Package 6 selection
+
+Package 7 promotes only eligible ML champions selected by Package 6.
+
+Package 7 does not re-evaluate candidates, override champion selection, or scan
+MLflow to independently choose a champion when the Package 6 manifest is
+missing.
+
+Baseline-retained, no-ML-champion, and insufficient-evidence outcomes are valid
+Package 6 outcomes, but they are not eligible MLflow model promotions.
+
+### Decision: Local MLflow registry only
+
+Package 7 uses local MLflow tracking and registry.
+
+Remote MLflow tracking, hosted registry infrastructure, Databricks, Unity
+Catalog, cloud object storage, hosted APIs, and production serving are out of
+scope for the Package 7 MVP.
+
+### Decision: Aliases and tags instead of registry stages
+
+Package 7 uses MLflow aliases and tags for lifecycle metadata.
+
+The primary alias is:
+
+- `champion`
+
+The `champion` alias means selected by Package 6 and promoted by Package 7 for
+future local batch scoring consumption. It does not mean online deployment,
+cloud deployment, hosted serving, business approval, health-band generation,
+GTM action generation, or monitoring approval.
+
+Deprecated registry stages such as `Staging`, `Production`, and `Archived` are
+not the Package 7 MVP lifecycle mechanism.
+
+### Decision: Separate registered models per target
+
+Package 7 registers churn and expansion separately:
+
+- `account_health_churn_model`
+- `account_health_expansion_model`
+
+Package 7 does not create a combined multi-output registered model and does not
+create registered models for baselines, health bands, GTM actions, monitoring
+outputs, or scoring tables.
+
+### Decision: Promotion manifest and audit remain local artefacts
+
+Package 7 writes a generated local promotion manifest under:
+
+- `data/outputs/model_registry/promotion_manifest.json`
+
+Package 7 may also create:
+
+- `metadata.model_promotion_audit`
+
+Both are local promotion artefacts for inspectability and future Package 8
+consumption. They are not committed outputs, deployment records, production
+scoring tables, monitoring reports, health-band tables, or recommended-action
+tables.

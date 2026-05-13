@@ -260,6 +260,11 @@ Package 5 must not use MLflow registry APIs.
 
 Package 5 must not promote models.
 
+Package 7 may later register a Package 5 model artefact only when Package 6 has
+selected that ML candidate as the target champion and Package 7 validation has
+confirmed the source run and artefact are present and loadable. Package 7 must
+not mutate Package 5 source runs or model artefacts during promotion.
+
 ## Simple Metrics
 
 Package 5 reports simple validation metrics only.

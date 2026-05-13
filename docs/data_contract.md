@@ -9,7 +9,8 @@ Package 2 persists those source tables into the local DuckDB `raw` schema and
 validates source-level contracts. Package 3 creates `mart.account_month`.
 Package 4 prepares deterministic rule baseline contracts from
 `mart.account_month`. Package 6 may create local model evaluation summary
-tables. Production model scoring outputs are reserved for later packages.
+tables. Package 7 may create minimal local model-promotion audit metadata.
+Production model scoring outputs are reserved for later packages.
 
 ## Safety Statement
 
@@ -264,6 +265,62 @@ They must preserve the same Package 6 restrictions:
 - no recommended GTM actions
 - no registry or promotion metadata
 - no real customer data
+
+## Package 7 Registry And Promotion Contract
+
+Package 7 promotes eligible Package 6-selected ML champions into the local
+MLflow model registry. It must not change `mart.account_month`,
+`mart.account_month_baselines`, Package 5 source MLflow runs, or Package 6
+evaluation outputs.
+
+Package 7 may create this minimal local audit table:
+
+- `metadata.model_promotion_audit`
+
+Package 7 also writes a generated local promotion manifest under:
+
+- `data/outputs/model_registry/promotion_manifest.json`
+
+The promotion manifest is a generated local artefact, not a committed data
+contract file.
+
+### `metadata.model_promotion_audit`
+
+Grain:
+
+- One row per promotion attempt x target.
+
+Minimum expected columns if created:
+
+- `promotion_id`
+- `promoted_at_utc`
+- `promotion_version`
+- `target_key`
+- `target_label`
+- `registered_model_name`
+- `model_version`
+- `alias`
+- `source_mlflow_run_id`
+- `source_model_artifact_uri`
+- `package6_manifest_path`
+- `package6_evaluation_version`
+- `package6_selection_status`
+- `promotion_status`
+- `failure_reason`
+
+Column rules:
+
+- `target_key` must be `churn` or `expansion`.
+- `target_label` must be `churn_90d` or `expansion_90d`.
+- `registered_model_name` must be `account_health_churn_model` or
+  `account_health_expansion_model`.
+- The main alias is `champion`.
+- Baseline-retained, no-ML-champion, and insufficient-evidence outcomes must
+  not create registered MLflow model versions.
+
+This table is local promotion audit metadata only. It is not an MLflow
+replacement, production scoring table, deployment record, monitoring report,
+health-band table, recommended-action table, or real customer data.
 
 ## Required Columns
 

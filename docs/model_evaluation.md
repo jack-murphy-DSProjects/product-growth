@@ -414,6 +414,26 @@ Required fields per target:
 If the selected champion is not an ML candidate, `mlflow_run_id` and
 `model_artifact_uri` should be null or explicitly marked not applicable.
 
+## Package 7 Handoff
+
+Package 7 consumes the champion selection manifest as its primary promotion
+evidence. Package 7 must not re-evaluate candidates, override the Package 6
+selection, or scan MLflow to choose a substitute champion when the manifest is
+missing.
+
+Only `selection_status = ml_champion_selected` records are eligible for local
+MLflow registry promotion. Baseline-retained, no-ML-champion, and
+insufficient-evidence outcomes are valid Package 6 outcomes, but they are not
+eligible MLflow model promotions.
+
+Package 7 should treat ambiguous manifest evidence as a hard failure. Examples
+include duplicate records for the same target, missing `mlflow_run_id`, missing
+`model_artifact_uri`, unsupported targets, or target records whose selected
+champion cannot be traced to a Package 5 local MLflow run.
+
+The Package 7 registry and promotion contract is defined in
+`docs/model_registry.md`.
+
 ## Package 6 Implementation Units
 
 Package 6 remains split into:

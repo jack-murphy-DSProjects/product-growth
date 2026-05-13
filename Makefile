@@ -2,11 +2,15 @@ PYTHON ?= python3
 WAREHOUSE_PATH ?= data/warehouse/account_health.duckdb
 TRAIN_END_MONTH ?=
 MLFLOW_TRACKING_URI ?=
+MLFLOW_REGISTRY_URI ?=
 EXPERIMENT_NAME ?= account-health-candidate-training
 RANDOM_STATE ?= 42
 EVALUATION_OUTPUT_DIR ?= data/outputs/model_evaluation
+CHAMPION_MANIFEST_PATH ?= data/outputs/model_evaluation/champion_selection_manifest.json
+PROMOTION_MANIFEST_PATH ?= data/outputs/model_registry/promotion_manifest.json
+PROMOTION_TARGETS ?=
 
-.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models evaluate-candidate-models clean-generated verify
+.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models evaluate-candidate-models promote-model-registry clean-generated verify
 
 setup:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -34,6 +38,9 @@ train-candidate-models:
 
 evaluate-candidate-models:
 	$(PYTHON) scripts/evaluate_candidate_models.py --warehouse-path "$(WAREHOUSE_PATH)" --experiment-name "$(EXPERIMENT_NAME)" --output-dir "$(EVALUATION_OUTPUT_DIR)" $(if $(TRAIN_END_MONTH),--train-end-month "$(TRAIN_END_MONTH)",) $(if $(MLFLOW_TRACKING_URI),--mlflow-tracking-uri "$(MLFLOW_TRACKING_URI)",)
+
+promote-model-registry:
+	$(PYTHON) scripts/promote_model_registry.py --warehouse-path "$(WAREHOUSE_PATH)" --champion-manifest-path "$(CHAMPION_MANIFEST_PATH)" --promotion-manifest-path "$(PROMOTION_MANIFEST_PATH)" $(if $(MLFLOW_TRACKING_URI),--mlflow-tracking-uri "$(MLFLOW_TRACKING_URI)",) $(if $(MLFLOW_REGISTRY_URI),--mlflow-registry-uri "$(MLFLOW_REGISTRY_URI)",) $(foreach target,$(PROMOTION_TARGETS),--target "$(target)")
 
 clean-generated:
 	rm -rf data/generated

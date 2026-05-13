@@ -92,6 +92,20 @@ Package 6 evaluation table contract:
   probabilities.
 - Generated DuckDB tables remain local and must not be committed.
 
+Package 7 promotion audit contract:
+
+- Built from the Package 6 champion-selection manifest and referenced local
+  Package 5 MLflow source run metadata.
+- Contains local promotion audit metadata only.
+- Does not modify `mart.account_month`, `mart.account_month_baselines`, Package
+  5 source runs, or Package 6 evaluation outputs.
+- Does not create production scoring outputs, account health bands,
+  recommended GTM actions, monitoring reports, dashboards, APIs, cloud outputs,
+  or real customer data.
+- Baseline-retained, no-ML-champion, and insufficient-evidence outcomes may be
+  recorded as skipped or failed promotion attempts, but they must not create
+  registered MLflow model versions.
+
 The default local account-month command is:
 
 ```bash
@@ -138,6 +152,10 @@ Package 4 may create:
 Package 6 may create:
 
 - `metadata.model_evaluation_audit`
+
+Package 7 may create:
+
+- `metadata.model_promotion_audit`
 
 The load audit table records minimal information about each source table load.
 
@@ -213,6 +231,31 @@ Expected fields may include:
 This table is local evaluation audit metadata only. It is not an MLflow
 registry, model promotion log, deployment record, monitoring report, or
 production scoring audit.
+
+The model promotion audit table records minimal local metadata about Package 7
+promotion attempts.
+
+Expected fields may include:
+
+- `promotion_id`
+- `promoted_at_utc`
+- `promotion_version`
+- `target_key`
+- `target_label`
+- `registered_model_name`
+- `model_version`
+- `alias`
+- `source_mlflow_run_id`
+- `source_model_artifact_uri`
+- `package6_manifest_path`
+- `package6_evaluation_version`
+- `package6_selection_status`
+- `promotion_status`
+- `failure_reason`
+
+This table is local promotion audit metadata only. It is not an MLflow
+replacement, production scoring table, deployment record, monitoring report,
+health-band table, recommended-action table, or orchestration state store.
 
 ## Loader behaviour
 
