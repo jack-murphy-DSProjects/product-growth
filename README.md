@@ -4,7 +4,8 @@
 style SaaS account health system. The intended system converts synthetic B2B
 SaaS account, usage, billing, support, renewal, and CRM activity into churn
 risk scores, expansion propensity scores, account health bands, recommended GTM
-actions, model metrics, monitoring reports, and RevOps-facing output tables.
+actions, model metrics, local score observability summaries, and RevOps-facing
+output tables.
 
 The project is designed to show how a Commercial Data Scientist or Growth Data
 Scientist would turn model outputs into an operating process for Sales, Customer
@@ -20,7 +21,8 @@ which accounts deserve save motions, which are ready for expansion, which need
 CS intervention, and which recommendations should be suppressed because the
 evidence is weak. A score by itself does not answer those questions. This
 project treats scoring as one layer inside a broader decision system with
-contracts, baselines, evaluation, monitoring, and deterministic policy rules.
+contracts, baselines, evaluation, observability, and deterministic policy
+rules.
 
 ## Users Served
 
@@ -40,8 +42,8 @@ contracts, baselines, evaluation, monitoring, and deterministic policy rules.
 - `recommended_gtm_action`: deterministic action recommendation for GTM teams.
 - Model, baseline, calibration, segment, fixed-holdout, and temporal robustness
   metrics.
-- Local monitoring reports for data, feature, prediction, and recommendation
-  drift.
+- Local batch scoring observability summaries for scored synthetic
+  populations.
 - RevOps-readable account score and recommendation tables.
 
 ## GTM Operating System
@@ -56,7 +58,7 @@ workflow, not sit in isolation. The project separates:
   economic utility, calibration, and segment robustness.
 - Champion selection based on operating metrics, not ROC AUC alone.
 - Deterministic policy rules that map scores into health bands and GTM actions.
-- Batch outputs and monitoring reports that RevOps could review.
+- Batch outputs and score observability summaries that RevOps could review.
 
 Health bands and recommended actions are policy-layer outputs. They are not
 trained as standalone targets.
@@ -75,9 +77,9 @@ synthetic SaaS sources
   -> layered evaluation
   -> MLflow champion registry
   -> batch scoring
+  -> score observability summaries
   -> deterministic policy layer
   -> RevOps-facing output tables
-  -> monitoring reports
 ```
 
 Implementation uses the Python package `src/account_health`. Package 2 adds the
@@ -134,15 +136,15 @@ Run `make public-safety-check` before committing.
 - Package 4: commercial rule baseline benchmark artefacts. Complete.
 - Package 5: candidate model training with MLflow. Complete.
 - Package 6: layered evaluation and champion selection. Complete.
-- Package 7: local MLflow registry and model promotion.
-- Package 8: local batch scoring deployment.
-- Package 9: local monitoring and observability reports.
-- Package 10: public repo polish and safe examples.
+- Package 7: local MLflow registry and model promotion. Complete.
+- Package 8: local batch scoring deployment. Complete.
+- Package 9: local batch scoring observability.
+- Package 10: deterministic GTM policy outputs, public examples, and polish.
 
 ## Current Status
 
 Package -1, Package 0, Package 1, Package 2, Package 3, Package 4, Package 5,
-and Package 6 are complete.
+Package 6, Package 7, and Package 8 are complete.
 Package 1 adds deterministic synthetic source-table generation and a local
 CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
 minimal load audit, and source-table contract validation. Package 3 adds
@@ -160,8 +162,10 @@ evaluation tables, and a generated champion selection manifest. Package 7 adds
 local MLflow registry promotion for eligible Package 6-selected ML champions,
 target-specific registered model names, the `champion` alias, model-version
 lineage tags, a local promotion manifest, and minimal promotion audit metadata.
-There is currently no production scoring logic, health-band policy, GTM action
-layer, dashboards, notebooks, cloud deployment, or committed generated output.
+Package 8 adds raw local account-month batch scoring from promoted champions,
+score output tables, append-only scoring audit metadata, and optional ignored
+local raw exports. There is currently no health-band policy, GTM action layer,
+dashboards, notebooks, cloud deployment, or committed generated output.
 
 ## Synthetic Source Data
 

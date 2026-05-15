@@ -681,7 +681,7 @@ Package 7 owns MLflow registry and promotion.
 
 Package 8 owns batch scoring deployment.
 
-Package 9 owns monitoring.
+Package 9 owns batch scoring observability.
 
 ### Package 5 units
 
@@ -873,7 +873,7 @@ Acceptance criteria:
 - Training, warehouse, data contract, runbook, decisions, and evaluation docs
   are updated.
 - No Package 7 registry/promotion, Package 8 raw scoring, later policy work,
-  Package 9 monitoring, dashboards, APIs, cloud services, real data, or
+  Package 9 score observability, dashboards, APIs, cloud services, real data, or
   generated artefacts are committed.
 
 ### Package 6 units
@@ -1076,9 +1076,10 @@ Acceptance criteria:
   recorded feature metadata, and audit metadata.
 
 Package 8 explicitly does not monitor, evaluate, promote, retrain, or deploy a
-hosted service. Health bands, GTM actions, recommendations, policy thresholds,
-monitoring, dashboards, APIs, and cloud or cloud-like deployment are deferred
-to later policy, monitoring, or public-polish packages.
+hosted service. Package 9 later observes Package 8 score outputs only. Health
+bands, GTM actions, recommendations, RevOps action tables, policy thresholds,
+dashboards, APIs, and cloud or cloud-like deployment are deferred to Package
+10 or later explicitly approved work.
 
 Approved local command:
 
@@ -1092,39 +1093,60 @@ selector and may write optional ignored raw exports under
 
 ---
 
-## Package 9: Monitoring and observability
+## Package 9: Batch scoring observability
 
 Goal:
-Generate local monitoring artefacts for data, feature, prediction and operating drift.
+Generate local observability artefacts for Package 8 batch score outputs.
 
 Tasks:
 
-- Add data quality checks.
-- Add feature drift checks.
-- Add prediction drift checks.
-- Add recommendation volume checks.
-- Add capacity breach warnings.
-- Optionally add Evidently reports.
-- Save `monitoring_report.json`.
-- Document monitoring approach.
+- Resolve exactly one scored month from an explicit month or explicit latest
+  selector.
+- Validate the selected scored population against the expected
+  `mart.account_month` population.
+- Validate churn and expansion score shape, nullability, numeric type, and
+  `[0, 1]` bounds.
+- Summarize score distributions overall and by safe descriptive segment.
+- Summarize Package 8 scoring lineage from score/audit evidence.
+- Compare the selected scored month with the nearest earlier scored month when
+  available.
+- Write local observability summaries and append-only audit metadata.
+- Optionally write ignored local exports under
+  `data/outputs/score_observability/`.
+- Document the Package 9 contract in `docs/score_observability.md`.
 
 Acceptance criteria:
 
-- Monitoring can compare current scoring data to training reference.
-- Drift warnings are explainable.
-- Capacity warnings are included.
-- Monitoring outputs are saved locally.
-- Docs explain what would be monitored in real production.
+- Exactly one scoring-month selector is required.
+- `latest` resolves from `mart.account_month_scores`.
+- Prior comparison uses the nearest earlier scored month, not necessarily the
+  previous calendar month.
+- If no prior scored month exists, the run can succeed with a warning and null
+  prior-comparison fields.
+- Missing required tables, invalid or duplicate score rows, unresolved expected
+  populations, out-of-range scores, and inconsistent required lineage fail
+  clearly.
+- Warning-only conditions are distinguishable from clean success.
+- Local outputs remain generated artefacts.
+- Package 9 does not require labels, future outcomes, retraining, rescoring,
+  live MLflow registry authority, dashboards, APIs, or real data.
+- Package 9 remains honest local batch scoring observability for synthetic data,
+  not real production drift detection or automated model governance.
 
 ---
 
-## Package 10: Public repo polish and examples
+## Package 10: Deterministic GTM policy outputs, public examples, and polish
 
 Goal:
-Make the project GitHub-ready.
+Create deterministic GTM policy outputs on top of raw scores, then make the
+project GitHub-ready.
 
 Tasks:
 
+- Define deterministic GTM policy rules above Package 8 scores.
+- Create account health bands.
+- Create recommended GTM actions.
+- Create RevOps-facing policy/action outputs.
 - Finalise README.
 - Finalise model card.
 - Finalise RevOps playbook.
@@ -1137,6 +1159,10 @@ Tasks:
 
 Acceptance criteria:
 
+- Health bands and recommended actions are deterministic policy outputs rather
+  than trained targets.
+- Policy thresholds and action rules are documented separately from raw scores
+  and Package 9 observability diagnostics.
 - A reviewer can understand the project in under five minutes.
 - A technical reviewer can run the project locally.
 - A commercial reviewer can understand the operating process.

@@ -353,7 +353,7 @@ Package 7 owns MLflow registry and promotion.
 
 Package 8 owns batch scoring deployment.
 
-Package 9 owns monitoring.
+Package 9 owns batch scoring observability.
 
 ## Expected Implementation Units
 

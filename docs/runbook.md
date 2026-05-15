@@ -285,6 +285,63 @@ For docs-only Package 8A, document skipped implementation tests explicitly.
 Confirm no generated scoring files, DuckDB files, MLflow runs, model artefacts,
 caches, private files, or live `.agent/*.md` files are staged or tracked.
 
+## Package 9 runbook - Batch scoring observability
+
+Package 9 runs after Package 8 scoring and observes the raw local score outputs
+that Package 8 already wrote.
+
+Package 9 is batch scoring observability only. It validates selected scored
+populations, score values, distribution summaries, safe segment summaries, and
+observed scoring lineage for synthetic local outputs. It does not rescore
+accounts, require labels, retrain, re-evaluate, select champions, promote
+models, create account health bands, recommend GTM actions, create RevOps
+action tables, define GTM policy thresholds, add dashboards, add APIs, add
+cloud deployment, or use real data.
+
+The Package 9 source of truth is:
+
+- `docs/score_observability.md`
+
+Contract-level command shapes for a later implementation are:
+
+```bash
+make monitor-account-scores SCORING_MONTH=YYYY-MM-01
+make monitor-account-scores-latest
+```
+
+These targets are not implemented by the docs-only Package 9 contract pass.
+
+Package 9 local outputs, when later implemented, should remain generated local
+artefacts such as:
+
+- `metadata.score_observability_audit`
+- `mart.score_observability_summary`
+- `mart.score_distribution_by_month`
+- `mart.score_distribution_by_segment`
+- optional ignored exports under `data/outputs/score_observability/`
+
+Before each Package 9 implementation unit:
+
+- Restate that Package 9 is batch scoring observability only.
+- Confirm Package 8 already owns score generation and scoring audit evidence.
+- Confirm no labels, future outcomes, live MLflow registry authority, or
+  policy-layer outputs are being introduced.
+- Identify intended files to change and tests to add or update.
+- Identify stop-condition risk.
+
+Before closing a Package 9 implementation unit, run:
+
+- focused tests for implemented observability behaviour
+- `make verify`
+- `make public-safety-check`
+- `git diff --check`
+- `git status --short`
+
+For docs-only Package 9 work, document skipped implementation tests explicitly.
+Confirm no generated observability outputs, DuckDB files, MLflow runs, model
+artefacts, caches, private files, or live `.agent/*.md` files are staged or
+tracked.
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

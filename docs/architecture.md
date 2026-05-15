@@ -4,7 +4,7 @@
 
 This document describes the intended local batch architecture. Package 0 does
 not implement data generation, DuckDB, MLflow, modeling, scoring, dashboards, or
-monitoring outputs.
+observability outputs.
 
 ## Intended Flow
 
@@ -19,9 +19,9 @@ flowchart LR
     F --> G
     G --> H[MLflow champion registry]
     H --> I[Local batch scoring]
+    I --> L[Score observability summaries]
     I --> J[Deterministic policy layer]
     J --> K[RevOps-facing output tables]
-    I --> L[Monitoring reports]
 ```
 
 ## Layers
@@ -98,9 +98,11 @@ The final batch outputs should be readable by GTM operators. Planned output
 tables include account-level scores, health bands, recommended actions, segment
 fields, threshold metadata, and scoring run metadata.
 
-### Monitoring Reports
+### Score Observability Summaries
 
-Monitoring will be local and artefact-based. Future reports should cover data
-quality, feature drift, prediction drift, recommendation volumes, and capacity
-warnings. Generated monitoring outputs should stay out of git unless a later
-package explicitly approves safe examples.
+Package 9 observability will be local and artefact-based. It should inspect raw
+Package 8 score outputs, summarize score distributions and safe segment slices,
+record observed scoring lineage, and compare scored months when history exists.
+It is not real production drift detection or automated model governance.
+Generated observability outputs should stay out of git unless a later package
+explicitly approves safe examples.
