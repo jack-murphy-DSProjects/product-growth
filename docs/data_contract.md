@@ -10,7 +10,7 @@ validates source-level contracts. Package 3 creates `mart.account_month`.
 Package 4 prepares deterministic rule baseline contracts from
 `mart.account_month`. Package 6 may create local model evaluation summary
 tables. Package 7 may create minimal local model-promotion audit metadata.
-Package 8 plans raw local batch scoring outputs only.
+Package 8 writes raw local batch scoring outputs only.
 
 ## Safety Statement
 
@@ -322,13 +322,12 @@ This table is local promotion audit metadata only. It is not an MLflow
 replacement, production scoring table, deployment record, monitoring report,
 health-band table, recommended-action table, or real customer data.
 
-## Planned Package 8 Raw Batch Scoring Contract
+## Package 8 Raw Batch Scoring Contract
 
-Package 8 plans raw local scoring outputs from Package 7-promoted MLflow
-champion models. This section documents expected grain and purpose only. It
-does not imply these tables already exist.
+Package 8 writes raw local scoring outputs from Package 7-promoted MLflow
+champion models for explicitly selected `mart.account_month` rows.
 
-Package 8 planned tables:
+Package 8 tables:
 
 - `mart.account_month_scores`
 - `metadata.batch_scoring_audit`

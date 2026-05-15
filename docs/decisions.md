@@ -447,7 +447,7 @@ labels. Labels may exist in the source table, but they are not required for
 scoring and are never model inputs.
 
 Package 8 must score selected `observation_month` rows and must require an
-explicit `--scoring-month YYYY-MM-01` or explicit `--latest` once implemented.
+explicit `--scoring-month YYYY-MM-01` or explicit `--latest`.
 It must not silently score all history by default.
 
 ### Decision: Package 5 feature metadata controls scoring feature order

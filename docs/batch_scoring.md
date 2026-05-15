@@ -2,10 +2,14 @@
 
 ## Status
 
-Package 8A is documentation-only scope alignment for future Package 8 work.
-No Package 8 scoring code, Make target, DuckDB table, export, dashboard, API,
-monitoring report, cloud deployment, health band, GTM action, or recommendation
-is implemented by this document.
+Package 8 implements a local raw batch scoring workflow for explicit
+account-month populations.
+
+Package 8 includes a local CLI and Make target, writes raw DuckDB scoring and
+audit tables, and can optionally write ignored local raw scoring exports. It
+does not implement a dashboard, API, monitoring report, cloud deployment,
+health band, GTM action, recommendation, policy threshold, retraining,
+evaluation, champion selection, or model promotion.
 
 ## Purpose
 
@@ -69,12 +73,11 @@ and must never be model inputs.
 
 ## Outputs
 
-Planned Package 8 outputs:
+Package 8 outputs:
 
 - `mart.account_month_scores`
 - `metadata.batch_scoring_audit`
-- Optional ignored local exports under a future generated output path such as
-  `data/outputs/batch_scoring/`
+- Optional ignored local exports under `data/outputs/batch_scoring/`
 
 Package 8 outputs are raw scoring outputs. They are not health-band tables,
 recommended-action tables, model evaluation summaries, model registry
@@ -105,9 +108,9 @@ selector once the command exists.
 period. `--scoring-month YYYY-MM-01` selects exactly rows whose
 `observation_month` equals that month.
 
-An eventual `--latest` option should resolve to the maximum available
-`observation_month` in `mart.account_month` and record the resolved month in
-audit metadata. It must be explicit so that a missing CLI argument never
+The explicit `--latest` option resolves to the maximum available
+`observation_month` in `mart.account_month` and records the resolved month in
+audit metadata. It remains explicit so that a missing CLI argument never
 expands into all historical rows.
 
 ## Model Loading Design
@@ -180,7 +183,7 @@ validation failure should stop scoring before outputs are written.
 
 - one row per `scoring_run_id` x `account_id` x `observation_month`
 
-Minimum planned fields:
+Implemented fields:
 
 - `scoring_run_id`
 - `account_id`
@@ -239,8 +242,11 @@ The replacement boundary is the selected scoring month, not the full history.
 ## Local Exports
 
 Package 8 may optionally write ignored local raw scoring exports for human
-inspection or public-polish examples later. These exports must live under an
-ignored generated-output path and must not be committed.
+inspection. Repo-local exports must live under:
+
+- `data/outputs/batch_scoring/`
+
+The CLI supports this through `--export-dir`. Exports must not be committed.
 
 Local exports must not include health bands, GTM recommendations, dashboards,
 real customer data, secrets, or environment-specific paths.
@@ -281,3 +287,21 @@ Before implementing or closing Package 8 work, verify:
 - Audit records remain append-only.
 - Health bands, GTM actions, recommendations, monitoring, dashboards, APIs,
   and cloud deployment remain deferred.
+
+## Local Command
+
+The approved Package 8 command is:
+
+```bash
+python scripts/score_account_month.py --warehouse-path "data/warehouse/account_health.duckdb" --scoring-month "YYYY-MM-01"
+```
+
+The approved Make target is:
+
+```bash
+make score-account-month SCORING_MONTH=YYYY-MM-01
+```
+
+Use `--latest` or `BATCH_SCORING_LATEST=1` only when the latest available
+`observation_month` should be resolved explicitly. Optional raw CSV exports may
+be requested with `--export-dir` or `BATCH_SCORING_EXPORT_DIR`.

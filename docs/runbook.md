@@ -221,17 +221,17 @@ Confirm no generated promotion files, DuckDB files, MLflow runs, model
 artefacts, caches, private files, or live `.agent/*.md` files are staged or
 tracked.
 
-## Planned Package 8 runbook - Raw local batch scoring
+## Package 8 runbook - Raw local batch scoring
 
-Package 8 is planned to score explicit account-month populations from
-`mart.account_month` with Package 7-promoted MLflow `champion` models.
+Package 8 scores explicit account-month populations from `mart.account_month`
+with Package 7-promoted MLflow `champion` models.
 
 Package 8 is raw local batch scoring only. It must not train, retrain,
 evaluate, promote, monitor, deploy a hosted service, create health bands,
 recommend GTM actions, add dashboards, add APIs, add cloud infrastructure, use
 real data, or mutate Package 5/6/7 source evidence.
 
-Preconditions for future Package 8 implementation units:
+Preconditions for Package 8 scoring:
 
 - Package 3 has built `mart.account_month`.
 - Package 5 has logged trained sklearn pipelines and `features.json`.
@@ -239,21 +239,26 @@ Preconditions for future Package 8 implementation units:
 - Package 7 has promoted churn and expansion champions to local MLflow
   registered model aliases named `champion`.
 - The scoring month is explicit as `YYYY-MM-01`, or an explicit `latest`
-  selector is requested once implemented.
+  selector is requested.
 
-The intended future command shape is illustrative only and is not currently
-available:
+The approved local command is:
 
 ```bash
 python scripts/score_account_month.py --warehouse-path "data/warehouse/account_health.duckdb" --scoring-month "YYYY-MM-01"
 ```
 
-An eventual Make target may wrap that command only after Package 8
-implementation exists. Until then, no Package 8 scoring command should be
-presented as runnable.
+The approved Make target is:
 
-Future Package 8 output paths and tables should remain local generated
-artefacts:
+```bash
+make score-account-month SCORING_MONTH=YYYY-MM-01
+```
+
+Use `--latest` or `BATCH_SCORING_LATEST=1` only as an explicit latest-month
+selector. Optional repo-local raw CSV exports must stay under:
+
+- `data/outputs/batch_scoring/`
+
+Package 8 output paths and tables remain local generated artefacts:
 
 - `mart.account_month_scores`
 - `metadata.batch_scoring_audit`

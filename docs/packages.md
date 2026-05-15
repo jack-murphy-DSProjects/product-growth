@@ -1051,7 +1051,7 @@ Tasks:
 - Load Package 7-promoted MLflow champion models for churn and expansion.
 - Read selected `observation_month` rows from `mart.account_month`.
 - Require an explicit scoring population such as
-  `--scoring-month YYYY-MM-01` or explicit `--latest` once implemented.
+  `--scoring-month YYYY-MM-01` or explicit `--latest`.
 - Validate scoring schema and feature contract before inference.
 - Generate raw churn and expansion model scores only.
 - Write raw score rows to a local scoring table.
@@ -1079,6 +1079,16 @@ Package 8 explicitly does not monitor, evaluate, promote, retrain, or deploy a
 hosted service. Health bands, GTM actions, recommendations, policy thresholds,
 monitoring, dashboards, APIs, and cloud or cloud-like deployment are deferred
 to later policy, monitoring, or public-polish packages.
+
+Approved local command:
+
+```bash
+make score-account-month SCORING_MONTH=YYYY-MM-01
+```
+
+The command may use `BATCH_SCORING_LATEST=1` only as an explicit latest-month
+selector and may write optional ignored raw exports under
+`data/outputs/batch_scoring/`.
 
 ---
 
