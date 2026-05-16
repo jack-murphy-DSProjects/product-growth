@@ -87,8 +87,9 @@ semantics.
 ### Boundary With Package 10 Deterministic GTM Policy Layer
 
 Package 10 owns deterministic GTM policy outputs, including account health
-bands, recommended GTM actions, RevOps-facing action outputs, and any
-policy-layer thresholds or examples.
+bands, recommended GTM actions, RevOps-facing action outputs, and the minimal
+policy-layer examples approved for that package. Broad public polish remains
+deferred beyond Package 10.
 
 Package 9 may report diagnostic score distribution information, including
 top-decile thresholds and movement warnings, but those diagnostics must never be

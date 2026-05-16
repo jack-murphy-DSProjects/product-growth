@@ -1135,36 +1135,193 @@ Acceptance criteria:
 
 ---
 
-## Package 10: Deterministic GTM policy outputs, public examples, and polish
+## Package 10: Deterministic GTM policy layer
 
 Goal:
-Create deterministic GTM policy outputs on top of raw scores, then make the
-project GitHub-ready.
+Create a deterministic GTM policy layer on top of Package 8 raw scores, plus
+only the minimal public-safe examples needed to explain that layer.
+
+Package 10 is not the broad final repo-polish package. Final README polish,
+screenshots, portfolio storytelling, dashboard-like examples, and final closeout
+belong to Package 11 or a later explicit polish pass.
+
+Primary source of truth:
+
+- `docs/gtm_policy.md`
+
+Package 10 consumes:
+
+- `mart.account_month_scores`
+- safe descriptive context already present in approved upstream synthetic
+  contracts
+- optional Package 9 observability evidence as quality/safety context only
+
+Package 10 may create:
+
+- `mart.account_month_gtm_policy`
+- `metadata.gtm_policy_audit`
+- optional ignored local exports under `data/outputs/gtm_policy/`
+
+Package 10 must preserve:
+
+- separate raw churn-risk and expansion-propensity score columns
+- Package 8 scoring outputs without mutation
+- Package 9 observability outputs without mutation
+- the synthetic-data-only and public-safe project boundary
 
 Tasks:
 
-- Define deterministic GTM policy rules above Package 8 scores.
-- Create account health bands.
-- Create recommended GTM actions.
-- Create RevOps-facing policy/action outputs.
-- Finalise README.
-- Finalise model card.
-- Finalise RevOps playbook.
-- Finalise deployment doc.
-- Finalise security doc.
-- Create example outputs under `examples/outputs`.
-- Ensure generated local artefacts are ignored.
-- Run full test and pipeline suite.
-- Review docs for public readability.
+- Define the locked illustrative `gtm_policy_v1` matrix in
+  `docs/gtm_policy.md`.
+- Validate raw score inputs before assigning policy outputs.
+- Assign deterministic health bands.
+- Assign deterministic lifecycle motions.
+- Assign deterministic recommended actions.
+- Assign deterministic action priorities.
+- Assign deterministic action reason codes.
+- Handle churn/expansion conflicts explicitly with churn risk dominating
+  expansion actioning.
+- Join approved safe descriptive account context for RevOps review.
+- Create one RevOps-facing account-month policy table.
+- Create append-only policy audit metadata.
+- Support explicit scoring-month or explicit latest-scored-month semantics.
+- Optionally create a small ignored local export under
+  `data/outputs/gtm_policy/`.
+- Keep README/runbook/package-index updates light and Package-10-specific.
+
+Non-goals:
+
+- No model training, retraining, re-evaluation, champion selection, promotion,
+  rescoring, or mutation of Package 8/9 outputs.
+- No labels or future outcomes.
+- No learned policy.
+- No dashboard, API, cloud deployment, CRM integration, campaign execution,
+  email automation, playbook engine, reinforcement learning, or optimisation
+  engine.
+- No claim that synthetic-data actions are commercially validated.
+- No broad final repo polish.
 
 Acceptance criteria:
 
+- `docs/gtm_policy.md` defines the Package 10 contract and the exact
+  `gtm_policy_v1` matrix.
 - Health bands and recommended actions are deterministic policy outputs rather
   than trained targets.
-- Policy thresholds and action rules are documented separately from raw scores
-  and Package 9 observability diagnostics.
-- A reviewer can understand the project in under five minutes.
-- A technical reviewer can run the project locally.
-- A commercial reviewer can understand the operating process.
-- No secrets or local artefacts are committed.
-- Full test suite passes.
+- The exact v1 health bands, thresholds, lifecycle motions, recommended
+  actions, priorities, and reason codes are implemented as documented.
+- Churn risk and expansion propensity remain separate raw score dimensions.
+- High churn risk dominates expansion actioning.
+- High churn plus high expansion resolves to save-first behaviour rather than a
+  pure upsell action.
+- Score inputs must be finite, numeric, non-null, and inside `[0, 1]` before
+  assignment.
+- Every valid account-month score row maps to exactly one policy row.
+- Rerunning one scoring month replaces `mart.account_month_gtm_policy` rows for
+  that month only.
+- `metadata.gtm_policy_audit` remains append-only.
+- Local exports remain generated ignored artefacts.
+- Package 10 does not use labels, future outcomes, learned thresholds,
+  dashboards, APIs, cloud services, or commercial-validation claims.
+
+### Package 10 units
+
+#### Package 10A - Docs-first deterministic GTM policy contract
+
+Define the durable Package 10 contract before implementation.
+
+Exit gate:
+
+- `docs/gtm_policy.md` exists and defines Package 10 purpose, boundary,
+  inputs, outputs, non-goals, locked `gtm_policy_v1` matrix, exact taxonomy,
+  conflict handling, boundary behaviour, observability relationship,
+  idempotence, CLI/Make contract, local export semantics, public-safety stance,
+  tests, review checklist, and deferred Package 11 items.
+- `docs/packages.md`, `docs/runbook.md`, `docs/decisions.md`, and `README.md`
+  align with the Package 10 boundary.
+- Committed `.agent/*.example` templates are aligned for Package 10 and later
+  implementation units.
+- No code, scripts, tests, Make targets, DuckDB tables, generated outputs, or
+  exports are added.
+- Live local `.agent/*.md` files are not modified or tracked.
+- `make public-safety-check`, `git diff --check`, and `git status --short` are
+  run and reported.
+
+#### Package 10B - Input validation and policy matrix helpers
+
+Implement the Package 10 scoring-month selection, score validation, and locked
+matrix helpers only.
+
+Exit gate:
+
+- Requires explicit scoring month or explicit latest-scored-month mode.
+- Reads Package 8 raw scores without mutating them.
+- Fails on null, non-numeric, non-finite, out-of-range, duplicate, or ambiguous
+  score rows before policy assignment.
+- Implements the exact `gtm_policy_v1` matrix, strings, and boundary rules from
+  `docs/gtm_policy.md`.
+- Focused tests pin all seven matrix rows and all threshold boundaries.
+- No table writes, exports, dashboards, APIs, cloud services, or final polish
+  are added.
+
+#### Package 10C - Policy table build and safe context join
+
+Build the RevOps-facing account-month policy output.
+
+Exit gate:
+
+- `mart.account_month_gtm_policy` is written at one row per `account_id` x
+  `scoring_month`.
+- Raw churn and expansion scores are preserved.
+- Approved safe descriptive context is joined without multiplying rows.
+- Labels, future outcomes, and generator-only fields are excluded.
+- Every valid source score row maps to exactly one output policy row.
+- Focused tests cover conflict handling, row parity, safe joins, and forbidden
+  fields.
+
+#### Package 10D - Audit, idempotence, and optional observability context
+
+Add inspectable rerun behaviour and audit evidence.
+
+Exit gate:
+
+- `metadata.gtm_policy_audit` is append-only.
+- Rerunning one month replaces policy rows for that month only.
+- Health-band, recommended-action, and priority counts are recorded.
+- Optional Package 9 observability status, when used, is recorded as
+  quality/safety context without changing the deterministic matrix.
+- Focused tests cover reruns, counts, and optional observability context.
+
+#### Package 10E - CLI, Make targets, local export, and docs closeout
+
+Add the approved local execution surface and close the package.
+
+Exit gate:
+
+- `scripts/build_gtm_policy.py` exists.
+- `make build-gtm-policy SCORING_MONTH=YYYY-MM-01` exists.
+- `make build-gtm-policy-latest` exists.
+- Optional ignored local exports stay under `data/outputs/gtm_policy/`.
+- Documentation reflects implemented commands and outputs without broad final
+  repo polish.
+- Focused tests plus required broad checks pass.
+- No Package 11/final-polish work appears.
+
+---
+
+## Package 11: Final public polish and closeout
+
+Goal:
+Improve final public presentation after the deterministic policy layer exists.
+
+Likely scope:
+
+- final README polish
+- screenshots or other public-safe visual examples if approved
+- portfolio storytelling and closeout
+- dashboard-like examples if explicitly approved
+- broader public example-output polish
+- final repository review
+
+Package 11 must not silently change the Package 10 v1 policy contract. Any
+change to the locked policy matrix, thresholds, taxonomy, or boundary semantics
+requires an explicit new decision/update first.

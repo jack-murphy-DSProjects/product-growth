@@ -343,6 +343,84 @@ Confirm no generated observability outputs, DuckDB files, MLflow runs, model
 artefacts, caches, private files, or live `.agent/*.md` files are staged or
 tracked.
 
+## Package 10 runbook - Deterministic GTM policy layer
+
+Package 10 consumes Package 8 raw scores and creates deterministic GTM policy
+outputs for the synthetic local workflow.
+
+Package 10 is not broad final repo polish. Final README polish, screenshots,
+portfolio storytelling, dashboard-like examples, and final closeout belong to
+Package 11 or a later explicit polish pass.
+
+The Package 10 source of truth is:
+
+- `docs/gtm_policy.md`
+
+Package 10 uses the locked illustrative policy version:
+
+- `policy_version = "gtm_policy_v1"`
+
+Package 10 must preserve separate churn and expansion raw scores, apply the
+exact documented v1 matrix, and keep high churn risk dominant over expansion
+actioning.
+
+Preconditions for later Package 10 implementation units:
+
+- Package 8 has written `mart.account_month_scores`.
+- The selected scoring month is explicit as `YYYY-MM-01`, or explicit
+  latest-scored-month mode is requested.
+- Package 9 observability evidence may be consulted only as optional
+  quality/safety context if the implementation chooses to use it.
+
+Likely Package 10 commands are:
+
+```bash
+python scripts/build_gtm_policy.py --scoring-month "YYYY-MM-01"
+python scripts/build_gtm_policy.py --latest
+```
+
+Likely Make targets are:
+
+```bash
+make build-gtm-policy SCORING_MONTH=YYYY-MM-01
+make build-gtm-policy-latest
+```
+
+Package 10 local outputs may include:
+
+- `mart.account_month_gtm_policy`
+- `metadata.gtm_policy_audit`
+- optional ignored exports under `data/outputs/gtm_policy/`
+
+Package 10 must not train, retrain, re-evaluate, promote, rescore, mutate
+Package 8/9 outputs, use labels or future outcomes, learn policy thresholds,
+add dashboards, add APIs, add cloud infrastructure, integrate with CRM systems,
+execute campaigns, or claim commercial validation from synthetic data.
+
+Before each Package 10 implementation unit:
+
+- Restate that `docs/gtm_policy.md` is authoritative.
+- Restate the active Package 10 unit.
+- Restate the locked `gtm_policy_v1` matrix and the high-churn-dominates rule.
+- Run `git status --short`.
+- Confirm no live `.agent/*.md` file will be modified or committed.
+- Identify intended files to change and tests to add or update.
+- Identify stop-condition risk.
+
+Before closing a Package 10 implementation unit, run:
+
+- focused tests for implemented policy behaviour
+- `make verify`
+- `make public-safety-check`
+- `git diff --check`
+- `git status --short`
+
+For docs-only Package 10A, do not add code, scripts, tests, Make targets,
+DuckDB tables, generated outputs, or exports. Document skipped implementation
+tests explicitly. Confirm no generated policy outputs, DuckDB files, MLflow
+runs, model artefacts, caches, private files, or live `.agent/*.md` files are
+staged or tracked.
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

@@ -5,7 +5,7 @@ is ignored and must not be committed.
 
 ## Operating mode
 
-Work in bounded package units.
+Work in bounded Package 10 units.
 
 Do not work generally on the repo.
 
@@ -13,28 +13,28 @@ Do not skip ahead.
 
 Do not combine unrelated units.
 
-Package 4 must remain split by the approved 4A-4F units.
+## Package 10 scope sentence
 
-## Package 4 scope sentence
+Package 10 builds deterministic, auditable GTM policy outputs from Package 8 raw
+scores only; it does not train or retrain models, re-evaluate candidates,
+promote models, rescore accounts, mutate Package 8/9 outputs, use labels or
+future outcomes, learn policy, add dashboards, APIs, cloud deployment, CRM
+integration, campaign execution, automation engines, real data, or broad final
+repo polish.
 
-Package 4 builds deterministic, interpretable rule baseline benchmark
-artefacts from `mart.account_month` only; it does not train models, add
-MLflow, create model registry logic, perform champion selection, create final
-account health bands, create recommended GTM actions, add dashboards, APIs,
-cloud deployment, dbt, orchestration, real SaaS integrations, real customer
-data, or mutate `mart.account_month`.
+`docs/gtm_policy.md` is the binding source of truth. The locked initial policy
+version is `gtm_policy_v1`.
 
-Package 4A is documentation, contract, and harness alignment only. It does not
-create `mart.account_month_baselines`, add scripts, add Make targets, add
-dependencies, generate synthetic data, load DuckDB, or implement Package 4
-baseline scoring code.
+Package 10A is documentation and contract alignment only. It does not add code,
+scripts, tests, Make targets, DuckDB tables, generated outputs, or exports.
 
 ## Pre-run harness check
 
 Before changing files:
 
 1. Read `AGENTS.md`.
-2. Read the relevant committed docs for the active package.
+2. Read `docs/gtm_policy.md` and the relevant committed docs for the active
+   Package 10 unit.
 3. Read `.agent/current_execution_context.md`, `.agent/package_gate.md`, and
    `.agent/agent_runbook.md` when they exist locally.
 4. Confirm all live `.agent/*.md` files name the same active package and unit.
@@ -42,8 +42,8 @@ Before changing files:
 6. If a live file names the wrong active package, stop and refresh the local
    harness before implementation.
 
-Large prompts can activate a run, but they do not replace the committed docs
-and live local harness context.
+Large prompts can activate a run, but they do not replace the committed docs and
+live local harness context.
 
 ## Before each unit
 
@@ -51,18 +51,14 @@ Before changing files:
 
 1. Restate the active package.
 2. Restate the active unit.
-3. Restate the Package 4 scope sentence.
-4. Restate the runbook rule that constrains the unit.
+3. Restate that `docs/gtm_policy.md` is authoritative.
+4. Restate the locked `gtm_policy_v1` matrix and the high-churn-dominates rule.
 5. Run `git status --short`.
 6. Inspect relevant docs, tests, and source files.
 7. Identify intended files to change.
-8. Confirm intended files are within Package 4 scope.
+8. Confirm intended files are within Package 10 scope.
 9. Identify tests or checks to add or update.
 10. Identify stop-condition risk.
-
-For Package 4B onward, read `docs/feature_contract.md` and
-`docs/data_contract.md` before changing code and restate the relevant source
-table, output table, grain, forbidden inputs, and auditability rules.
 
 ## During each unit
 
@@ -70,41 +66,43 @@ While changing files:
 
 1. Keep changes narrow.
 2. Prefer boring, explicit implementation.
-3. Add tests with behavior changes.
+3. Add focused tests with behavior changes.
 4. Avoid clever abstractions.
 5. Do not add unapproved dependencies.
-6. Do not create generated files outside temporary test directories unless
-   explicitly needed for a local manual check.
+6. Do not create generated files outside ignored local paths unless explicitly
+   needed for a local manual check.
 7. Do not commit generated files.
 8. Do not weaken safety checks.
 9. Do not remove existing tests.
-10. Do not silently change Package 3 behaviour.
-11. Do not modify live local `.agent/*.md` controls except when the active
+10. Do not mutate Package 8 or Package 9 outputs.
+11. Do not use labels, future outcomes, or `synthetic_archetype`.
+12. Do not silently change `gtm_policy_v1` thresholds, strings, or boundary
+    behaviour.
+13. Do not create dashboards, APIs, cloud deployment, CRM execution, campaign
+    automation, learned policy, or broad final-polish work in Package 10.
+14. Do not modify live local `.agent/*.md` controls except when the active
     package harness is being intentionally refreshed.
-12. Do not change row grain, label semantics, or `mart.account_month`
-    semantics without human review.
-13. Do not use `churn_90d`, `expansion_90d`, or `synthetic_archetype` in score
-    calculation.
-14. Do not add model training, MLflow, registry, champion selection, final
-    health bands, recommendations, dashboards, APIs, cloud deployment, or
-    monitoring reports in Package 4.
 
 ## After each unit
 
 Before summarising:
 
-1. Run `make verify`.
-2. Run `git diff --check`.
+1. Run focused tests for implementation units.
+2. Run `make verify` for implementation units where practical.
 3. Run `make public-safety-check`.
-4. Run `git status --short`.
-5. Confirm no generated/local/private artefacts are tracked.
-6. Confirm the unit exit gate is satisfied.
-7. Summarise files changed.
-8. Summarise tests added or updated.
-9. Summarise commands run.
-10. Summarise security checks.
-11. Summarise scope checks.
-12. List any risks or review points.
+4. Run `git diff --check`.
+5. Run `git status --short`.
+6. Confirm no generated/local/private artefacts are tracked.
+7. Confirm the unit exit gate is satisfied.
+8. Summarise files changed.
+9. Summarise tests added or updated.
+10. Summarise commands run.
+11. Summarise security checks.
+12. Summarise scope checks.
+13. List any risks or review points.
+
+For docs-only Package 10A, state explicitly that implementation tests were not
+run because no behavior changed.
 
 ## Continuation rule
 
@@ -115,7 +113,7 @@ Continue automatically to the next unit only if:
 - no stop condition is hit
 - the next unit is part of the active package
 - the next unit scope is documented
-- the next unit is one of the approved Package 4 slices
+- the next unit is one of the approved Package 10 slices
 
 Stop only on:
 
@@ -125,15 +123,12 @@ Stop only on:
 - completion of the active package
 - request from the human reviewer
 
-Package 4 agents must not start Package 5 without explicit human approval.
+Package 10 agents must not start Package 11 without explicit human approval.
 
-## Package 4 unit sequence
+## Package 10 unit sequence
 
-Run units in this order:
-
-1. Package 4A - Docs, contract, and harness prep
-2. Package 4B - Baseline input contract
-3. Package 4C - Churn baseline
-4. Package 4D - Expansion baseline
-5. Package 4E - Validation and leakage tests
-6. Package 4F - CLI, audit, and docs closeout
+1. Package 10A - Docs-first deterministic GTM policy contract
+2. Package 10B - Input validation and policy matrix helpers
+3. Package 10C - Policy table build and safe context join
+4. Package 10D - Audit, idempotence, and optional observability context
+5. Package 10E - CLI, Make targets, local export, and docs closeout

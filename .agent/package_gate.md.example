@@ -9,89 +9,80 @@ condition.
 
 ## Package
 
-Package 4 - Rule Baselines
+Package 10 - Deterministic GTM policy layer
 
 ## Active unit
 
-Set this manually for one approved Package 4 unit:
+Set this manually for one approved Package 10 unit:
 
-1. Package 4A - Docs, contract, and harness prep
-2. Package 4B - Baseline input contract
-3. Package 4C - Churn baseline
-4. Package 4D - Expansion baseline
-5. Package 4E - Validation and leakage tests
-6. Package 4F - CLI, audit, and docs closeout
+1. Package 10A - Docs-first deterministic GTM policy contract
+2. Package 10B - Input validation and policy matrix helpers
+3. Package 10C - Policy table build and safe context join
+4. Package 10D - Audit, idempotence, and optional observability context
+5. Package 10E - CLI, Make targets, local export, and docs closeout
 
 ## Package-level exit gate
 
-Package 4 is complete only when:
+Package 10 is complete only when:
 
-- `mart.account_month_baselines` exists.
-- One output row exists per `mart.account_month` row.
-- Primary grain is `account_id`, `observation_month`.
-- `observation_month_end` is carried through.
-- Scores are deterministic and bounded.
-- Churn and expansion component columns exist.
-- Labels are not used in score calculation.
-- `synthetic_archetype` is not used in score calculation.
-- Ranks and deciles are prioritisation helpers only.
-- Optional `metadata.baseline_build_audit` is minimal local audit metadata.
-- No Package 5+ work appears.
+- `docs/gtm_policy.md` remains the source of truth.
+- `gtm_policy_v1` is implemented exactly as documented.
+- `mart.account_month_gtm_policy` exists at one row per `account_id` x
+  `scoring_month`.
+- Raw churn and expansion scores remain separate preserved columns.
+- High churn risk dominates expansion actioning.
+- High churn plus high expansion resolves to save-first behaviour.
+- Invalid scores fail before assignment.
+- Every valid score row maps to exactly one policy row.
+- `metadata.gtm_policy_audit` is append-only.
+- Reruns replace policy rows only for the selected scoring month.
+- Optional Package 9 observability context, if used, is recorded honestly
+  without changing the deterministic matrix.
+- Local exports remain generated ignored artefacts.
+- Package 10 does not add labels, learned policy, dashboards, APIs, cloud
+  services, CRM execution, broad final polish, or commercial-validation claims.
 - `make verify` passes.
 - `git diff --check` passes.
 - Public repo safety check passes.
-- No generated CSVs, DuckDB files, MLflow runs, cache folders, live `.agent`
-  files, private files, dashboards, APIs, cloud deployments, final policy
-  outputs, or model artefacts are tracked.
+- No generated outputs, DuckDB files, MLflow runs, cache folders, live `.agent`
+  files, private files, or local-only artefacts are tracked.
 
-## Package 4A exit gate
+## Package 10A exit gate
 
-Package 4A is complete only when:
+Package 10A is complete only when:
 
-- Durable docs define the Package 4 baseline benchmark contract.
-- `docs/feature_contract.md` is clear enough for Package 4B onward.
-- `docs/data_contract.md`, `docs/warehouse.md`, `docs/packages.md`,
-  `docs/decisions.md`, and `docs/agentic_execution.md` are aligned.
-- Committed `.agent/*.example` templates reference Package 4 and include the
-  approved 4A-4F unit structure.
-- Live local `.agent/*.md` files are refreshed for Package 4 but remain ignored
-  and untracked.
-- Package 4 implementation has not started beyond docs and harness context.
-- No code, scripts, Make targets, generated data, DuckDB loads, dependencies,
-  or baseline scoring tests are added.
-- `make verify` passes.
+- `docs/gtm_policy.md` defines the deterministic v1 contract, exact matrix,
+  taxonomy, conflict handling, boundaries, audit/idempotence, CLI/Make contract,
+  tests, review checklist, and deferred Package 11 items.
+- `docs/packages.md`, `docs/runbook.md`, `docs/decisions.md`, and `README.md`
+  align with the narrowed Package 10 scope.
+- Committed `.agent/*.example` templates reference Package 10 and the approved
+  10A-10E unit structure.
+- No code, scripts, tests, Make targets, generated outputs, DuckDB tables, or
+  exports are added.
+- Live local `.agent/*.md` files remain ignored and untracked.
+- `make public-safety-check` passes.
 - `git diff --check` passes.
-- Public repo safety check passes.
 
 ## Stop conditions
 
 Stop before making any change that would:
 
-- Change `mart.account_month` semantics.
-- Change the account-month grain.
-- Change Package 3 label semantics.
-- Use `churn_90d` or `expansion_90d` as scoring inputs.
-- Use `synthetic_archetype` as a scoring input.
-- Add model training.
-- Add MLflow experiments or logic.
-- Add model registry logic.
-- Add champion selection.
-- Add full Package 5+ evaluation or baseline-vs-ML comparison.
-- Add final health bands.
-- Add recommended GTM actions.
-- Add monitoring reports.
-- Add dashboards.
-- Add notebooks.
-- Add APIs.
-- Add cloud deployment.
-- Add Vercel.
-- Add dbt.
-- Add orchestration.
-- Use real customer data.
-- Add real SaaS integrations.
+- Change the locked `gtm_policy_v1` matrix, thresholds, exact strings, or
+  boundary rules without an explicit durable-doc decision/update.
+- Mutate Package 8 raw score rows or scoring audit evidence.
+- Mutate Package 9 observability outputs.
+- Use labels or future outcomes.
+- Use real customer or company data.
+- Add learned policy, optimization, reinforcement learning, or automatic
+  actioning.
+- Add dashboards, APIs, cloud deployment, CRM integration, campaign execution,
+  email automation, or playbook engines.
+- Claim real-world commercial validation from synthetic outputs.
+- Add broad final-polish work that belongs to Package 11.
 - Weaken public-repo security.
 - Commit generated artefacts.
 - Commit live local `.agent/*.md` files.
 - Add unapproved production dependencies.
 - Remove or weaken tests.
-- Expand Package 4 beyond the approved 4A-4F slices.
+- Expand Package 10 beyond the approved 10A-10E slices.

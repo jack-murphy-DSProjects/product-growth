@@ -480,3 +480,91 @@ prioritization fields for the selected scoring month.
 
 Ranks and deciles are not health bands, GTM actions, recommendations,
 suppression rules, capacity policy, or business approval.
+
+## Package 10 decisions
+
+### Decision: Package 10 is the deterministic GTM policy layer, not the final polish package
+
+Status:
+Accepted for Package 10.
+
+Context:
+
+- Packages 8 and 9 now provide raw score production and local score
+  observability.
+- The repo still needs a deterministic layer that converts scores into
+  inspectable GTM operating outputs.
+- Earlier roadmap text bundled that policy layer together with broad public
+  polish, which would make Package 10 too wide and blur the implementation
+  target for later agents.
+
+Decision:
+
+- Package 10 owns deterministic GTM policy outputs only, plus minimal
+  public-safe examples when needed to explain those outputs.
+- Final README polish, screenshots, portfolio storytelling, dashboard-like
+  examples, and final closeout are deferred to Package 11 or a later explicit
+  polish pass.
+- `docs/gtm_policy.md` is the Package 10 source of truth.
+
+Consequences:
+
+- Later Package 10 implementation work can stay narrow, auditable, and
+  testable.
+- Reviewers can evaluate the policy layer separately from presentation work.
+- Future polish work must not silently alter the Package 10 policy contract.
+
+### Decision: `gtm_policy_v1` is a fixed illustrative matrix
+
+Package 10 starts with:
+
+- `policy_version = "gtm_policy_v1"`
+
+The v1 contract uses fixed illustrative buckets:
+
+- high churn risk: `churn_score >= 0.70`
+- medium churn risk: `churn_score >= 0.40 and churn_score < 0.70`
+- low churn risk: `churn_score < 0.40`
+- high expansion propensity: `expansion_score >= 0.70`
+- medium expansion propensity:
+  `expansion_score >= 0.40 and expansion_score < 0.70`
+- low expansion propensity: `expansion_score < 0.40`
+
+These thresholds are deliberately simple and are not learned from real
+outcomes. They are illustrative portfolio-policy constants, not validated
+commercial recommendations.
+
+The exact v1 health bands, lifecycle motions, recommended actions, priorities,
+reason codes, boundary behaviour, and save-first conflict handling live in
+`docs/gtm_policy.md`.
+
+### Decision: Churn risk dominates expansion actioning
+
+Package 10 may combine churn and expansion scores into one deterministic policy
+decision, but the raw scores remain separate output columns.
+
+If `churn_score >= 0.70`, the account cannot receive a pure expansion action
+even when expansion propensity is high. High churn plus high expansion becomes a
+save-first, retention-led expansion watch motion.
+
+This preserves the distinction between model predictions and GTM policy while
+making the conflict handling explicit and testable.
+
+### Decision: Policy outputs remain separate from score outputs
+
+Package 10 writes separate local outputs:
+
+- `mart.account_month_gtm_policy`
+- `metadata.gtm_policy_audit`
+
+Rerunning one scoring month replaces policy rows for that month only. Audit rows
+remain append-only.
+
+Package 10 must not mutate:
+
+- `mart.account_month_scores`
+- Package 8 audit evidence
+- Package 9 observability outputs
+
+This keeps raw prediction evidence, observability evidence, and policy outputs
+auditable as distinct layers.

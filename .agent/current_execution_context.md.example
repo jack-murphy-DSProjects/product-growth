@@ -9,118 +9,114 @@ are a stop condition.
 
 ## Active package
 
-Package 4 - Rule Baselines
+Package 10 - Deterministic GTM policy layer
 
 ## Active goal
 
-Build deterministic, interpretable rule baseline benchmark artefacts from
-`mart.account_month` for future ML models to beat.
+Build deterministic, auditable GTM policy outputs from Package 8 raw scores for
+the synthetic local workflow.
 
-Package 4 builds baselines only. It does not train ML models, add MLflow, add a
-model registry, perform champion selection, create final account health bands,
-create recommended GTM actions, add dashboards, add APIs, deploy to cloud
-services, add dbt or orchestration, use real SaaS integrations, use real
-customer data, or mutate `mart.account_month`.
+Package 10 converts separate churn-risk and expansion-propensity scores into
+fixed illustrative health bands, lifecycle motions, recommended actions,
+priorities, and reason codes. It does not retrain or re-evaluate models, mutate
+Package 8/9 outputs, use labels or future outcomes, add dashboards/APIs/cloud
+services, execute campaigns, or perform broad final repo polish.
+
+## Primary source of truth
+
+- `docs/gtm_policy.md`
+
+Implementation must preserve the exact locked `gtm_policy_v1` matrix in that
+document.
 
 ## Current unit
 
-Set this manually for the active Package 4 unit:
+Set this manually for the active Package 10 unit:
 
-1. Package 4A - Docs, contract, and harness prep
-2. Package 4B - Baseline input contract
-3. Package 4C - Churn baseline
-4. Package 4D - Expansion baseline
-5. Package 4E - Validation and leakage tests
-6. Package 4F - CLI, audit, and docs closeout
+1. Package 10A - Docs-first deterministic GTM policy contract
+2. Package 10B - Input validation and policy matrix helpers
+3. Package 10C - Policy table build and safe context join
+4. Package 10D - Audit, idempotence, and optional observability context
+5. Package 10E - CLI, Make targets, local export, and docs closeout
 
-Package 4A is documentation, contract, and harness alignment only. It does not
-create `mart.account_month_baselines` or implement baseline scoring code.
+After Package 10A is complete, the next implementation unit is Package 10B.
 
 ## Default warehouse path
 
 `data/warehouse/account_health.duckdb`
 
-## Source table
+## Required source tables
 
-- `mart.account_month`
+- `mart.account_month_scores`
+- `mart.account_month` for approved safe descriptive context only
 
-## Planned output table
+## Optional quality/safety context
 
-- `mart.account_month_baselines`
+- Package 9 observability evidence, if explicitly used and recorded
 
-Package 4A documents this table only. Package 4B onward may implement it
-according to `docs/feature_contract.md` and `docs/data_contract.md`.
+## Planned output tables
 
-## Planned audit table
+- `mart.account_month_gtm_policy`
+- `metadata.gtm_policy_audit`
 
-- `metadata.baseline_build_audit`
+## Locked Package 10 contract
 
-This table is optional and minimal. It is local audit metadata only.
+- `policy_version = "gtm_policy_v1"`.
+- Health bands are exactly:
+  - `Critical`
+  - `At Risk`
+  - `Stable`
+  - `Growth Ready`
+- Churn thresholds are exactly:
+  - high: `churn_score >= 0.70`
+  - medium: `churn_score >= 0.40 and churn_score < 0.70`
+  - low: `churn_score < 0.40`
+- Expansion thresholds are exactly:
+  - high: `expansion_score >= 0.70`
+  - medium: `expansion_score >= 0.40 and expansion_score < 0.70`
+  - low: `expansion_score < 0.40`
+- High churn risk dominates expansion actioning.
+- High churn plus high expansion is save-first, not pure upsell.
+- Raw churn and expansion scores remain separate output columns.
+- Every valid source score row maps to exactly one policy row.
+- Reruns replace one selected scoring month in the policy mart and append audit.
 
-## Locked Package 4 contract
-
-- Baselines are benchmark artefacts, not final policy outputs.
-- Source table is `mart.account_month`.
-- Output grain is one row per `mart.account_month` row.
-- Primary grain is `account_id`, `observation_month`.
-- `observation_month_end` is carried through for auditability.
-- Scores are deterministic and bounded.
-- Scores are heuristic benchmark scores, not calibrated probabilities.
-- Churn and expansion component columns exist for auditability.
-- Ranks and deciles are prioritisation helpers only.
-- `churn_90d` and `expansion_90d` are forbidden as scoring inputs.
-- `synthetic_archetype` is forbidden as a scoring input.
-- `mart.account_month` semantics must not change.
-
-## Package 4 exclusions
+## Package 10 exclusions
 
 Do not add:
 
-- Model training
-- MLflow experiments or logic
-- Model registry
-- Champion selection
-- Full model evaluation or baseline-vs-ML comparison
-- Final account health bands
-- Recommended GTM actions
-- Monitoring reports
+- Model training, retraining, re-evaluation, champion selection, promotion, or
+  rescoring
+- Mutation of Package 8 or Package 9 outputs
+- Labels or future outcomes
+- Learned or optimized policy rules
 - Dashboards
 - APIs
 - Cloud deployment
-- Vercel
-- dbt
-- Orchestration
-- Real SaaS integrations
-- Real customer data
-- New dependencies
-- Direct raw-table baseline inputs unless explicitly approved by the package
-  contract
-- Generated or local artefacts
+- CRM integrations
+- Campaign execution
+- Email automation
+- Playbook engines
+- Reinforcement learning or optimization engines
+- Claims that synthetic-data actions are commercially validated
+- Broad final README polish, screenshots, portfolio storytelling, dashboard-like
+  examples, or final closeout work
+- Generated or local-only artefacts in git
 
-Package 4A also must not add:
-
-- Package 4 implementation code
-- `mart.account_month_baselines`
-- Scripts
-- Make targets
-- Scoring tests
-- Generated synthetic data
-- DuckDB loads
-- Dependencies
-
-## Package 4 stop conditions
+## Package 10 stop conditions
 
 Stop before:
 
-- Changing `mart.account_month` semantics
-- Changing the account-month grain
-- Changing Package 3 label semantics
-- Using `churn_90d` or `expansion_90d` in score calculation
-- Using `synthetic_archetype` in score calculation
-- Adding model training, MLflow, registry, champion selection, final health
-  bands, recommendations, dashboards, APIs, cloud deployment, monitoring
-  reports, or Package 5+ evaluation work
-- Adding new dependencies
+- Changing `gtm_policy_v1` thresholds, taxonomy, or boundary behaviour without
+  an explicit durable-doc decision/update
+- Mutating `mart.account_month_scores`
+- Mutating Package 9 observability outputs
+- Using labels or future outcomes
+- Using real customer or company data
+- Adding dashboards, APIs, cloud services, CRM integration, or campaign
+  execution
+- Claiming real commercial validation from synthetic outputs
+- Adding broad final-polish work that belongs to Package 11
 - Weakening tests or public repo safety
 - Committing generated, local-only, private, or environment-specific files
 
