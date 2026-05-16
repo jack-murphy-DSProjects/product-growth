@@ -421,6 +421,76 @@ tests explicitly. Confirm no generated policy outputs, DuckDB files, MLflow
 runs, model artefacts, caches, private files, or live `.agent/*.md` files are
 staged or tracked.
 
+## Package 11 runbook - Final public polish and closeout
+
+Package 11 is the docs-only final public pass after the deterministic GTM
+policy layer is complete. It improves how the finished repo is understood,
+run, inspected, and closed out as a portfolio asset. It does not add new system
+behavior.
+
+The Package 11 sources of truth are:
+
+- `README.md`
+- `docs/demo_walkthrough.md`
+- `docs/project_closeout.md`
+- `docs/packages.md`
+- `docs/decisions.md`
+
+The final local demo path is:
+
+```bash
+make setup
+make generate-synthetic-data
+make load-warehouse
+make build-account-month
+make build-rule-baselines
+make train-candidate-models
+make evaluate-candidate-models
+make promote-model-registry
+make score-account-month BATCH_SCORING_LATEST=1
+make monitor-account-scores-latest
+make build-gtm-policy-latest
+```
+
+Those final three commands use explicit latest selectors. A reviewer who wants
+an exact month may instead use explicit `SCORING_MONTH=YYYY-MM-01` values for
+scoring, observability, and policy generation.
+
+If Package 6 does not produce eligible ML champions, the honest local endpoint
+is `mart.model_champion_selection`; do not force Package 7 promotion or later
+score/policy steps around that gate.
+
+The reviewer-facing final outputs to inspect are:
+
+- `mart.model_champion_selection`
+- `mart.account_month_scores`
+- `mart.score_observability_summary`
+- `mart.score_distribution_by_month`
+- `mart.account_month_gtm_policy`
+- `metadata.batch_scoring_audit`
+- `metadata.gtm_policy_audit`
+
+Before closing Package 11, verify:
+
+- Package 10 is committed.
+- README, walkthrough, package map, runbook, and decisions tell one consistent
+  story.
+- Public-facing language does not claim real commercial validation from
+  synthetic data.
+- The walkthrough does not imply dashboards, APIs, hosted deployment, CRM
+  integration, campaign execution, or production governance.
+- `gtm_policy_v1` remains unchanged.
+- Generated local artefacts remain ignored and untracked.
+
+Package 11 must not add code, tests, Make targets, generated outputs, DuckDB
+tables, model logic, scoring logic, observability logic, or new GTM policy
+logic. It should run:
+
+- `make public-safety-check`
+- `git diff --check`
+- `make verify` when docs or checked paths justify the broader repo check
+- `git status --short`
+
 ## Package 2 runbook — DuckDB warehouse
 
 When working on Package 2, agents must preserve the following boundaries.

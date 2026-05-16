@@ -1,270 +1,192 @@
 # product-growth
 
-`product-growth` is a public, local-first portfolio project for a production
-style SaaS account health system. The intended system converts synthetic B2B
-SaaS account, usage, billing, support, renewal, and CRM activity into churn
-risk scores, expansion propensity scores, account health bands, recommended GTM
-actions, model metrics, local score observability summaries, and RevOps-facing
-output tables.
+`product-growth` is a public, local-first portfolio project that shows how
+commercial machine learning becomes part of a GTM operating process, not just a
+set of model scores. Using synthetic B2B SaaS data only, the repo builds a
+reproducible batch workflow from source contracts through churn-risk and
+expansion-propensity modeling, local batch scoring, score observability, and a
+deterministic RevOps-facing policy table.
 
-The project is designed to show how a Commercial Data Scientist or Growth Data
-Scientist would turn model outputs into an operating process for Sales, Customer
-Success, Growth, and RevOps. It is not a Kaggle-style modeling exercise and it
-is not a hosted product. The core deliverable is a reproducible local batch ML
-workflow whose outputs can be inspected, evaluated, and used to drive GTM
-prioritization.
+In one sentence: this project demonstrates how a Commercial Data Scientist or
+Growth Data Scientist can turn account-level predictions into inspectable,
+auditable operating outputs for Sales, Customer Success, Growth, and RevOps
+without pretending that synthetic data proves real commercial impact.
 
-## Why It Exists
+The commercial problem is ordinary but important: when GTM capacity is limited,
+teams need a defensible way to decide which accounts need retention attention,
+which are expansion-ready, and which outputs need review before anyone acts on
+them.
 
-AI-native B2B SaaS teams need to decide where limited GTM capacity should go:
-which accounts deserve save motions, which are ready for expansion, which need
-CS intervention, and which recommendations should be suppressed because the
-evidence is weak. A score by itself does not answer those questions. This
-project treats scoring as one layer inside a broader decision system with
-contracts, baselines, evaluation, observability, and deterministic policy
-rules.
+## The First 60 Seconds
 
-## Users Served
+This repo is meant to answer four questions quickly:
 
-- Sales: prioritize expansion conversations and commercial follow-up.
-- Customer Success: identify accounts needing proactive retention work.
-- Growth: understand adoption patterns that create expansion readiness.
-- RevOps: convert scores into reliable tables, segments, thresholds, and action
-  queues.
-- Data teams: demonstrate reproducible, public-safe ML engineering practices.
+1. **What does it do?** It converts synthetic SaaS source data into point-in-time
+   account-month features, independent churn and expansion models, scored local
+   populations, observability summaries, and deterministic GTM recommendations.
+2. **Why does that matter?** A score alone is not an operating system. The repo
+   shows the extra layers needed before GTM teams can review scarce-capacity
+   retention and expansion queues responsibly: contracts, baselines, evaluation,
+   promotion evidence, score checks, and policy rules.
+3. **What should I run?** Use the end-to-end local demo path below, or follow the
+   fuller walkthrough in `docs/demo_walkthrough.md`.
+4. **What should I inspect?** Start with `mart.account_month_gtm_policy`, then
+   trace backward through raw scores, observability summaries, champion
+   selection, and audit tables.
 
-## Planned Outputs
+## What The System Does
 
-- `churn_risk_score`: probability-like score for near-term churn risk.
-- `expansion_propensity_score`: probability-like score for near-term expansion.
-- `account_health_band`: deterministic policy output such as healthy, watch,
-  or at-risk.
-- `recommended_gtm_action`: deterministic action recommendation for GTM teams.
-- Model, baseline, calibration, segment, fixed-holdout, and temporal robustness
-  metrics.
-- Local batch scoring observability summaries for scored synthetic
-  populations.
-- RevOps-readable account score and recommendation tables.
-
-## GTM Operating System
-
-The operating thesis is that model outputs should become part of a commercial
-workflow, not sit in isolation. The project separates:
-
-- Source data contracts and account-month feature construction.
-- Independent churn and expansion modeling.
-- Credible rule baselines before ML.
-- Layered evaluation using capacity, fixed holdouts, holdout-month robustness,
-  economic utility, calibration, and segment robustness.
-- Champion selection based on operating metrics, not ROC AUC alone.
-- Deterministic policy rules that map scores into health bands and GTM actions.
-- Batch outputs and score observability summaries that RevOps could review.
-
-Health bands and recommended actions are policy-layer outputs. They are not
-trained as standalone targets.
-
-## Intended Architecture
-
-The target architecture is local and batch oriented:
+The workflow is intentionally local and batch-oriented:
 
 ```text
 synthetic SaaS sources
-  -> DuckDB analytical warehouse
-  -> account-month feature table
-  -> churn and expansion labels
-  -> rule baselines
-  -> candidate ML models
-  -> layered evaluation
-  -> MLflow champion registry
-  -> batch scoring
+  -> DuckDB warehouse
+  -> account-month features and labels
+  -> commercial rule baselines
+  -> candidate churn and expansion models
+  -> layered evaluation and champion selection
+  -> local MLflow registry promotion
+  -> raw batch scores
   -> score observability summaries
-  -> deterministic policy layer
-  -> RevOps-facing output tables
+  -> deterministic GTM policy layer
+  -> RevOps-facing account recommendations
 ```
 
-Implementation uses the Python package `src/account_health`. Package 2 adds the
-local DuckDB raw/source warehouse. Package 3 adds the point-in-time
-`mart.account_month` table with renewal-based labels and MVP feature families.
-Package 4 adds deterministic rule baselines. Package 5 introduces candidate
-model training with scikit-learn and local MLflow tracking. Package 6 adds
-local layered evaluation and target-specific champion selection. Package 7
-defines local MLflow registry promotion for eligible Package 6-selected ML
-champions.
+The final RevOps-facing output is `mart.account_month_gtm_policy`. It keeps the
+raw churn and expansion scores separate, then maps them through the fixed
+illustrative `gtm_policy_v1` contract into:
 
-## Evaluation Philosophy
+- `health_band`
+- `lifecycle_motion`
+- `recommended_action`
+- `action_priority`
+- `action_reason_code`
 
-The project will use fixed time splits and holdout-month robustness checks
-instead of random splits. Full rolling retraining backtests are outside the
-Package 6 MVP unless actual rolling retraining is implemented later. Churn and
-expansion will be modeled independently with global models, then evaluated
-across segments. Evaluation will emphasize GTM operating questions:
+Those are deterministic policy outputs for a synthetic workflow. They are not
+trained targets, customer truth, or validated real-world commercial actions.
 
-- Does ML beat credible commercial rule baselines?
-- Which accounts should fit within limited weekly CS or Sales capacity?
-- How stable are metrics month over month?
-- Are scores calibrated enough to support thresholding?
-- Do important segments receive robust performance?
-- How sensitive is utility to different churn-save and expansion-value
-  assumptions?
+## Local Demo Path
 
-ROC AUC can be reported, but it will not be the sole champion selection metric.
+First-time setup:
 
-## Public Repo Safety
+```bash
+make setup
+```
 
-This repository is public-safe by design.
-
-- Synthetic data only.
-- No production customer records, secrets, private paths, or local credentials.
-- No generated datasets, DuckDB files, MLflow runs, model artefacts, notebooks,
-  reports, or dashboards committed by default.
-- Local-only agent controls use ignored files; committed templates use the
-  `.example` suffix.
-- Cloud deployment, hosted APIs, Vercel, and production integrations are out of
-  scope.
-
-Run `make public-safety-check` before committing.
-
-## Package Roadmap
-
-- Package -1: public repo boundary, agent harness, safety rules, and package
-  plan. Complete.
-- Package 0: repo skeleton, public narrative, initial docs, and package smoke
-  test. Complete.
-- Package 1: deterministic synthetic SaaS source data generator. Complete.
-- Package 2: DuckDB warehouse and table contracts. Complete.
-- Package 3: account-month features and labels. Complete.
-- Package 4: commercial rule baseline benchmark artefacts. Complete.
-- Package 5: candidate model training with MLflow. Complete.
-- Package 6: layered evaluation and champion selection. Complete.
-- Package 7: local MLflow registry and model promotion. Complete.
-- Package 8: local batch scoring deployment. Complete.
-- Package 9: local batch scoring observability. Complete.
-- Package 10: deterministic GTM policy layer with minimal public-safe examples.
-  Complete.
-- Package 11: final public polish and closeout.
-
-## Current Status
-
-Package -1, Package 0, Package 1, Package 2, Package 3, Package 4, Package 5,
-Package 6, Package 7, Package 8, Package 9, and Package 10 are complete.
-Package 1 adds deterministic synthetic source-table generation and a local
-CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
-minimal load audit, and source-table contract validation. Package 3 adds
-`mart.account_month`, renewal-based `churn_90d` and `expansion_90d` labels,
-point-in-time MVP features, leakage tests, and local feature build audit.
-Package 4 adds `mart.account_month_baselines`, deterministic churn and
-expansion rule baseline scores, component columns, rank and decile helpers, a
-local rebuild command, and minimal baseline build audit. Package 5 adds
-candidate churn and expansion model training with logistic regression and
-random forest pipelines, fixed temporal splits, simple validation metrics, and
-local MLflow run logging. Package 6 adds fixed-holdout evaluation, top-K
-operating metrics, baseline comparison, ML-only calibration checks, segment and
-holdout-month robustness slices, illustrative utility sensitivity, local
-evaluation tables, and a generated champion selection manifest. Package 7 adds
-local MLflow registry promotion for eligible Package 6-selected ML champions,
-target-specific registered model names, the `champion` alias, model-version
-lineage tags, a local promotion manifest, and minimal promotion audit metadata.
-Package 8 adds raw local account-month batch scoring from promoted champions,
-score output tables, append-only scoring audit metadata, and optional ignored
-local raw exports. Package 9 adds local score observability summaries,
-target-specific score distributions, safe segment summaries, observed scoring
-lineage, prior-scored-month comparisons, and append-only observability audit
-metadata. Package 10 adds deterministic local GTM policy outputs in
-`mart.account_month_gtm_policy`, append-only `metadata.gtm_policy_audit`,
-explicit scoring-month/latest selection, and optional ignored local GTM policy
-exports. There are still no dashboards, notebooks, cloud deployment, or
-committed generated outputs.
-
-## Synthetic Source Data
-
-Generate ignored local CSVs with:
+Then run the intended end-to-end local workflow:
 
 ```bash
 make generate-synthetic-data
-```
-
-The default run writes `accounts`, `users`, `usage_events`, `subscriptions`,
-`invoices`, `support_tickets`, `crm_touchpoints`, and `renewals` CSVs under
-`data/generated/`. See `docs/synthetic_data.md` and `docs/data_contract.md` for
-Package 1 details.
-
-Load ignored local CSVs into the ignored local DuckDB warehouse with:
-
-```bash
 make load-warehouse
-```
-
-The default warehouse path is `data/warehouse/account_health.duckdb`. See
-`docs/warehouse.md` for the Package 2 warehouse contract.
-
-Build the ignored local account-month modelling table with:
-
-```bash
 make build-account-month
-```
-
-The build creates or replaces `mart.account_month` and appends a local audit row
-to `metadata.feature_build_audit`.
-
-Build the ignored local rule baseline benchmark table with:
-
-```bash
 make build-rule-baselines
-```
-
-The build creates or replaces `mart.account_month_baselines` from
-`mart.account_month` and appends a local audit row to
-`metadata.baseline_build_audit`.
-
-Train ignored local candidate model runs with:
-
-```bash
 make train-candidate-models
-```
-
-The training workflow reads `mart.account_month`, trains churn and expansion
-candidate models, and logs local MLflow runs and model artefacts under ignored
-tracking/artifact paths. It does not require Package 4 baselines and does not
-write scoring output tables.
-
-Evaluate ignored local Package 5 candidate runs against Package 4 rule
-baselines with:
-
-```bash
 make evaluate-candidate-models
+make promote-model-registry
+make score-account-month BATCH_SCORING_LATEST=1
+make monitor-account-scores-latest
+make build-gtm-policy-latest
 ```
 
-The evaluation workflow reads existing local MLflow runs and model artefacts,
-scores only the fixed Package 5 holdout, writes ignored local files under
-`data/outputs/model_evaluation/`, and creates local evaluation summary tables
-in DuckDB. It does not retrain missing candidates, use the MLflow registry,
-promote models, deploy models, create production scoring outputs, create health
-bands, or recommend GTM actions.
+The `latest` commands are still explicit selectors; they do not silently score
+or action all history. If you want a fixed review month instead, use
+`SCORING_MONTH=YYYY-MM-01` on the scoring, monitoring, and policy commands.
 
-Package 7 uses the Package 6 champion-selection manifest to promote eligible
-ML champions into the local MLflow registry. The registry contract is documented
-in `docs/model_registry.md`. Package 7 uses target-specific registered model
-names and a `champion` alias for future Package 8 local batch scoring
-consumption; it does not score accounts, deploy models, create health bands, or
-recommend GTM actions.
+For a guided version of the same path, including inspection SQL and common local
+failure modes, see `docs/demo_walkthrough.md`.
 
-Promote eligible local champions with:
+## What To Inspect
+
+| Layer | Main local table | What it shows |
+| --- | --- | --- |
+| Features | `mart.account_month` | Point-in-time account-month modeling rows. |
+| Baselines | `mart.account_month_baselines` | Auditable commercial benchmark scores. |
+| Evaluation | `mart.model_champion_selection` | Why a target-specific champion was or was not selected. |
+| Raw scoring | `mart.account_month_scores` | Churn and expansion scores for one explicit local scoring month. |
+| Observability | `mart.score_observability_summary` | Whether the scored population and raw scores look structurally valid. |
+| Final policy | `mart.account_month_gtm_policy` | The RevOps-facing policy view built from separate raw scores. |
+
+If you only inspect one output, inspect `mart.account_month_gtm_policy`. If you
+want to understand whether that table deserves trust, inspect the audit and
+handoff tables behind it as well:
+
+- `metadata.model_promotion_audit`
+- `metadata.batch_scoring_audit`
+- `metadata.score_observability_audit`
+- `metadata.gtm_policy_audit`
+
+## What Each Package Contributes
+
+| Package | Contribution to the operating system |
+| --- | --- |
+| 0 | Repo skeleton and public narrative. |
+| 1 | Deterministic synthetic SaaS source data. |
+| 2 | DuckDB warehouse and source contract validation. |
+| 3 | Point-in-time account-month features and renewal-based labels. |
+| 4 | Rule baselines as credible commercial benchmarks. |
+| 5 | Candidate churn and expansion model training with local MLflow runs. |
+| 6 | Layered evaluation and target-specific champion selection. |
+| 7 | Local MLflow registry promotion evidence for eligible champions. |
+| 8 | Raw local batch scoring for explicit account-month populations. |
+| 9 | Local score observability summaries before GTM use. |
+| 10 | Deterministic `gtm_policy_v1` outputs for RevOps review. |
+| 11 | Final public walkthrough, repo clarity, and closeout only. |
+
+## What This Demonstrates
+
+The project is designed to show practical portfolio skills across the full
+commercial-ML lifecycle:
+
+- source contracts and public-safe synthetic data design
+- DuckDB-based local warehousing
+- point-in-time feature engineering and leakage discipline
+- baseline-versus-ML evaluation rather than metric theater
+- local MLflow tracking, promotion evidence, and registry handoff
+- explicit batch scoring, audit trails, and rerun semantics
+- score observability without overclaiming production monitoring
+- deterministic policy design that turns scores into GTM review queues
+- repo hygiene, package discipline, and reproducible local workflows
+
+## Public Safety And Honest Limits
+
+This repository is public-safe by design:
+
+- synthetic data only
+- no production customer records, secrets, or private paths
+- no generated CSVs, DuckDB files, MLflow runs, local outputs, or live agent
+  controls committed
+- no claims of real commercial validation from synthetic outcomes
+
+This repo intentionally does **not** add dashboards, apps, hosted APIs, cloud
+deployment, CRM integration, campaign execution, retraining loops, learned GTM
+policy, or screenshots pretending to be a production product. The project stops
+at a local, inspectable portfolio system because that is the honest boundary of
+what the synthetic workflow can support.
+
+Run before committing:
 
 ```bash
-make promote-model-registry
+make public-safety-check
 ```
 
-The promotion workflow reads the ignored Package 6 manifest, validates the
-referenced Package 5 MLflow run and model artefact, writes local MLflow
-registry metadata, writes
-`data/outputs/model_registry/promotion_manifest.json`, and appends
-`metadata.model_promotion_audit` in the local DuckDB warehouse. These are local
-artefacts and must not be committed.
+## Project Status
+
+Packages 0 through 10 are complete. Package 10 is committed and provides the
+final deterministic GTM policy layer. Package 11 is the final docs-only public
+polish and closeout pass; it must not reopen modeling, scoring, observability,
+or GTM-policy implementation.
+
+Useful closing docs:
+
+- `docs/demo_walkthrough.md` — runnable local reviewer path and inspection SQL
+- `docs/project_closeout.md` — final review checklist and repo-closeout stance
+- `docs/packages.md` — package-by-package scope and boundaries
+- `docs/runbook.md` — local execution commands
+- `docs/gtm_policy.md` — locked Package 10 policy contract
 
 ## Local Checks
 
 ```bash
-make setup
 make public-safety-check
 make test
 make verify

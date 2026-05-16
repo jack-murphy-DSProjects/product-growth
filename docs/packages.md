@@ -1334,16 +1334,70 @@ Exit gate:
 ## Package 11: Final public polish and closeout
 
 Goal:
-Improve final public presentation after the deterministic policy layer exists.
+Make the finished public repository easy to understand, run, inspect, and
+evaluate as a portfolio asset after the deterministic GTM policy layer exists.
 
-Likely scope:
+Status:
+Docs-only final package. No new product behavior is planned.
 
-- final README polish
-- screenshots or other public-safe visual examples if approved
-- portfolio storytelling and closeout
-- dashboard-like examples if explicitly approved
-- broader public example-output polish
-- final repository review
+Package 11 owns:
+
+- final README landing-page clarity
+- a runnable public demo walkthrough
+- package-flow explanation for portfolio reviewers
+- guidance for inspecting final local outputs
+- public-safety and synthetic-data honesty framing
+- final repo closeout guidance and checklist
+- optional refresh of committed `.agent/*.example` templates for Package 11
+
+Package 11 may create:
+
+- `docs/demo_walkthrough.md`
+- `docs/project_closeout.md`
+
+Package 11 may update:
+
+- `README.md`
+- `docs/packages.md`
+- `docs/runbook.md`
+- `docs/decisions.md`
+- committed `.agent/*.example` templates when useful for closeout alignment
+
+Package 11 is docs-only. It must not:
+
+- add model training, retraining, re-evaluation, champion selection, promotion,
+  rescoring, or new model logic
+- add new observability logic
+- change `gtm_policy_v1`
+- add new health-band or action-policy logic
+- add dashboards, Streamlit, frontend work, hosted APIs, cloud deployment, CRM
+  integration, campaign execution, or screenshots pretending to be a real
+  production UI
+- use real customer data
+- commit generated artefacts
+- claim real commercial validation from synthetic data
+
+Acceptance criteria:
+
+- The README communicates the project thesis, workflow, demo path, inspection
+  entry points, demonstrated skills, and intentional non-goals in a fast first
+  pass.
+- A demo walkthrough explains prerequisites, command path, expected generated
+  local artefacts, final output tables, safe SQL inspection, Package 10 policy
+  interpretation, public-safety stance, synthetic-data limitations, and common
+  local troubleshooting.
+- A closeout document records the final repo story, checklist, uncommitted local
+  artefacts, and stop conditions before public completion.
+- `docs/packages.md`, `docs/runbook.md`, and `docs/decisions.md` agree that
+  Package 11 is public presentation and closeout only.
+- Package 10's locked v1 policy contract is preserved unchanged.
+- No generated/local/private artefacts are tracked.
+- `make public-safety-check`, `git diff --check`, and `git status --short` are
+  run and reported.
+
+Package 11 should remain implementation-light only in the sense that it may
+refresh committed documentation templates. It should otherwise be a docs-only
+closeout package.
 
 Package 11 must not silently change the Package 10 v1 policy contract. Any
 change to the locked policy matrix, thresholds, taxonomy, or boundary semantics

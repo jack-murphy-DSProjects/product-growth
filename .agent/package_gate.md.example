@@ -9,80 +9,48 @@ condition.
 
 ## Package
 
-Package 10 - Deterministic GTM policy layer
+Package 11 - Final public polish and closeout
 
 ## Active unit
 
-Set this manually for one approved Package 10 unit:
-
-1. Package 10A - Docs-first deterministic GTM policy contract
-2. Package 10B - Input validation and policy matrix helpers
-3. Package 10C - Policy table build and safe context join
-4. Package 10D - Audit, idempotence, and optional observability context
-5. Package 10E - CLI, Make targets, local export, and docs closeout
+Package 11A - Docs-only public polish and closeout
 
 ## Package-level exit gate
 
-Package 10 is complete only when:
+Package 11 is complete only when:
 
-- `docs/gtm_policy.md` remains the source of truth.
-- `gtm_policy_v1` is implemented exactly as documented.
-- `mart.account_month_gtm_policy` exists at one row per `account_id` x
-  `scoring_month`.
-- Raw churn and expansion scores remain separate preserved columns.
-- High churn risk dominates expansion actioning.
-- High churn plus high expansion resolves to save-first behaviour.
-- Invalid scores fail before assignment.
-- Every valid score row maps to exactly one policy row.
-- `metadata.gtm_policy_audit` is append-only.
-- Reruns replace policy rows only for the selected scoring month.
-- Optional Package 9 observability context, if used, is recorded honestly
-  without changing the deterministic matrix.
-- Local exports remain generated ignored artefacts.
-- Package 10 does not add labels, learned policy, dashboards, APIs, cloud
-  services, CRM execution, broad final polish, or commercial-validation claims.
-- `make verify` passes.
-- `git diff --check` passes.
-- Public repo safety check passes.
+- Package 10 is already committed.
+- The README gives a clear first-pass portfolio narrative.
+- `docs/demo_walkthrough.md` explains the local command path, expected ignored
+  artefacts, key tables, safe SQL inspection, Package 10 interpretation,
+  troubleshooting, and synthetic-data honesty.
+- `docs/project_closeout.md` records the final boundary, checklist, local
+  artefacts that remain uncommitted, and stop conditions.
+- `docs/packages.md`, `docs/runbook.md`, and `docs/decisions.md` align on the
+  docs-only Package 11 scope.
+- `docs/gtm_policy.md` remains unchanged as the Package 10 source of truth.
+- No code, tests, Make targets, generated outputs, DuckDB tables, model logic,
+  scoring logic, observability logic, or new GTM policy logic are added.
 - No generated outputs, DuckDB files, MLflow runs, cache folders, live `.agent`
   files, private files, or local-only artefacts are tracked.
-
-## Package 10A exit gate
-
-Package 10A is complete only when:
-
-- `docs/gtm_policy.md` defines the deterministic v1 contract, exact matrix,
-  taxonomy, conflict handling, boundaries, audit/idempotence, CLI/Make contract,
-  tests, review checklist, and deferred Package 11 items.
-- `docs/packages.md`, `docs/runbook.md`, `docs/decisions.md`, and `README.md`
-  align with the narrowed Package 10 scope.
-- Committed `.agent/*.example` templates reference Package 10 and the approved
-  10A-10E unit structure.
-- No code, scripts, tests, Make targets, generated outputs, DuckDB tables, or
-  exports are added.
-- Live local `.agent/*.md` files remain ignored and untracked.
 - `make public-safety-check` passes.
 - `git diff --check` passes.
+- `git status --short` is reviewed.
 
 ## Stop conditions
 
 Stop before making any change that would:
 
+- Start Package 11 while Package 10 is uncommitted.
 - Change the locked `gtm_policy_v1` matrix, thresholds, exact strings, or
   boundary rules without an explicit durable-doc decision/update.
-- Mutate Package 8 raw score rows or scoring audit evidence.
-- Mutate Package 9 observability outputs.
-- Use labels or future outcomes.
+- Add new code or product behavior instead of docs-only closeout work.
 - Use real customer or company data.
-- Add learned policy, optimization, reinforcement learning, or automatic
-  actioning.
 - Add dashboards, APIs, cloud deployment, CRM integration, campaign execution,
-  email automation, or playbook engines.
+  or screenshots pretending to be a real production UI.
 - Claim real-world commercial validation from synthetic outputs.
-- Add broad final-polish work that belongs to Package 11.
 - Weaken public-repo security.
 - Commit generated artefacts.
 - Commit live local `.agent/*.md` files.
 - Add unapproved production dependencies.
-- Remove or weaken tests.
-- Expand Package 10 beyond the approved 10A-10E slices.
+- Expand Package 11 beyond public documentation and closeout.

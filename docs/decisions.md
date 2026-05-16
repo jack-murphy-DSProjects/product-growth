@@ -568,3 +568,78 @@ Package 10 must not mutate:
 
 This keeps raw prediction evidence, observability evidence, and policy outputs
 auditable as distinct layers.
+
+## Package 11 decisions
+
+### Decision: Package 11 is docs-only public polish and closeout
+
+Status:
+Accepted for Package 11.
+
+Context:
+
+- Packages 0 through 10 already provide the finished local operating workflow.
+- The remaining gap is reviewer experience: fast orientation, runnable demo
+  guidance, final output inspection, public-safety framing, and repo closeout.
+- Adding another product layer would blur the portfolio boundary and reopen
+  scopes that earlier packages intentionally closed.
+
+Decision:
+
+- Package 11 owns public documentation, walkthroughs, and closeout only.
+- Package 11 must not add dashboards, apps, APIs, cloud deployment, CRM
+  integration, campaign execution, new model logic, new scoring logic, new
+  observability logic, or new GTM policy logic.
+- Package 11 may refresh committed `.agent/*.example` templates so public
+  workflow examples no longer describe Package 10 as the active package.
+
+Consequences:
+
+- The repo can become easier to review without pretending to become a new
+  product.
+- Public-facing claims stay aligned with what synthetic data can honestly
+  demonstrate.
+- Future changes to behavior remain explicit future work rather than hidden
+  inside a polish pass.
+
+### Decision: Package 11 keeps separate walkthrough and closeout docs
+
+Status:
+Accepted for Package 11.
+
+Decision:
+
+- `docs/demo_walkthrough.md` is the runnable reviewer guide.
+- `docs/project_closeout.md` is the maintainer-facing final review and boundary
+  checklist.
+
+Consequences:
+
+- Reviewers get a short, practical path to running and inspecting the repo.
+- The final public-safety, artefact, and scope decisions stay visible without
+  overloading the walkthrough.
+
+### Decision: The simplest public demo path is local, explicit, and end-to-end
+
+Status:
+Accepted for Package 11.
+
+Decision:
+
+- The public demo path should run the completed local workflow in package order
+  and end on `mart.account_month_gtm_policy` when Package 6 produced eligible
+  ML champions for Package 7 promotion.
+- If Package 6 honestly retains a baseline or withholds an ML champion, the
+  public demo should stop at `mart.model_champion_selection` rather than force
+  later promotion, scoring, or policy steps.
+- The default reviewer-friendly path may use explicit `latest` selectors for
+  scoring, observability, and policy generation; fixed-month examples should
+  remain available for reviewers who want exact replay.
+- Final GTM usefulness should be shown through inspectable local tables and safe
+  SQL queries, not through fake UI screenshots or claims of real commercial
+  truth.
+
+Consequences:
+
+- The demo is honest, reproducible, and easy to follow.
+- The repo shows operational usefulness without overstating synthetic results.

@@ -5,42 +5,45 @@ is ignored and must not be committed.
 
 ## Operating mode
 
-Work in bounded Package 10 units.
+Work in the bounded Package 11 docs-only closeout pass.
 
 Do not work generally on the repo.
 
-Do not skip ahead.
+Do not reopen product implementation.
 
-Do not combine unrelated units.
+Do not combine closeout work with future feature ideas.
 
-## Package 10 scope sentence
+## Package 11 scope sentence
 
-Package 10 builds deterministic, auditable GTM policy outputs from Package 8 raw
-scores only; it does not train or retrain models, re-evaluate candidates,
-promote models, rescore accounts, mutate Package 8/9 outputs, use labels or
-future outcomes, learn policy, add dashboards, APIs, cloud deployment, CRM
-integration, campaign execution, automation engines, real data, or broad final
-repo polish.
+Package 11 improves the public README, walkthrough, package-flow explanation,
+output-inspection guidance, public-safety framing, and final closeout only; it
+does not add dashboards, apps, APIs, cloud deployment, CRM integration,
+campaign execution, new model logic, new scoring logic, new observability logic,
+new GTM policy logic, real data, or generated artefacts.
 
-`docs/gtm_policy.md` is the binding source of truth. The locked initial policy
-version is `gtm_policy_v1`.
+Primary Package 11 sources of truth:
 
-Package 10A is documentation and contract alignment only. It does not add code,
-scripts, tests, Make targets, DuckDB tables, generated outputs, or exports.
+- `README.md`
+- `docs/demo_walkthrough.md`
+- `docs/project_closeout.md`
+- `docs/packages.md`
+- `docs/decisions.md`
+
+`docs/gtm_policy.md` remains the binding Package 10 source of truth and must not
+change during Package 11.
 
 ## Pre-run harness check
 
 Before changing files:
 
 1. Read `AGENTS.md`.
-2. Read `docs/gtm_policy.md` and the relevant committed docs for the active
-   Package 10 unit.
+2. Read the committed Package 11 docs and `docs/gtm_policy.md`.
 3. Read `.agent/current_execution_context.md`, `.agent/package_gate.md`, and
    `.agent/agent_runbook.md` when they exist locally.
 4. Confirm all live `.agent/*.md` files name the same active package and unit.
 5. Confirm the live files do not stale-reference an older package as active.
 6. If a live file names the wrong active package, stop and refresh the local
-   harness before implementation.
+   harness before editing.
 
 Large prompts can activate a run, but they do not replace the committed docs and
 live local harness context.
@@ -51,58 +54,53 @@ Before changing files:
 
 1. Restate the active package.
 2. Restate the active unit.
-3. Restate that `docs/gtm_policy.md` is authoritative.
-4. Restate the locked `gtm_policy_v1` matrix and the high-churn-dominates rule.
+3. Restate that Package 11 is docs-only closeout work.
+4. Restate that Package 10's locked `gtm_policy_v1` contract must remain
+   unchanged.
 5. Run `git status --short`.
-6. Inspect relevant docs, tests, and source files.
+6. Inspect relevant docs.
 7. Identify intended files to change.
-8. Confirm intended files are within Package 10 scope.
-9. Identify tests or checks to add or update.
-10. Identify stop-condition risk.
+8. Confirm intended files are within Package 11 scope.
+9. Identify stop-condition risk.
 
 ## During each unit
 
 While changing files:
 
 1. Keep changes narrow.
-2. Prefer boring, explicit implementation.
-3. Add focused tests with behavior changes.
-4. Avoid clever abstractions.
-5. Do not add unapproved dependencies.
-6. Do not create generated files outside ignored local paths unless explicitly
+2. Prefer boring, explicit edits.
+3. Avoid clever scope expansion.
+4. Do not add unapproved dependencies.
+5. Do not create generated files outside ignored local paths unless explicitly
    needed for a local manual check.
-7. Do not commit generated files.
-8. Do not weaken safety checks.
-9. Do not remove existing tests.
-10. Do not mutate Package 8 or Package 9 outputs.
-11. Do not use labels, future outcomes, or `synthetic_archetype`.
-12. Do not silently change `gtm_policy_v1` thresholds, strings, or boundary
-    behaviour.
-13. Do not create dashboards, APIs, cloud deployment, CRM execution, campaign
-    automation, learned policy, or broad final-polish work in Package 10.
-14. Do not modify live local `.agent/*.md` controls except when the active
+6. Do not commit generated files.
+7. Do not weaken safety checks.
+8. Do not silently change `gtm_policy_v1` thresholds, strings, or boundary
+   behaviour.
+9. Do not create dashboards, APIs, cloud deployment, CRM execution, campaign
+   automation, new model logic, new scoring logic, new observability logic, or
+   new GTM policy logic.
+10. Do not modify live local `.agent/*.md` controls except when the active
     package harness is being intentionally refreshed.
 
 ## After each unit
 
 Before summarising:
 
-1. Run focused tests for implementation units.
-2. Run `make verify` for implementation units where practical.
-3. Run `make public-safety-check`.
-4. Run `git diff --check`.
-5. Run `git status --short`.
-6. Confirm no generated/local/private artefacts are tracked.
-7. Confirm the unit exit gate is satisfied.
-8. Summarise files changed.
-9. Summarise tests added or updated.
-10. Summarise commands run.
-11. Summarise security checks.
-12. Summarise scope checks.
-13. List any risks or review points.
+1. Run `make public-safety-check`.
+2. Run `git diff --check`.
+3. Run `make verify` when docs or checked paths justify the broader repo check.
+4. Run `git status --short`.
+5. Confirm no generated/local/private artefacts are tracked.
+6. Confirm the package exit gate is satisfied.
+7. Summarise files changed.
+8. Summarise commands run.
+9. Summarise security checks.
+10. Summarise scope checks.
+11. List any risks or review points.
 
-For docs-only Package 10A, state explicitly that implementation tests were not
-run because no behavior changed.
+State explicitly that no implementation tests were added because no behavior
+changed.
 
 ## Continuation rule
 
@@ -111,9 +109,7 @@ Continue automatically to the next unit only if:
 - the current unit gate passes
 - checks pass
 - no stop condition is hit
-- the next unit is part of the active package
-- the next unit scope is documented
-- the next unit is one of the approved Package 10 slices
+- the next step is still within Package 11 docs-only scope
 
 Stop only on:
 
@@ -123,12 +119,9 @@ Stop only on:
 - completion of the active package
 - request from the human reviewer
 
-Package 10 agents must not start Package 11 without explicit human approval.
+Package 11 agents must not invent a future Package 12 without explicit human
+approval.
 
-## Package 10 unit sequence
+## Package 11 unit sequence
 
-1. Package 10A - Docs-first deterministic GTM policy contract
-2. Package 10B - Input validation and policy matrix helpers
-3. Package 10C - Policy table build and safe context join
-4. Package 10D - Audit, idempotence, and optional observability context
-5. Package 10E - CLI, Make targets, local export, and docs closeout
+1. Package 11A - Docs-only public polish and closeout

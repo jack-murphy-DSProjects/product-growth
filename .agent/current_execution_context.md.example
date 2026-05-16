@@ -9,114 +9,68 @@ are a stop condition.
 
 ## Active package
 
-Package 10 - Deterministic GTM policy layer
+Package 11 - Final public polish and closeout
 
 ## Active goal
 
-Build deterministic, auditable GTM policy outputs from Package 8 raw scores for
-the synthetic local workflow.
+Make the finished public repo easy to understand, run, inspect, and close out as
+a portfolio asset after Package 10 is complete.
 
-Package 10 converts separate churn-risk and expansion-propensity scores into
-fixed illustrative health bands, lifecycle motions, recommended actions,
-priorities, and reason codes. It does not retrain or re-evaluate models, mutate
-Package 8/9 outputs, use labels or future outcomes, add dashboards/APIs/cloud
-services, execute campaigns, or perform broad final repo polish.
+Package 11 is docs-only final polish. It clarifies the README, demo walkthrough,
+package flow, output inspection guidance, public-safety stance, and closeout
+checklist. It does not add new product behavior.
 
-## Primary source of truth
+## Primary sources of truth
 
-- `docs/gtm_policy.md`
+- `README.md`
+- `docs/demo_walkthrough.md`
+- `docs/project_closeout.md`
+- `docs/packages.md`
+- `docs/decisions.md`
 
-Implementation must preserve the exact locked `gtm_policy_v1` matrix in that
-document.
+Package 10's locked policy contract still lives in `docs/gtm_policy.md` and
+must remain unchanged.
 
 ## Current unit
 
-Set this manually for the active Package 10 unit:
-
-1. Package 10A - Docs-first deterministic GTM policy contract
-2. Package 10B - Input validation and policy matrix helpers
-3. Package 10C - Policy table build and safe context join
-4. Package 10D - Audit, idempotence, and optional observability context
-5. Package 10E - CLI, Make targets, local export, and docs closeout
-
-After Package 10A is complete, the next implementation unit is Package 10B.
+Package 11A - Docs-only public polish and closeout
 
 ## Default warehouse path
 
 `data/warehouse/account_health.duckdb`
 
-## Required source tables
-
-- `mart.account_month_scores`
-- `mart.account_month` for approved safe descriptive context only
-
-## Optional quality/safety context
-
-- Package 9 observability evidence, if explicitly used and recorded
-
-## Planned output tables
-
-- `mart.account_month_gtm_policy`
-- `metadata.gtm_policy_audit`
-
-## Locked Package 10 contract
-
-- `policy_version = "gtm_policy_v1"`.
-- Health bands are exactly:
-  - `Critical`
-  - `At Risk`
-  - `Stable`
-  - `Growth Ready`
-- Churn thresholds are exactly:
-  - high: `churn_score >= 0.70`
-  - medium: `churn_score >= 0.40 and churn_score < 0.70`
-  - low: `churn_score < 0.40`
-- Expansion thresholds are exactly:
-  - high: `expansion_score >= 0.70`
-  - medium: `expansion_score >= 0.40 and expansion_score < 0.70`
-  - low: `expansion_score < 0.40`
-- High churn risk dominates expansion actioning.
-- High churn plus high expansion is save-first, not pure upsell.
-- Raw churn and expansion scores remain separate output columns.
-- Every valid source score row maps to exactly one policy row.
-- Reruns replace one selected scoring month in the policy mart and append audit.
-
-## Package 10 exclusions
+## Package 11 exclusions
 
 Do not add:
 
 - Model training, retraining, re-evaluation, champion selection, promotion, or
   rescoring
-- Mutation of Package 8 or Package 9 outputs
-- Labels or future outcomes
-- Learned or optimized policy rules
+- New observability logic
+- Changes to `gtm_policy_v1`
+- New health-band or action-policy logic
 - Dashboards
+- Streamlit
+- Frontend work
 - APIs
 - Cloud deployment
 - CRM integrations
 - Campaign execution
-- Email automation
-- Playbook engines
-- Reinforcement learning or optimization engines
 - Claims that synthetic-data actions are commercially validated
-- Broad final README polish, screenshots, portfolio storytelling, dashboard-like
-  examples, or final closeout work
+- Screenshots pretending to be a real production UI
 - Generated or local-only artefacts in git
 
-## Package 10 stop conditions
+## Package 11 stop conditions
 
 Stop before:
 
+- Starting Package 11 if Package 10 is not committed
 - Changing `gtm_policy_v1` thresholds, taxonomy, or boundary behaviour without
   an explicit durable-doc decision/update
-- Mutating `mart.account_month_scores`
-- Mutating Package 9 observability outputs
-- Using labels or future outcomes
+- Adding new code or product behavior rather than documentation closeout work
 - Using real customer or company data
 - Adding dashboards, APIs, cloud services, CRM integration, or campaign
   execution
 - Claiming real commercial validation from synthetic outputs
-- Adding broad final-polish work that belongs to Package 11
 - Weakening tests or public repo safety
 - Committing generated, local-only, private, or environment-specific files
 
