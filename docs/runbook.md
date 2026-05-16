@@ -372,14 +372,14 @@ Preconditions for later Package 10 implementation units:
 - Package 9 observability evidence may be consulted only as optional
   quality/safety context if the implementation chooses to use it.
 
-Likely Package 10 commands are:
+Package 10 commands are:
 
 ```bash
 python scripts/build_gtm_policy.py --scoring-month "YYYY-MM-01"
 python scripts/build_gtm_policy.py --latest
 ```
 
-Likely Make targets are:
+Package 10 Make targets are:
 
 ```bash
 make build-gtm-policy SCORING_MONTH=YYYY-MM-01

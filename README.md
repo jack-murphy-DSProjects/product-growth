@@ -140,13 +140,13 @@ Run `make public-safety-check` before committing.
 - Package 8: local batch scoring deployment. Complete.
 - Package 9: local batch scoring observability. Complete.
 - Package 10: deterministic GTM policy layer with minimal public-safe examples.
+  Complete.
 - Package 11: final public polish and closeout.
 
 ## Current Status
 
 Package -1, Package 0, Package 1, Package 2, Package 3, Package 4, Package 5,
-Package 6, Package 7, Package 8, and Package 9 are complete. Package 10 is
-documented but not yet implemented.
+Package 6, Package 7, Package 8, Package 9, and Package 10 are complete.
 Package 1 adds deterministic synthetic source-table generation and a local
 CSV-writing CLI. Package 2 adds a local DuckDB raw/source warehouse loader,
 minimal load audit, and source-table contract validation. Package 3 adds
@@ -169,10 +169,11 @@ score output tables, append-only scoring audit metadata, and optional ignored
 local raw exports. Package 9 adds local score observability summaries,
 target-specific score distributions, safe segment summaries, observed scoring
 lineage, prior-scored-month comparisons, and append-only observability audit
-metadata. Package 10's deterministic GTM policy contract is now documented in
-`docs/gtm_policy.md`, but there is currently no implemented health-band policy,
-GTM action layer, dashboards, notebooks, cloud deployment, or committed
-generated output.
+metadata. Package 10 adds deterministic local GTM policy outputs in
+`mart.account_month_gtm_policy`, append-only `metadata.gtm_policy_audit`,
+explicit scoring-month/latest selection, and optional ignored local GTM policy
+exports. There are still no dashboards, notebooks, cloud deployment, or
+committed generated outputs.
 
 ## Synthetic Source Data
 

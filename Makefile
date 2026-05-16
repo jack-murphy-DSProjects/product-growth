@@ -13,8 +13,9 @@ SCORING_MONTH ?=
 BATCH_SCORING_LATEST ?=
 BATCH_SCORING_EXPORT_DIR ?=
 SCORE_OBSERVABILITY_EXPORT_DIR ?=
+GTM_POLICY_EXPORT_DIR ?=
 
-.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models evaluate-candidate-models promote-model-registry score-account-month monitor-account-scores monitor-account-scores-latest clean-generated verify
+.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models evaluate-candidate-models promote-model-registry score-account-month monitor-account-scores monitor-account-scores-latest build-gtm-policy build-gtm-policy-latest clean-generated verify
 
 setup:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -54,6 +55,12 @@ monitor-account-scores:
 
 monitor-account-scores-latest:
 	$(PYTHON) scripts/monitor_account_scores.py --warehouse-path "$(WAREHOUSE_PATH)" $(if $(SCORING_MONTH),--scoring-month "$(SCORING_MONTH)",) --latest $(if $(SCORE_OBSERVABILITY_EXPORT_DIR),--export-dir "$(SCORE_OBSERVABILITY_EXPORT_DIR)",)
+
+build-gtm-policy:
+	$(PYTHON) scripts/build_gtm_policy.py --warehouse-path "$(WAREHOUSE_PATH)" $(if $(SCORING_MONTH),--scoring-month "$(SCORING_MONTH)",) $(if $(GTM_POLICY_EXPORT_DIR),--export-dir "$(GTM_POLICY_EXPORT_DIR)",)
+
+build-gtm-policy-latest:
+	$(PYTHON) scripts/build_gtm_policy.py --warehouse-path "$(WAREHOUSE_PATH)" $(if $(SCORING_MONTH),--scoring-month "$(SCORING_MONTH)",) --latest $(if $(GTM_POLICY_EXPORT_DIR),--export-dir "$(GTM_POLICY_EXPORT_DIR)",)
 
 clean-generated:
 	rm -rf data/generated

@@ -334,6 +334,8 @@ Rerun semantics:
 - Rerunning one `scoring_month` replaces `mart.account_month_gtm_policy` rows
   for that month.
 - `metadata.gtm_policy_audit` is append-only.
+- Failed runs should append audit evidence where safe and must not replace
+  policy rows.
 - Reruns must preserve one current policy row per `account_id` x
   `scoring_month`.
 - Package 10 must not mutate `mart.account_month_scores` or Package 9 outputs.
@@ -350,14 +352,14 @@ Audit should make it possible to answer:
 
 ## Local CLI And Make Contract
 
-Likely local CLI:
+Local CLI:
 
 ```bash
 python scripts/build_gtm_policy.py --scoring-month "YYYY-MM-01"
 python scripts/build_gtm_policy.py --latest
 ```
 
-Likely Make targets:
+Make targets:
 
 ```bash
 make build-gtm-policy SCORING_MONTH=YYYY-MM-01
@@ -372,8 +374,8 @@ Month semantics:
 - No CLI or Make target may silently infer the month when neither selector is
   provided.
 
-These commands are a documented Package 10 contract only until a later
-implementation pass adds them.
+These commands are implemented by Package 10 and preserve explicit selector
+semantics.
 
 ## Local Export Semantics
 
