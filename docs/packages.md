@@ -1246,24 +1246,52 @@ Exit gate:
 - `make public-safety-check`, `git diff --check`, and `git status --short` are
   run and reported.
 
-#### Package 10B - Input validation and policy matrix helpers
+#### Package 10B - Harness refresh for autonomous implementation
 
-Implement the Package 10 scoring-month selection, score validation, and locked
-matrix helpers only.
+Refresh the local-only live harness after the docs-first contract is complete.
+
+Exit gate:
+
+- Ignored local live harness files are aligned to Package 10.
+- `docs/gtm_policy.md` remains the binding committed contract.
+- No source code, tests, scripts, Make targets, DuckDB tables, generated
+  outputs, or exports are added.
+- Live local harness files remain ignored and untracked.
+
+#### Package 10C - Input validation, scoring-month resolution, and score population checks
+
+Implement Package 10 input validation and scored-month selection only.
 
 Exit gate:
 
 - Requires explicit scoring month or explicit latest-scored-month mode.
 - Reads Package 8 raw scores without mutating them.
-- Fails on null, non-numeric, non-finite, out-of-range, duplicate, or ambiguous
-  score rows before policy assignment.
-- Implements the exact `gtm_policy_v1` matrix, strings, and boundary rules from
-  `docs/gtm_policy.md`.
-- Focused tests pin all seven matrix rows and all threshold boundaries.
-- No table writes, exports, dashboards, APIs, cloud services, or final polish
-  are added.
+- Latest resolves from scored months present in `mart.account_month_scores`.
+- Selected scoring month is a valid month-start and has score rows.
+- Null `account_id` values and duplicate account/month score rows fail.
+- Churn and expansion scores are present, numeric, finite, non-null, and inside
+  `[0, 1]`.
+- Focused tests cover selector handling, score-population checks, and score
+  validity failures.
+- No policy matrix, final table writes, exports, dashboards, APIs, cloud
+  services, or final polish are added.
 
-#### Package 10C - Policy table build and safe context join
+#### Package 10D - Deterministic `gtm_policy_v1` matrix implementation
+
+Implement the locked deterministic v1 policy mapping only.
+
+Exit gate:
+
+- Implements the exact `gtm_policy_v1` matrix, strings, reason codes, and
+  boundary rules from `docs/gtm_policy.md`.
+- Assigns health band, lifecycle motion, recommended action, action priority,
+  and action reason code deterministically.
+- Preserves churn-dominates-expansion conflict handling.
+- Focused tests pin all seven matrix rows and all threshold boundaries.
+- No table writes, learned policy, labels, future outcomes, dashboards, APIs,
+  cloud services, or final polish are added.
+
+#### Package 10E - Safe context, lineage, and policy output table
 
 Build the RevOps-facing account-month policy output.
 
@@ -1273,14 +1301,17 @@ Exit gate:
   `scoring_month`.
 - Raw churn and expansion scores are preserved.
 - Approved safe descriptive context is joined without multiplying rows.
+- Available Package 8 scoring/model lineage fields are preserved where
+  documented.
 - Labels, future outcomes, and generator-only fields are excluded.
 - Every valid source score row maps to exactly one output policy row.
-- Focused tests cover conflict handling, row parity, safe joins, and forbidden
-  fields.
+- Focused tests cover schema, row parity, safe joins, lineage preservation, and
+  forbidden fields.
 
-#### Package 10D - Audit, idempotence, and optional observability context
+#### Package 10F - Audit, idempotence, CLI, Make targets, optional exports, and closeout
 
-Add inspectable rerun behaviour and audit evidence.
+Add inspectable rerun behaviour, the approved local execution surface, and
+close the package.
 
 Exit gate:
 
@@ -1289,14 +1320,6 @@ Exit gate:
 - Health-band, recommended-action, and priority counts are recorded.
 - Optional Package 9 observability status, when used, is recorded as
   quality/safety context without changing the deterministic matrix.
-- Focused tests cover reruns, counts, and optional observability context.
-
-#### Package 10E - CLI, Make targets, local export, and docs closeout
-
-Add the approved local execution surface and close the package.
-
-Exit gate:
-
 - `scripts/build_gtm_policy.py` exists.
 - `make build-gtm-policy SCORING_MONTH=YYYY-MM-01` exists.
 - `make build-gtm-policy-latest` exists.
