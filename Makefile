@@ -12,8 +12,9 @@ PROMOTION_TARGETS ?=
 SCORING_MONTH ?=
 BATCH_SCORING_LATEST ?=
 BATCH_SCORING_EXPORT_DIR ?=
+SCORE_OBSERVABILITY_EXPORT_DIR ?=
 
-.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models evaluate-candidate-models promote-model-registry score-account-month clean-generated verify
+.PHONY: setup test public-safety-check generate-synthetic-data load-warehouse build-account-month build-rule-baselines train-candidate-models evaluate-candidate-models promote-model-registry score-account-month monitor-account-scores monitor-account-scores-latest clean-generated verify
 
 setup:
 	$(PYTHON) -m pip install -e ".[dev]"
@@ -47,6 +48,12 @@ promote-model-registry:
 
 score-account-month:
 	$(PYTHON) scripts/score_account_month.py --warehouse-path "$(WAREHOUSE_PATH)" --promotion-manifest-path "$(PROMOTION_MANIFEST_PATH)" $(if $(SCORING_MONTH),--scoring-month "$(SCORING_MONTH)",) $(if $(BATCH_SCORING_LATEST),--latest,) $(if $(MLFLOW_TRACKING_URI),--mlflow-tracking-uri "$(MLFLOW_TRACKING_URI)",) $(if $(MLFLOW_REGISTRY_URI),--mlflow-registry-uri "$(MLFLOW_REGISTRY_URI)",) $(if $(BATCH_SCORING_EXPORT_DIR),--export-dir "$(BATCH_SCORING_EXPORT_DIR)",)
+
+monitor-account-scores:
+	$(PYTHON) scripts/monitor_account_scores.py --warehouse-path "$(WAREHOUSE_PATH)" $(if $(SCORING_MONTH),--scoring-month "$(SCORING_MONTH)",) $(if $(SCORE_OBSERVABILITY_EXPORT_DIR),--export-dir "$(SCORE_OBSERVABILITY_EXPORT_DIR)",)
+
+monitor-account-scores-latest:
+	$(PYTHON) scripts/monitor_account_scores.py --warehouse-path "$(WAREHOUSE_PATH)" $(if $(SCORING_MONTH),--scoring-month "$(SCORING_MONTH)",) --latest $(if $(SCORE_OBSERVABILITY_EXPORT_DIR),--export-dir "$(SCORE_OBSERVABILITY_EXPORT_DIR)",)
 
 clean-generated:
 	rm -rf data/generated

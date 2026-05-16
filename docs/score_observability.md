@@ -384,24 +384,24 @@ artefacts and must not contain:
 - dashboards
 - public examples unless a later package explicitly approves them
 
-## High-Level CLI And Make Contract
+## Local CLI And Make Contract
 
-Package 9 may later expose a local CLI such as:
+Package 9 exposes the local CLI:
 
 ```bash
 python scripts/monitor_account_scores.py --scoring-month "YYYY-MM-01"
 python scripts/monitor_account_scores.py --latest
 ```
 
-Suggested Make targets are:
+Approved Make targets are:
 
 ```bash
 make monitor-account-scores SCORING_MONTH=YYYY-MM-01
 make monitor-account-scores-latest
 ```
 
-These command shapes are contract-level guidance only in this docs pass. This
-document does not implement scripts or Make targets.
+Optional repo-local observability exports must stay under
+`data/outputs/score_observability/`.
 
 ## Synthetic And Local-Only Limitations
 

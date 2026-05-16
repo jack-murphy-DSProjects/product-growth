@@ -302,17 +302,18 @@ The Package 9 source of truth is:
 
 - `docs/score_observability.md`
 
-Contract-level command shapes for a later implementation are:
+The approved local Package 9 commands are:
 
 ```bash
 make monitor-account-scores SCORING_MONTH=YYYY-MM-01
 make monitor-account-scores-latest
 ```
 
-These targets are not implemented by the docs-only Package 9 contract pass.
+Optional repo-local observability exports must stay under:
 
-Package 9 local outputs, when later implemented, should remain generated local
-artefacts such as:
+- `data/outputs/score_observability/`
+
+Package 9 local outputs remain generated local artefacts such as:
 
 - `metadata.score_observability_audit`
 - `mart.score_observability_summary`
