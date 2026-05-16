@@ -1,12 +1,15 @@
 # Out Of Scope
 
-For Package -1, the following are out of scope:
+The repository intentionally stops at a local, inspectable portfolio workflow.
+It does not include:
 
-- Modelling code.
-- Synthetic data generation.
-- DuckDB loading, queries, or databases.
-- MLflow experiments, registry work, or run artefacts.
-- Dashboard, notebook, Vercel, or cloud service code.
-- Generated data, reports, metrics, models, or examples.
-- Real company, customer, user, CRM, invoice, support, subscription, or product
-  usage data.
+- dashboards, hosted apps, APIs, or cloud deployment
+- CRM integration, campaign execution, or automated customer actioning
+- retraining loops, re-evaluation loops, champion auto-promotion, or rescoring
+- learned GTM policy, optimization engines, or reinforcement learning
+- production drift claims, automated governance claims, or real-world impact
+  claims from synthetic data
+- real company, customer, user, CRM, invoice, support, subscription, or product
+  usage data
+- committed generated datasets, local databases, MLflow runs, reports, model
+  artefacts, or private local controls

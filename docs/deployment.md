@@ -1,7 +1,7 @@
 # Deployment
 
-Deployment is not implemented in Package -1.
+Hosted deployment is intentionally not implemented in this repository.
 
-This repository starts local-first. Do not add cloud services, Vercel,
-dashboards, production infrastructure, or deployment automation during Package
--1.
+The project is local-first and public-safe by design. Do not add cloud services,
+Vercel, dashboards, production infrastructure, or deployment automation unless a
+future explicitly approved scope changes that boundary.

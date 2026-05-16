@@ -171,10 +171,10 @@ make public-safety-check
 
 ## Project Status
 
-Packages 0 through 10 are complete. Package 10 is committed and provides the
-final deterministic GTM policy layer. Package 11 is the final docs-only public
-polish and closeout pass; it must not reopen modeling, scoring, observability,
-or GTM-policy implementation.
+Packages 0 through 11 are complete. Package 10 provides the final deterministic
+GTM policy layer, and Package 11 completed the docs-only public polish and
+closeout pass without reopening modeling, scoring, observability, or GTM-policy
+implementation.
 
 Useful closing docs:
 

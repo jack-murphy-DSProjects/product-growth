@@ -38,6 +38,9 @@ REQUIRED_FILES = [
 FORBIDDEN_TRACKED_PATHS = {
     ".env",
     "AGENTS.override.md",
+    ".agent/current_execution_context.md",
+    ".agent/package_gate.md",
+    ".agent/agent_runbook.md",
 }
 
 FORBIDDEN_PATH_PARTS = {
@@ -49,6 +52,15 @@ FORBIDDEN_PATH_PARTS = {
     ".ruff_cache",
     "mlruns",
 }
+
+FORBIDDEN_PATH_PREFIXES = (
+    "data/generated/",
+    "data/warehouse/",
+    "data/processed/",
+    "data/outputs/",
+    "artifacts/models/",
+    "artifacts/tmp/",
+)
 
 FORBIDDEN_SUFFIXES = (
     ".duckdb",
@@ -121,6 +133,8 @@ def check_tracked_paths(errors: list[str]) -> None:
         path_parts = set(Path(path).parts)
         if path in FORBIDDEN_TRACKED_PATHS:
             errors.append(f"forbidden tracked local-only file: {path}")
+        if path.startswith(FORBIDDEN_PATH_PREFIXES):
+            errors.append(f"forbidden generated/local path tracked: {path}")
         if path_parts & FORBIDDEN_PATH_PARTS:
             errors.append(f"forbidden generated/cache path tracked: {path}")
         if any(part.endswith(".egg-info") for part in path_parts):

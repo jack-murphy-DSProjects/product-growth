@@ -51,6 +51,13 @@ Optional Package 6 detail tables, if implementation justifies them, are:
 - `mart.model_calibration_summary`
 - `mart.model_utility_sensitivity`
 
+Later local operating layers add:
+
+- Package 8: `mart.account_month_scores`
+- Package 9: `mart.score_observability_summary`,
+  `mart.score_distribution_by_month`, `mart.score_distribution_by_segment`
+- Package 10: `mart.account_month_gtm_policy`
+
 `mart.account_month` contract:
 
 - One row per active subscribed account x calendar observation month.
@@ -156,6 +163,18 @@ Package 6 may create:
 Package 7 may create:
 
 - `metadata.model_promotion_audit`
+
+Package 8 may create:
+
+- `metadata.batch_scoring_audit`
+
+Package 9 may create:
+
+- `metadata.score_observability_audit`
+
+Package 10 may create:
+
+- `metadata.gtm_policy_audit`
 
 The load audit table records minimal information about each source table load.
 

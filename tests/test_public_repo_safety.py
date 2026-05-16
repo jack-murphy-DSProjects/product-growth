@@ -60,3 +60,35 @@ def test_public_repo_safety_flags_duckdb_wal_candidates(monkeypatch) -> None:
     assert errors == [
         "forbidden generated artefact tracked: warehouse/account_health.duckdb.wal"
     ]
+
+
+def test_public_repo_safety_flags_generated_path_candidates(monkeypatch) -> None:
+    errors: list[str] = []
+
+    monkeypatch.setattr(
+        safety,
+        "public_candidate_files",
+        lambda: ["data/generated/accounts.csv"],
+    )
+
+    safety.check_tracked_paths(errors)
+
+    assert errors == [
+        "forbidden generated/local path tracked: data/generated/accounts.csv"
+    ]
+
+
+def test_public_repo_safety_flags_live_agent_harness_candidates(monkeypatch) -> None:
+    errors: list[str] = []
+
+    monkeypatch.setattr(
+        safety,
+        "public_candidate_files",
+        lambda: [".agent/current_execution_context.md"],
+    )
+
+    safety.check_tracked_paths(errors)
+
+    assert errors == [
+        "forbidden tracked local-only file: .agent/current_execution_context.md"
+    ]

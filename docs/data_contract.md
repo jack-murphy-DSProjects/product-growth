@@ -10,7 +10,9 @@ validates source-level contracts. Package 3 creates `mart.account_month`.
 Package 4 prepares deterministic rule baseline contracts from
 `mart.account_month`. Package 6 may create local model evaluation summary
 tables. Package 7 may create minimal local model-promotion audit metadata.
-Package 8 writes raw local batch scoring outputs only.
+Package 8 writes raw local batch scoring outputs only. Package 9 writes local
+score-observability summaries, and Package 10 writes deterministic local GTM
+policy outputs without changing the upstream source contracts.
 
 ## Safety Statement
 

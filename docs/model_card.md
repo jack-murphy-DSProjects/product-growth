@@ -2,7 +2,10 @@
 
 ## Status
 
-No model has been trained yet. This file is a template for later packages.
+Packages 5 through 7 train, evaluate, and promote local synthetic-data models.
+This file remains a lightweight documentation template rather than a published
+run-specific card because local model artefacts and generated results are not
+committed to the public repository.
 
 ## Intended Use
 
