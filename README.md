@@ -61,13 +61,29 @@ for human review. These are two real synthetic rows from the successful local
 reference run for `2025-10-01`; they are examples of the workflow, not evidence
 of real commercial impact.
 
-| `account_id` | `churn_score` | `expansion_score` | `health_band` | `lifecycle_motion` | `recommended_action` | `action_reason_code` |
-| --- | ---: | ---: | --- | --- | --- | --- |
-| `acct_000046` | `0.34` | `0.44` | `Stable` | `Nurture` | `Nurture for future expansion` | `LOW_CHURN_MEDIUM_EXPANSION_NURTURE` |
-| `acct_000024` | `0.30` | `0.27` | `Stable` | `Maintain` | `Monitor in standard cadence` | `LOW_CHURN_LOW_EXPANSION_MAINTAIN` |
+| `account_id` | `churn_score` | `expansion_score` | `health_band` | `lifecycle_motion` | `recommended_action` | `action_priority` | `action_reason_code` |
+| --- | ---: | ---: | --- | --- | --- | --- | --- |
+| `acct_000046` | `0.34` | `0.44` | `Stable` | `Nurture` | `Nurture for future expansion` | `P3` | `LOW_CHURN_MEDIUM_EXPANSION_NURTURE` |
+| `acct_000024` | `0.30` | `0.27` | `Stable` | `Maintain` | `Monitor in standard cadence` | `P3` | `LOW_CHURN_LOW_EXPANSION_MAINTAIN` |
 
-The locked policy also handles conflicts explicitly: high churn risk plus high
+**Illustrative policy edge case, not a reference-run row:** if an account had a
+`0.82` churn score and a `0.88` expansion score, the locked policy would produce
+this deterministic save-first outcome:
+
+| `churn_score` | `expansion_score` | `health_band` | `lifecycle_motion` | `recommended_action` | `action_priority` | `action_reason_code` |
+| ---: | ---: | --- | --- | --- | --- | --- |
+| `0.82` | `0.88` | `Critical` | `Retention-led expansion watch` | `Executive save plan before expansion` | `P1` | `HIGH_CHURN_HIGH_EXPANSION_SAVE_FIRST` |
+
+The locked policy handles that conflict explicitly: high churn risk plus high
 expansion propensity becomes a save-first motion, not a pure expansion motion.
+The example is illustrative, but the policy principle is real inside
+`gtm_policy_v1`.
+
+In a real GTM process, thresholds would be set against available capacity and
+intervention cost; ownership, suppression, and escalation rules would be agreed
+before actioning. This table would support human review and prioritisation rather
+than replace account judgement, and any impact claim would need real outcomes or
+controlled tests rather than synthetic scores.
 
 ## What The System Does
 

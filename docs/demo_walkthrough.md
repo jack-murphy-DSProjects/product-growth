@@ -234,7 +234,8 @@ ORDER BY
 LIMIT 20;
 ```
 
-This is the GTM-usefulness proof point. The query produces an inspectable queue
+This is the clearest demonstration of the GTM-facing layer. The query produces
+an inspectable queue
 without hiding the original churn and expansion scores or claiming that the
 synthetic action is commercially validated.
 
