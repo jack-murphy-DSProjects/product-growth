@@ -12,7 +12,7 @@ surface area that is outside the portfolio goal.
 
 ## DuckDB Versus Cloud Warehouse
 
-Decision: use DuckDB in later packages as the local analytical warehouse.
+Decision: use DuckDB as the local analytical warehouse.
 
 DuckDB supports SQL-first analytical workflows without requiring cloud accounts,
 credentials, or managed infrastructure. This keeps the project public-safe and
@@ -62,7 +62,7 @@ Decision: champion selection should depend on operating metrics, not ROC AUC
 alone.
 
 ROC AUC can summarize ranking quality, but GTM teams need capacity-aware
-decisions. The project will emphasize top-K capture, fixed holdout evaluation,
+decisions. The project emphasizes top-K capture, fixed holdout evaluation,
 holdout-month robustness, baseline-versus-ML lift, economic utility
 sensitivity, calibration, and segment robustness. A model that looks strong by
 AUC but fails these checks should not be promoted.

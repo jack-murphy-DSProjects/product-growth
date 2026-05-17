@@ -70,7 +70,7 @@ Churn and expansion are not opposites. An account can be high risk and high
 potential at the same time, especially near renewal or during a complex rollout.
 Combining them into a single target would hide important GTM tradeoffs.
 
-The project will use independent churn and expansion models, then combine their
+The project uses independent churn and expansion models, then combines their
 outputs in the policy layer. This allows evaluation, calibration, thresholds,
 and recommended actions to reflect each commercial objective separately.
 
@@ -79,9 +79,9 @@ and recommended actions to reflect each commercial objective separately.
 Generic classifier metrics are useful but incomplete. Success means the system
 helps GTM teams make better operating decisions.
 
-The project will evaluate whether candidate models beat credible rule baselines,
+The project evaluates whether candidate models beat credible rule baselines,
 perform well under top-K capacity constraints, remain stable across holdout
 months inside the fixed holdout, calibrate well enough for thresholding, behave
-robustly across segments, and create positive economic utility under plausible
+robustly across segments, and compare illustrative utility under explicit
 business assumptions. Full rolling retraining backtests require actual rolling
 retraining and are outside the Package 6 MVP.

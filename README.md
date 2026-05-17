@@ -1,11 +1,16 @@
 # product-growth
 
 `product-growth` is a public, local-first portfolio project that shows how
-commercial machine learning becomes part of a GTM operating process, not just a
-set of model scores. Using synthetic B2B SaaS data only, the repo builds a
-reproducible batch workflow from source contracts through churn-risk and
-expansion-propensity modeling, local batch scoring, score observability, and a
-deterministic RevOps-facing policy table.
+commercial machine learning becomes part of a go-to-market (GTM) operating
+process, not just a set of model scores. Using synthetic B2B SaaS data only, the
+repo builds a reproducible batch workflow from source contracts through
+churn-risk and expansion-propensity modeling, local batch scoring, score
+observability, and a deterministic Revenue Operations (RevOps)-facing policy
+table.
+
+`product-growth` is the public repo name; the Python package and implemented
+workflow use `account_health` because the example is centered on account health,
+churn risk, and expansion propensity.
 
 In one sentence: this project demonstrates how a Commercial Data Scientist or
 Growth Data Scientist can turn account-level predictions into inspectable,
@@ -17,14 +22,19 @@ teams need a defensible way to decide which accounts need retention attention,
 which are expansion-ready, and which outputs need review before anyone acts on
 them.
 
+**Role fit / stack:** Commercial Data Science · Growth Data Science · GTM /
+Revenue Data Science · Decision Science | Python · DuckDB · scikit-learn ·
+MLflow | batch scoring · observability · auditability · testing ·
+reproducibility
+
 ## The First 60 Seconds
 
 This repo is meant to answer four questions quickly:
 
 1. **What does it do?** It converts synthetic SaaS source data into point-in-time
    account-month features, independent churn and expansion models, scored local
-   populations, observability summaries, and deterministic GTM recommendations.
-2. **Why does that matter?** A score alone is not an operating system. The repo
+   populations, observability summaries, and deterministic GTM policy outputs.
+2. **Why does that matter?** A score alone is not a GTM workflow. The repo
    shows the extra layers needed before GTM teams can review scarce-capacity
    retention and expansion queues responsibly: contracts, baselines, evaluation,
    promotion evidence, score checks, and policy rules.
@@ -33,6 +43,31 @@ This repo is meant to answer four questions quickly:
 4. **What should I inspect?** Start with `mart.account_month_gtm_policy`, then
    trace backward through raw scores, observability summaries, champion
    selection, and audit tables.
+
+## Review This Repo In 5 Minutes
+
+| If you are... | Start here | Then inspect |
+| --- | --- | --- |
+| a technical reviewer | `## For Technical Reviewers` below | `docs/feature_contract.md`, `docs/model_evaluation.md`, and the linked tests |
+| a Commercial / Growth Data Science hiring manager | this README + `docs/problem_framing.md` | `docs/model_card.md` and `docs/demo_walkthrough.md` |
+| a recruiter or talent sourcer | the opening summary + role-fit strip above | `## What This Demonstrates` and `docs/reference_demo_result.md` |
+| a RevOps, GTM, or commercial leader | the final-output example below | `docs/revops_playbook.md` and `docs/gtm_policy.md` |
+| an AI-assisted learner | `docs/README.md` | `docs/architecture.md` and `docs/demo_walkthrough.md` |
+
+## Final Output Example
+
+The final table keeps raw scores visible, then adds deterministic policy fields
+for human review. These are two real synthetic rows from the successful local
+reference run for `2025-10-01`; they are examples of the workflow, not evidence
+of real commercial impact.
+
+| `account_id` | `churn_score` | `expansion_score` | `health_band` | `lifecycle_motion` | `recommended_action` | `action_reason_code` |
+| --- | ---: | ---: | --- | --- | --- | --- |
+| `acct_000046` | `0.34` | `0.44` | `Stable` | `Nurture` | `Nurture for future expansion` | `LOW_CHURN_MEDIUM_EXPANSION_NURTURE` |
+| `acct_000024` | `0.30` | `0.27` | `Stable` | `Maintain` | `Monitor in standard cadence` | `LOW_CHURN_LOW_EXPANSION_MAINTAIN` |
+
+The locked policy also handles conflicts explicitly: high churn risk plus high
+expansion propensity becomes a save-first motion, not a pure expansion motion.
 
 ## What The System Does
 
@@ -49,7 +84,7 @@ synthetic SaaS sources
   -> raw batch scores
   -> score observability summaries
   -> deterministic GTM policy layer
-  -> RevOps-facing account recommendations
+  -> RevOps-facing review table
 ```
 
 The final RevOps-facing output is `mart.account_month_gtm_policy`. It keeps the
@@ -95,6 +130,14 @@ or action all history. If you want a fixed review month instead, use
 For a guided version of the same path, including inspection SQL and common local
 failure modes, see `docs/demo_walkthrough.md`.
 
+For one hand-written reference outcome from a successful local demo run, see
+`docs/reference_demo_result.md`.
+
+Recent MLflow releases may emit filesystem-backend deprecation warnings during
+local runs. That warning is expected for this local portfolio demo; the repo is
+not presenting its local MLflow storage choice as production deployment
+guidance.
+
 ## What To Inspect
 
 | Layer | Main local table | What it shows |
@@ -114,6 +157,19 @@ handoff tables behind it as well:
 - `metadata.batch_scoring_audit`
 - `metadata.score_observability_audit`
 - `metadata.gtm_policy_audit`
+
+## For Technical Reviewers
+
+| Reviewer question | Evidence to inspect |
+| --- | --- |
+| Are features point-in-time and leakage-aware? | `src/account_health/features/account_month.py`, `tests/test_account_month_builder.py`, `docs/feature_contract.md` |
+| Are modeling features explicitly governed? | `src/account_health/modeling/dataset.py`, `tests/test_modeling_dataset.py` |
+| Is evaluation temporally separated rather than randomly split? | `src/account_health/modeling/split.py`, `tests/test_modeling_split.py` |
+| Does ML have to beat a credible baseline before promotion? | `src/account_health/evaluation/selection.py`, `tests/test_model_evaluation_selection.py`, `docs/model_evaluation.md` |
+| Are scoring reruns and audit writes explicit? | `src/account_health/scoring/orchestration.py`, `tests/test_batch_scoring_outputs.py` |
+| Is score observability implemented rather than just described? | `src/account_health/observability/orchestration.py`, `tests/test_score_observability_loading.py`, `tests/test_score_observability_outputs.py`, `docs/score_observability.md` |
+| Is the GTM layer deterministic and separate from model training? | `src/account_health/gtm_policy/matrix.py`, `tests/test_gtm_policy_matrix.py`, `docs/gtm_policy.md` |
+| Are public-repo safety rules enforced? | `scripts/check_public_repo_safety.py`, `tests/test_public_repo_safety.py` |
 
 ## What Each Package Contributes
 
@@ -163,6 +219,9 @@ policy, or screenshots pretending to be a production product. The project stops
 at a local, inspectable portfolio system because that is the honest boundary of
 what the synthetic workflow can support.
 
+It is also intentionally not a Kaggle-style leaderboard project and not a fake
+SaaS product.
+
 Run before committing:
 
 ```bash
@@ -178,7 +237,10 @@ implementation.
 
 Useful closing docs:
 
+- `docs/README.md` — short docs index by visitor intent
 - `docs/demo_walkthrough.md` — runnable local reviewer path and inspection SQL
+- `docs/reference_demo_result.md` — hand-written reference outcome from one successful local demo run
+- `docs/revops_playbook.md` — short RevOps / GTM review guide for the final table
 - `docs/project_closeout.md` — final review checklist and repo-closeout stance
 - `docs/packages.md` — package-by-package scope and boundaries
 - `docs/runbook.md` — local execution commands

@@ -481,6 +481,42 @@ prioritization fields for the selected scoring month.
 Ranks and deciles are not health bands, GTM actions, recommendations,
 suppression rules, capacity policy, or business approval.
 
+## Package 9 decisions
+
+### Decision: Package 9 is local score observability, not production monitoring
+
+Package 9 inspects completed Package 8 raw score outputs inside the local
+synthetic workflow. It validates the scored population, summarizes score
+distributions and safe segment slices, records observed lineage, and compares a
+selected scored month with the nearest earlier scored month when one exists.
+
+It does not perform real production drift detection, automated governance,
+label-based performance monitoring, retraining, rescoring, or GTM actioning.
+
+### Decision: Observability reads score evidence rather than reloading models
+
+Package 9 reads:
+
+- `mart.account_month_scores`
+- `metadata.batch_scoring_audit`
+- `mart.account_month` for expected-population checks
+
+It does not use live MLflow registry calls as the loading authority and does not
+require labels or future outcomes. Package 8 owns score generation; Package 9
+observes what was actually scored.
+
+### Decision: Observability outputs stay separate from score and policy outputs
+
+Package 9 writes local generated observability artefacts such as:
+
+- `metadata.score_observability_audit`
+- `mart.score_observability_summary`
+- score-distribution summary tables
+
+Those outputs remain separate from Package 8 raw scores and Package 10 policy
+outputs so diagnostics do not silently become business thresholds or GTM
+recommendations.
+
 ## Package 10 decisions
 
 ### Decision: Package 10 is the deterministic GTM policy layer, not the final polish package
