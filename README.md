@@ -48,9 +48,9 @@ This repo is meant to answer four questions quickly:
 | If you are... | Start here | Then inspect |
 | --- | --- | --- |
 | a technical reviewer | `## For Technical Reviewers` below | `docs/feature_contract.md`, `docs/model_evaluation.md`, and the linked tests |
-| a Commercial / Growth Data Science hiring manager | this README + `docs/problem_framing.md` | `docs/model_card.md` and `docs/demo_walkthrough.md` |
-| a recruiter or talent sourcer | the opening summary + role-fit strip above | `## What This Demonstrates` and `docs/reference_demo_result.md` |
-| a RevOps, GTM, or commercial leader | the final-output example below | `docs/revops_playbook.md` and `docs/gtm_policy.md` |
+| in Commercial / Growth Data Science | this README + `docs/problem_framing.md` | `docs/model_card.md` and `docs/demo_walkthrough.md` |
+| a non-technical reviewer | the opening summary | `## What This Demonstrates` and `docs/reference_demo_result.md` |
+| a RevOps, GTM, or commercial operator | the final-output example below | `docs/revops_playbook.md` and `docs/gtm_policy.md` |
 | an AI-assisted learner | `docs/README.md` | `docs/architecture.md` and `docs/demo_walkthrough.md` |
 
 ## Final Output Example
