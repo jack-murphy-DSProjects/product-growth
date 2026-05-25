@@ -12,8 +12,7 @@ table.
 workflow use `account_health` because the example is centered on account health,
 churn risk, and expansion propensity.
 
-In one sentence: this project demonstrates how a Commercial Data Scientist or
-Growth Data Scientist can turn account-level predictions into inspectable,
+In one sentence: this project demonstrates how a Data Scientist can turn account-level predictions into inspectable,
 auditable operating outputs for Sales, Customer Success, Growth, and RevOps
 without pretending that synthetic data proves real commercial impact.
 
@@ -22,7 +21,7 @@ teams need a defensible way to decide which accounts need retention attention,
 which are expansion-ready, and which outputs need review before anyone acts on
 them.
 
-**Role fit / stack:** Commercial Data Science · Growth Data Science · GTM /
+**Stack:** Commercial Data Science · Growth Data Science · GTM /
 Revenue Data Science · Decision Science | Python · DuckDB · scikit-learn ·
 MLflow | batch scoring · observability · auditability · testing ·
 reproducibility
